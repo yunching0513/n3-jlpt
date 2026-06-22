@@ -299,13 +299,21 @@
         <div class="l3">N4の土台が不安な人へ。使役・受身・て形の助動詞・授受などを聽讀・跟讀で固める。</div>
         <div class="gobtn">▶ N4を始める</div>
       </div>
+
+      <div class="launch" style="margin-top:10px;background:linear-gradient(135deg,#1f3a34,#2c5048)" onclick="openPlayer('kaiwa',null,'all')">
+        <div class="l1">LISTENING ・ 聴解</div>
+        <div class="l2">聴解・会話 短文</div>
+        <div class="l3">N3でよく出る会話・場面の短文を音声で。聞き取り→真似して言う耳の練習に。</div>
+        <div class="gobtn">▶ 聴解を始める</div>
+      </div>
       <div class="card pad">
         <div style="font-family:var(--serif); font-weight:700; font-size:15px; margin-bottom:4px">進み具合</div>
         <div class="prow"><b>文法 81</b><span class="n" id="p-g-n">0 / 81</span></div><div class="bar"><i id="p-g"></i></div>
         <div class="prow"><b>N4 文型 30</b><span class="n" id="p-g4-n">0 / 30</span></div><div class="bar"><i id="p-g4"></i></div>
+        <div class="prow"><b>聴解 短文 24</b><span class="n" id="p-k-n">0 / 24</span></div><div class="bar"><i id="p-k"></i></div>
         <div class="prow"><b>単語 125</b><span class="n" id="p-v-n">0 / 125</span></div><div class="bar"><i id="p-v"></i></div>
         <div class="prow"><b>12日プラン</b><span class="n" id="p-p-n">0 / 12</span></div><div class="bar"><i id="p-p"></i></div>
-        <div class="prow"><b>クイズ最高</b><span class="n" id="p-q-n">— / 20</span></div><div class="bar"><i id="p-q"></i></div>
+        <div class="prow"><b>クイズ最高</b><span class="n" id="p-q-n">— / 40</span></div><div class="bar"><i id="p-q"></i></div>
       </div>
       <div class="card pad">
         <div style="font-family:var(--serif); font-weight:700; font-size:15px; margin-bottom:8px">試験の構成</div>
@@ -378,7 +386,7 @@
 
   <!-- QUIZ -->
   <section class="tab" id="t-quiz">
-    <div class="sec-h"><span class="ji">問</span><h2>模擬クイズ</h2><span class="meta">全20問</span></div>
+    <div class="sec-h"><span class="ji">問</span><h2>模擬クイズ</h2><span class="meta">全40問</span></div>
     <div id="quiz-area"></div>
   </section>
 
@@ -784,6 +792,82 @@ const N4GRAMMAR=[
    ["客","はい、ここで食べます。","好，我在這裡吃。"]]},
 ];
 
+/* 聴解・会話 短文 */
+const KAIWA=[
+ {p:"誘いを断る",m:"婉拒邀約",scene:"下班邀約",l:[
+   ["A","今夜、飲みに行かない？","今晚要不要去喝一杯？"],
+   ["B","ごめん、今日は[ちょっと用事があって]。また今度ね。","抱歉，今天剛好有點事，下次吧。"]]},
+ {p:"道を聞く",m:"問路",scene:"路上問路",l:[
+   ["A","すみません、駅はどう行けばいいですか。","不好意思，車站怎麼走？"],
+   ["B","この道をまっすぐ行って、[二つ目の信号を右]です。","這條路直走，第二個紅綠燈右轉。"]]},
+ {p:"待ち合わせ",m:"約碰面",scene:"約時間地點",l:[
+   ["A","明日、何時にどこで会う？","明天幾點在哪碰面？"],
+   ["B","じゃあ、[10時に駅の北口]でどう？","那十點在車站北口如何？"]]},
+ {p:"早退したい",m:"想早退",scene:"身體不適",l:[
+   ["A","顔色が悪いね。大丈夫？","你臉色不太好，還好嗎？"],
+   ["B","頭が痛くて…。すみません、[早退させてもらえますか]。","有點頭痛…不好意思，可以讓我早退嗎？"]]},
+ {p:"店で注文",m:"點餐",scene:"餐廳",l:[
+   ["店員","ご注文はお決まりですか。","決定好要點什麼了嗎？"],
+   ["客","[日替わり定食を一つ]お願いします。","請給我一份今日特餐。"]]},
+ {p:"遅刻の謝罪",m:"道歉遲到",scene:"碰面遲到",l:[
+   ["A","遅くなってごめん。電車が[遅れちゃって]。","抱歉來晚了，電車誤點了。"],
+   ["B","大丈夫、私も今来たところ。","沒關係，我也剛到。"]]},
+ {p:"物を借りる",m:"借東西",scene:"跟同事借筆",l:[
+   ["A","ペン、一本[貸してもらえる]？","可以借我一支筆嗎？"],
+   ["B","いいよ、はいどうぞ。","好啊，給你。"]]},
+ {p:"電話で伝言",m:"電話留言",scene:"對方不在",l:[
+   ["A","田中はただ今、席を外しております。","田中現在不在位子上。"],
+   ["B","では、[後でかけ直します]。","那我等等再打。"]]},
+ {p:"天気の話",m:"閒聊天氣",scene:"寒暄",l:[
+   ["A","今日は[ずいぶん冷えます]ね。","今天相當冷呢。"],
+   ["B","ええ、コートが必要ですね。","是啊，需要穿外套了。"]]},
+ {p:"サイズを聞く",m:"問尺寸",scene:"買衣服",l:[
+   ["客","これ、[もう少し大きいサイズ]はありますか。","這個有沒有大一點的尺寸？"],
+   ["店員","少々お待ちください。お持ちします。","請稍等，我去拿。"]]},
+ {p:"予約の変更",m:"改預約",scene:"電話改約",l:[
+   ["A","すみません、予約を[明日に変更したい]のですが。","不好意思，我想把預約改到明天。"],
+   ["B","かしこまりました。何時がよろしいですか。","好的，幾點方便呢？"]]},
+ {p:"手伝いを申し出る",m:"主動幫忙",scene:"對方拿重物",l:[
+   ["A","荷物、重そうだね。[持とうか]？","行李看起來很重，我幫你拿吧？"],
+   ["B","ありがとう、助かる。","謝謝，幫大忙了。"]]},
+ {p:"許可を求める",m:"請求許可",scene:"找位子",l:[
+   ["A","ここに[座ってもいいですか]。","我可以坐這裡嗎？"],
+   ["B","どうぞ、空いてますよ。","請坐，這裡空著。"]]},
+ {p:"お礼を言う",m:"道謝",scene:"事後道謝",l:[
+   ["A","先日は[手伝ってくれてありがとう]。","前幾天謝謝你幫忙。"],
+   ["B","いえいえ、とんでもない。","不會不會，別客氣。"]]},
+ {p:"忠告する",m:"提醒",scene:"叮嚀健康",l:[
+   ["A","風邪が流行ってるから、[気をつけてね]。","最近在流行感冒，小心點喔。"],
+   ["B","うん、ありがとう。","嗯，謝謝。"]]},
+ {p:"落とし物",m:"提醒掉東西",scene:"路上",l:[
+   ["A","あの、これ、落としましたよ。","那個，你掉了這個喔。"],
+   ["B","あっ、[どうもすみません]。ありがとうございます。","啊，真不好意思，謝謝你。"]]},
+ {p:"遅延の案内",m:"誤點廣播",scene:"車站廣播",l:[
+   ["駅員","事故の影響で、電車が[10分ほど遅れて]おります。","受事故影響，電車約誤點十分鐘。"],
+   ["客","えっ、急いでるのに。","欸，我還趕時間。"]]},
+ {p:"予定の確認",m:"確認約定",scene:"確認會議",l:[
+   ["A","明日の打ち合わせ、[10時からで間違いない]ね？","明天的會議是十點開始沒錯吧？"],
+   ["B","うん、資料は私が用意するね。","嗯，資料我來準備。"]]},
+ {p:"感想を聞く",m:"問感想",scene:"聊新店",l:[
+   ["A","新しい店、[どうだった]？","新開的店怎麼樣？"],
+   ["B","味は良かったけど、ちょっと[高かった]かな。","味道不錯，就是有點貴。"]]},
+ {p:"提案する",m:"提議休息",scene:"工作中",l:[
+   ["A","疲れたね。[少し休憩しない]？","累了呢，要不要休息一下？"],
+   ["B","いいね、コーヒーでも飲もう。","好啊，去喝杯咖啡吧。"]]},
+ {p:"場所の説明",m:"說明位置",scene:"問廁所",l:[
+   ["A","すみません、トイレはどこですか。","不好意思，廁所在哪裡？"],
+   ["B","あちらの[エレベーターの隣]にあります。","在那邊電梯的旁邊。"]]},
+ {p:"心配する",m:"關心對方",scene:"看對方很累",l:[
+   ["A","最近残業ばかりで[大変そうだね]。","最近老加班，看你很辛苦。"],
+   ["B","うん、でも来月には落ち着くと思う。","嗯，不過下個月應該會穩定下來。"]]},
+ {p:"誘いを受ける",m:"接受邀約",scene:"週末邀約",l:[
+   ["A","週末、映画でもどう？","週末要不要去看電影？"],
+   ["B","いいね、[ぜひ行きたい]。","好啊，超想去的。"]]},
+ {p:"値段を聞く",m:"問價錢",scene:"結帳",l:[
+   ["客","これ、[全部でいくら]ですか。","這些全部多少錢？"],
+   ["店員","三点で、千五百円になります。","三件，一共一千五百日圓。"]]},
+];
+
 /* VOCAB: {w, r, m, s(含[單字]), z} */
 const VOCAB=[
  {w:"約束",r:"やくそく",m:"約定",s:"友達と[約束]したのに、彼は時間になっても来なかった。",z:"明明和朋友約好了，他到了時間卻沒來。"},
@@ -934,6 +1018,26 @@ const QUIZ=[
  ["「苦手」の反対の意味の語は？",["得意","下手","平気","立派"],0,"苦手 ⇔ 得意。"],
  ["「増える」の反対の意味の語は？",["続く","減る","比べる","慣れる"],1,"増える ⇔ 減る。"],
  ["「断る」の意味として正しいのは？",["接受","拜訪","拒絕","商量"],2,"断る＝拒絕。"],
+ ["靴を（　）まま、部屋に入らないでください。",["履いた","履いて","履く","履こう"],0,"「〜たまま」＝維持某狀態，接た形：履いたまま。"],
+ ["朝ご飯を（　）、学校へ行ってしまった。",["食べずに","食べないと","食べたら","食べれば"],0,"「〜ずに」＝沒…就（＝ないで）。"],
+ ["家を（　）とき、電話が鳴った。",["出ようとした","出した","出れば","出ても"],0,"「〜ようとする」＝正要做某事。"],
+ ["彼は新人（　）、仕事がとても速い。",["にしては","について","によって","にとって"],0,"「〜にしては」＝以…來說（出乎意料）。"],
+ ["試合があるか（　）、まだ分からない。",["どうか","どうも","ばかり","ながら"],0,"「〜かどうか」＝是否…。"],
+ ["年を（　）につれて、忘れっぽくなる。",["とる","とった","とれば","とろう"],0,"「〜につれて」前接辭書形：とるにつれて。"],
+ ["大雪の（　）、電車が止まった。",["ため","ように","ところ","わけ"],0,"「〜ため(に)」＝因為。"],
+ ["彼女は英語（　）、中国語も話せる。",["ばかりでなく","ながらも","わりに","おかげで"],0,"「〜ばかりでなく」＝不僅…還。"],
+ ["卒業して（　）、彼に一度も会っていない。",["以来","うちに","あいだ","ばかり"],0,"「〜て以来」＝自從…以後。"],
+ ["努力したのだから、（　）の結果だ。",["当然","偶然","案外","つまり"],0,"「当然」＝理所當然。"],
+ ["「そろそろ」の意味は？",["立刻","差不多該…了","偶爾","故意"],1,"そろそろ＝差不多該…的時候了。"],
+ ["「わざと」の意味は？",["故意","特地","順便","突然"],0,"わざと＝故意（わざわざ＝特地）。"],
+ ["「せっかく」が表す気持ちに近いのは？",["難得、特意","完全地","大概","立刻"],0,"せっかく＝難得、特意（常含可惜）。"],
+ ["「チャンス」の意味は？",["危機","機會","規則","速度"],1,"チャンス（chance）＝機會。"],
+ ["「アドバイス」の意味は？",["抱怨","建議","命令","邀請"],1,"アドバイス（advice）＝建議。"],
+ ["「スケジュール」に最も近い日本語は？",["予定","結果","種類","値段"],0,"スケジュール≒予定（行程）。"],
+ ["「ほとんど」の意味は？",["幾乎","偶爾","故意","漸漸"],0,"ほとんど＝幾乎。"],
+ ["「なるべく」に近い意味は？",["できるだけ","きっと","わざと","さっそく"],0,"なるべく≒できるだけ（盡量）。"],
+ ["「ストレスがたまる」の「ストレス」は？",["壓力","灰塵","脂肪","噪音"],0,"ストレス（stress）＝壓力。"],
+ ["「つまり」の意味は？",["也就是說","順便","果然","偶然"],0,"つまり＝也就是說（換句話說）。"],
 ];
 
 const PLAN=[
@@ -953,7 +1057,7 @@ const PLAN=[
 
 /* ===================== STATE ===================== */
 const KEY="n3_shadow_v1";
-const S=Object.assign({g:[],v:[],p:[],q:null,g4:[]},JSON.parse(localStorage.getItem(KEY)||"{}"));
+const S=Object.assign({g:[],v:[],p:[],q:null,g4:[],k:[]},JSON.parse(localStorage.getItem(KEY)||"{}"));
 function save(){localStorage.setItem(KEY,JSON.stringify(S))}
 function toggle(a,i){const k=a.indexOf(i);if(k<0)a.push(i);else a.splice(k,1)}
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -1150,23 +1254,24 @@ function updHome(){
   const set=(id,n,d)=>{const b=document.getElementById(id);if(b)b.style.width=(n/d*100)+'%'};
   set('p-g',S.g.length,81);document.getElementById('p-g-n').textContent=`${S.g.length} / 81`;
   set('p-g4',S.g4.length,N4GRAMMAR.length);const g4n=document.getElementById('p-g4-n');if(g4n)g4n.textContent=`${S.g4.length} / ${N4GRAMMAR.length}`;
+  set('p-k',S.k.length,KAIWA.length);const kn=document.getElementById('p-k-n');if(kn)kn.textContent=`${S.k.length} / ${KAIWA.length}`;
   set('p-v',S.v.length,VOCAB.length);document.getElementById('p-v-n').textContent=`${S.v.length} / ${VOCAB.length}`;
   set('p-p',S.p.length,12);document.getElementById('p-p-n').textContent=`${S.p.length} / 12`;
   const qn=document.getElementById('p-q-n'),qb=document.getElementById('p-q');
-  if(S.q==null){qn.textContent='— / 20';qb.style.width='0'}else{qn.textContent=`${S.q} / 20`;qb.style.width=(S.q/20*100)+'%'}
+  if(S.q==null){qn.textContent=`— / ${QUIZ.length}`;qb.style.width='0'}else{qn.textContent=`${S.q} / ${QUIZ.length}`;qb.style.width=(S.q/QUIZ.length*100)+'%'}
 }
 
 /* ===================== PLAYER ===================== */
 const P={deck:'gram',list:[],pos:0,rate:0.9,rep:1,auto:true,tr:true,shadow:true,pause:1.3,playing:false,_t:null,_dur:1500};
-function deckArr(d){return d==='vocab'?VOCAB:d==='n4'?N4GRAMMAR:GRAMMAR}
-function deckLearned(d){return d==='vocab'?S.v:d==='n4'?S.g4:S.g}
+function deckArr(d){return d==='vocab'?VOCAB:d==='n4'?N4GRAMMAR:d==='kaiwa'?KAIWA:GRAMMAR}
+function deckLearned(d){return d==='vocab'?S.v:d==='n4'?S.g4:d==='kaiwa'?S.k:S.g}
 function curSegs(){if(P.deck==='vocab'){const v=VOCAB[P.list[P.pos]];return[{s:null,t:v.s,z:v.z}]}return deckArr(P.deck)[P.list[P.pos]].l.map(a=>({s:a[0],t:a[1],z:a[2]}))}
 function openPlayer(deck,startIdx,filter){
   P.deck=deck;const A=deckArr(deck),L=deckLearned(deck),all=A.map((_,i)=>i);
   let arr=filter==='todo'?all.filter(i=>!L.includes(i)):filter==='done'?all.filter(i=>L.includes(i)):all;
   if(!arr.length)arr=all;
   P.list=arr;P.pos=startIdx!=null?Math.max(0,arr.indexOf(startIdx)):0;
-  document.getElementById('p-title').textContent=deck==='vocab'?'聽讀・跟讀（単語）':deck==='n4'?'聽讀・跟讀（N4文型）':'聽讀・跟讀（文法）';
+  document.getElementById('p-title').textContent=deck==='vocab'?'聽讀・跟讀（単語）':deck==='n4'?'聽讀・跟讀（N4文型）':deck==='kaiwa'?'聴解・会話（短文）':'聽讀・跟讀（文法）';
   document.getElementById('player').classList.add('show');
   renderItem();play();
 }
@@ -1180,8 +1285,9 @@ function renderItem(){
     document.getElementById('p-pat').innerHTML=v.w+'<span class="prd">'+v.r+'</span>';
     document.getElementById('p-zh').textContent=v.m;updLearnChip(S.v.includes(P.list[P.pos]));
   }else{const g=deckArr(P.deck)[P.list[P.pos]];
-    document.getElementById('p-cat').textContent=(P.deck==='n4'?'文法 N4 ・ ':'文法 ・ ')+g.scene;
-    document.getElementById('p-pat').innerHTML='〜<span class="x">'+g.p+'</span>';
+    const cat=P.deck==='n4'?'文法 N4 ・ ':P.deck==='kaiwa'?'聴解・会話 ・ ':'文法 ・ ';
+    document.getElementById('p-cat').textContent=cat+g.scene;
+    document.getElementById('p-pat').innerHTML=(P.deck==='kaiwa'?'':'〜')+'<span class="x">'+g.p+'</span>';
     document.getElementById('p-zh').textContent=g.m;updLearnChip(deckLearned(P.deck).includes(P.list[P.pos]));
   }
   const ex=document.getElementById('p-ex');
@@ -1302,7 +1408,7 @@ function go(name){Object.values(TABS).forEach(id=>document.getElementById(id).cl
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.go));
 document.querySelectorAll('#gram-f button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#gram-f button').forEach(x=>x.classList.remove('on'));b.classList.add('on');gramFilter=b.dataset.f;renderGram()});
 document.querySelectorAll('#vocab-f button').forEach(b=>b.onclick=()=>{if(b.dataset.f==='shuffle'){vocabShuf=true;renderVocab();return}document.querySelectorAll('#vocab-f button').forEach(x=>x.classList.remove('on'));b.classList.add('on');vocabFilter=b.dataset.f;vocabShuf=false;renderVocab()});
-function resetAll(){if(!confirm('すべての進捗を消去します。よろしいですか？'))return;S.g=[];S.g4=[];S.v=[];S.p=[];S.q=null;save();renderGram();renderVocab();renderPlan();updHome();updMeta()}
+function resetAll(){if(!confirm('すべての進捗を消去します。よろしいですか？'))return;S.g=[];S.g4=[];S.v=[];S.p=[];S.q=null;S.k=[];save();renderGram();renderVocab();renderPlan();updHome();updMeta()}
 
 /* ===================== TTS SETTINGS UI ===================== */
 function ttsStatus(msg,err){const e=document.getElementById('tts-status');if(!e)return;e.textContent=msg;e.style.color=err?'var(--vermilion-deep)':'var(--green)'}
