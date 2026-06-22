@@ -206,6 +206,21 @@
   .brk.showrj .tok .rj{display:block}
   .brk.showzh .tok .zh{display:block}
   .brkhint{font-size:11px;color:var(--ink-soft)}
+  #brk-tip{font-size:11px;color:var(--ink-soft)}
+  .tok{position:relative;cursor:pointer}
+  .tok .tokstar{position:absolute;top:-7px;right:-3px;font-size:10px;color:var(--gold);opacity:0;transition:.15s;pointer-events:none}
+  .tok.saved{border-color:var(--gold);background:#fbf3df}
+  .tok.saved .tokstar{opacity:1}
+  #toast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%) translateY(8px);background:var(--ink);color:#fff;font-size:12.5px;padding:8px 16px;border-radius:999px;opacity:0;pointer-events:none;transition:.25s;z-index:60;white-space:nowrap;box-shadow:var(--shadow)}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .mcgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .mc2{border:1px solid var(--line);border-radius:11px;padding:9px 11px;background:var(--paper);display:flex;flex-direction:column;gap:2px}
+  .mc2w{font-family:var(--serif);font-size:18px;font-weight:700}
+  .mc2d{font-size:12px;color:var(--ink-soft)}
+  .mc2r{color:var(--vermilion-deep);font-family:var(--serif);margin-right:5px}
+  .mc2b{display:flex;gap:6px;margin-top:5px}
+  .mc2b .b{width:32px;height:28px;border-radius:8px;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;cursor:pointer;color:var(--indigo)}
+  .mc2b .b svg{width:14px;height:14px;fill:currentColor}
   .pline.active.glow .ltext{animation:gl 1.3s ease-in-out infinite}
   @keyframes gl{0%,100%{opacity:.92}50%{opacity:1}}
   .wave{display:flex; gap:4px; align-items:flex-end; height:20px; margin-top:18px; opacity:0; transition:.3s}
@@ -369,6 +384,7 @@
   <!-- VOCAB -->
   <section class="tab" id="t-vocab">
     <div class="sec-h"><span class="ji">語</span><h2>N3 必須単語</h2><span class="meta" id="vocab-meta"></span></div>
+    <div id="mycards" style="margin-bottom:14px"></div>
     <div class="launch" style="padding:16px 18px; margin-bottom:14px" onclick="openPlayer('vocab',null,vocabFilter)">
       <div class="l1">LISTEN ・ SHADOW</div>
       <div class="l2" style="font-size:21px">単語の例文を聽讀・跟讀</div>
@@ -407,6 +423,8 @@
   <button data-go="plan"><span class="ji">計</span><span class="lb">プラン</span></button>
 </nav>
 
+<div id="toast"></div>
+
 <!-- ===== PLAYER ===== -->
 <div id="player">
   <div class="ptop">
@@ -421,6 +439,7 @@
     <div class="pzh" id="p-zh"></div>
     <div class="pdiv"></div>
     <div class="pex" id="p-ex"></div>
+    <div id="brk-tip" style="display:none;text-align:center;margin-top:6px">語をタップで単語カードに保存 ★</div>
     <div class="wave" id="p-wave"><span></span><span></span><span></span><span></span><span></span></div>
     <div class="mic" id="p-mic"><div class="label">🎤 あなたの番　どうぞ</div><div class="track"><i id="p-mic-bar"></i></div></div>
   </div>
@@ -1059,6 +1078,12 @@ const PLAN=[
 const KEY="n3_shadow_v1";
 const S=Object.assign({g:[],v:[],p:[],q:null,g4:[],k:[]},JSON.parse(localStorage.getItem(KEY)||"{}"));
 function save(){localStorage.setItem(KEY,JSON.stringify(S))}
+const MYCARDS=JSON.parse(localStorage.getItem('n3_mycards')||'[]');
+function saveMy(){localStorage.setItem('n3_mycards',JSON.stringify(MYCARDS))}
+function myIndex(jp){return MYCARDS.findIndex(c=>c.jp===jp)}
+function toggleMy(t){const i=myIndex(t.jp);if(i<0)MYCARDS.push({jp:t.jp,rj:t.rj||'',zh:t.zh||''});else MYCARDS.splice(i,1);saveMy();renderMyCards();syncToks()}
+function syncToks(){document.querySelectorAll('#p-ex .tok').forEach(el=>el.classList.toggle('saved',myIndex(el.dataset.jp)>=0))}
+function toast(msg){const t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1500)}
 function toggle(a,i){const k=a.indexOf(i);if(k<0)a.push(i);else a.splice(k,1)}
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 const clean=s=>s.replace(/[\[\]]/g,'');
@@ -1214,6 +1239,17 @@ function renderVocab(){
     list.appendChild(c);
   });
   updMeta();
+}
+
+/* ===================== マイ単語カード ===================== */
+function renderMyCards(){
+  const el=document.getElementById('mycards');if(!el)return;
+  if(!MYCARDS.length){el.innerHTML='<div class="card pad"><b style="font-family:var(--serif);font-size:15px">★ マイ単語カード</b><div class="tip" style="margin-top:4px">聽讀モードで「逐字中文」をオンにして単語をタップすると、自分だけの単語カードがここに貯まります（音声つき）。</div></div>';return;}
+  const cards=MYCARDS.map((c,i)=>`<div class="mc2"><div class="mc2w">${esc(c.jp)}</div><div class="mc2d"><span class="mc2r">${esc(c.rj)}</span>${esc(c.zh)}</div><div class="mc2b"><button class="b mc-say" data-i="${i}">${SPK}</button><button class="b mc-del" data-i="${i}" title="削除">✕</button></div></div>`).join('');
+  el.innerHTML=`<div class="card pad"><div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><b style="font-family:var(--serif);font-size:15px">★ マイ単語カード</b><span class="pill">${MYCARDS.length}語</span><button class="spk" style="margin-left:auto" id="mc-playall">${SPK}<span>全部再生</span></button></div><div class="mcgrid">${cards}</div></div>`;
+  el.querySelector('#mc-playall').onclick=()=>speakInlineLines(MYCARDS.map(c=>c.jp),0.85);
+  el.querySelectorAll('.mc-say').forEach(b=>b.onclick=()=>speakInline(MYCARDS[+b.dataset.i].jp,0.9));
+  el.querySelectorAll('.mc-del').forEach(b=>b.onclick=()=>{MYCARDS.splice(+b.dataset.i,1);saveMy();renderMyCards();syncToks()});
 }
 
 /* ===================== QUIZ ===================== */
@@ -1380,6 +1416,7 @@ function toggleAuto(){P.auto=!P.auto;document.getElementById('chip-auto').classL
 function toggleTr(){P.tr=!P.tr;document.getElementById('chip-tr').classList.toggle('on',P.tr);document.getElementById('p-ex').classList.toggle('notr',!P.tr)}
 function refreshBreakdown(){
   const on=!!(T.rj||T.zh);
+  const tip=document.getElementById('brk-tip');if(tip)tip.style.display=(on&&T.key)?'block':'none';
   document.querySelectorAll('#p-ex .brk').forEach(div=>{
     div.classList.toggle('showrj',!!T.rj);div.classList.toggle('showzh',!!T.zh);
     if(!on){div.style.display='none';return;}
@@ -1390,10 +1427,12 @@ function refreshBreakdown(){
     div.innerHTML='<span class="brkhint">解析中…</span>';
     geminiAnalyze(text).then(toks=>{
       div.dataset.text=text;
-      div.innerHTML=toks.map(t=>`<span class="tok"><span class="rj">${esc(t.rj||'')}</span><span class="jp">${esc(t.jp||'')}</span><span class="zh">${esc(t.zh||'')}</span></span>`).join('')||'<span class="brkhint">—</span>';
+      div.innerHTML=toks.map(t=>{const sv=myIndex(t.jp)>=0;return `<span class="tok${sv?' saved':''}" data-jp="${esc(t.jp||'')}" data-rj="${esc(t.rj||'')}" data-zh="${esc(t.zh||'')}"><span class="rj">${esc(t.rj||'')}</span><span class="jp">${esc(t.jp||'')}</span><span class="zh">${esc(t.zh||'')}</span><i class="tokstar">★</i></span>`}).join('')||'<span class="brkhint">—</span>';
+      wireToks(div);
     }).catch(e=>{div.innerHTML='<span class="brkhint">'+(e.message==='NOKEY'?'※ Gemini キーが必要':'解析エラー：'+esc((e.message||'').slice(0,50)))+'</span>'});
   });
 }
+function wireToks(div){div.querySelectorAll('.tok').forEach(el=>el.onclick=()=>{const d={jp:el.dataset.jp,rj:el.dataset.rj,zh:el.dataset.zh};toggleMy(d);const sv=myIndex(d.jp)>=0;toast('「'+d.jp+'」'+(sv?' を単語カードに保存 ★':' を削除しました'));});}
 function toggleRJ(){T.rj=!T.rj;saveT();document.getElementById('chip-rj').classList.toggle('on',T.rj);refreshBreakdown()}
 function toggleZH(){T.zh=!T.zh;saveT();document.getElementById('chip-zh').classList.toggle('on',T.zh);refreshBreakdown()}
 function updLearnChip(on){const c=document.getElementById('chip-learn');c.classList.toggle('on',on);c.textContent=on?'✓ 覚えた':'覚えた'}
@@ -1447,7 +1486,7 @@ async function testTTS(){
 }
 
 /* ===================== INIT ===================== */
-countdown();renderGram();renderVocab();renderPlan();startQuiz();updHome();updMeta();reflectSettings();setInterval(countdown,60000);
+countdown();renderGram();renderVocab();renderMyCards();renderPlan();startQuiz();updHome();updMeta();reflectSettings();setInterval(countdown,60000);
 </script>
 </body>
 </html>
