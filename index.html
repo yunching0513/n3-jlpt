@@ -303,7 +303,7 @@
         <div style="font-family:var(--serif); font-weight:700; font-size:15px; margin-bottom:4px">進み具合</div>
         <div class="prow"><b>文法 81</b><span class="n" id="p-g-n">0 / 81</span></div><div class="bar"><i id="p-g"></i></div>
         <div class="prow"><b>N4 文型 30</b><span class="n" id="p-g4-n">0 / 30</span></div><div class="bar"><i id="p-g4"></i></div>
-        <div class="prow"><b>単語 80</b><span class="n" id="p-v-n">0 / 80</span></div><div class="bar"><i id="p-v"></i></div>
+        <div class="prow"><b>単語 125</b><span class="n" id="p-v-n">0 / 125</span></div><div class="bar"><i id="p-v"></i></div>
         <div class="prow"><b>12日プラン</b><span class="n" id="p-p-n">0 / 12</span></div><div class="bar"><i id="p-p"></i></div>
         <div class="prow"><b>クイズ最高</b><span class="n" id="p-q-n">— / 20</span></div><div class="bar"><i id="p-q"></i></div>
       </div>
@@ -364,7 +364,7 @@
     <div class="launch" style="padding:16px 18px; margin-bottom:14px" onclick="openPlayer('vocab',null,vocabFilter)">
       <div class="l1">LISTEN ・ SHADOW</div>
       <div class="l2" style="font-size:21px">単語の例文を聽讀・跟讀</div>
-      <div class="gobtn">▶ 80語を流す</div>
+      <div class="gobtn">▶ 125語を流す</div>
     </div>
     <div class="tip" style="margin:0 4px 12px">単語タップで読み・意味・例文を表示。🔊で例文を再生して真似しよう。</div>
     <div class="filters" id="vocab-f">
@@ -866,6 +866,51 @@ const VOCAB=[
  {w:"普通",r:"ふつう",m:"普通",s:"[普通]は、朝ご飯を食べてから出かける。",z:"我通常吃完早餐才出門。"},
  {w:"実は",r:"じつは",m:"其實",s:"[実は]、来月会社を辞めようと思っているんだ。",z:"其實，我打算下個月辭職。"},
  {w:"例えば",r:"たとえば",m:"例如",s:"果物、[例えば]りんごやみかんが好きだ。",z:"我喜歡水果，例如蘋果和橘子。"},
+ {w:"そろそろ",r:"そろそろ",m:"差不多該…了",s:"もう9時だ。[そろそろ]帰る時間だね。",z:"已經九點了，差不多該回家了。"},
+ {w:"やはり",r:"やはり",m:"果然／還是",s:"色々考えたが、[やはり]私には無理だ。",z:"想了很多，但果然還是辦不到。"},
+ {w:"きっと",r:"きっと",m:"一定",s:"彼なら[きっと]約束を守ってくれる。",z:"他的話一定會遵守約定。"},
+ {w:"ぜひ",r:"ぜひ",m:"務必",s:"今度[ぜひ]うちへ遊びに来てください。",z:"下次請務必來我家玩。"},
+ {w:"ますます",r:"ますます",m:"越來越…",s:"雨が[ますます]強くなってきた。",z:"雨越下越大了。"},
+ {w:"なるべく",r:"なるべく",m:"盡量",s:"明日は[なるべく]早く来てください。",z:"明天請盡量早點來。"},
+ {w:"すっかり",r:"すっかり",m:"完全（地）",s:"大事な約束を[すっかり]忘れていた。",z:"把重要的約定忘得一乾二淨。"},
+ {w:"たまたま",r:"たまたま",m:"碰巧",s:"駅で[たまたま]昔の友達に会った。",z:"在車站碰巧遇到了老朋友。"},
+ {w:"さっそく",r:"さっそく",m:"立刻、馬上就",s:"届いた本を[さっそく]読み始めた。",z:"收到的書馬上就開始讀了。"},
+ {w:"案外",r:"あんがい",m:"出乎意料",s:"難しそうだったが、[案外]簡単だった。",z:"看起來難，結果出乎意料地簡單。"},
+ {w:"せっかく",r:"せっかく",m:"難得、特意",s:"[せっかく]来たのに、店は閉まっていた。",z:"難得來了，店卻關著。"},
+ {w:"わざと",r:"わざと",m:"故意",s:"彼は[わざと]負けたみたいだ。",z:"他好像是故意輸的。"},
+ {w:"わざわざ",r:"わざわざ",m:"特地",s:"[わざわざ]来てくれてありがとう。",z:"謝謝你特地過來。"},
+ {w:"たとえ",r:"たとえ",m:"即使（＋ても）",s:"[たとえ]雨でも、試合は行います。",z:"即使下雨，比賽也照常舉行。"},
+ {w:"ほとんど",r:"ほとんど",m:"幾乎",s:"宿題は[ほとんど]終わった。",z:"作業幾乎做完了。"},
+ {w:"なかなか",r:"なかなか",m:"相當／（不）容易",s:"この問題は[なかなか]難しいね。",z:"這問題相當難呢。"},
+ {w:"必ず",r:"かならず",m:"一定、務必",s:"約束は[必ず]守ります。",z:"約定我一定遵守。"},
+ {w:"直接",r:"ちょくせつ",m:"直接",s:"メールより[直接]話したほうがいい。",z:"比起郵件，直接談比較好。"},
+ {w:"突然",r:"とつぜん",m:"突然",s:"会議中、[突然]電気が消えた。",z:"開會時，突然停電了。"},
+ {w:"当然",r:"とうぜん",m:"當然、理所當然",s:"努力したのだから、[当然]の結果だ。",z:"努力過了，是理所當然的結果。"},
+ {w:"さらに",r:"さらに",m:"更加、再",s:"この点について[さらに]詳しく説明します。",z:"關於這點，我再更詳細地說明。"},
+ {w:"できるだけ",r:"できるだけ",m:"盡可能",s:"[できるだけ]早くお返事ください。",z:"請盡可能早點回覆。"},
+ {w:"普段",r:"ふだん",m:"平常",s:"[普段]はあまり料理をしない。",z:"我平常不太下廚。"},
+ {w:"つまり",r:"つまり",m:"也就是說",s:"[つまり]、君は行きたくないんだね。",z:"也就是說，你不想去對吧。"},
+ {w:"偶然",r:"ぐうぜん",m:"偶然",s:"[偶然]、同じ電車に乗っていた。",z:"偶然搭了同一班車。"},
+ {w:"データ",r:"data",m:"資料、數據",s:"実験の[データ]を分析する。",z:"分析實驗的數據。"},
+ {w:"イメージ",r:"image",m:"印象、形象",s:"彼の[イメージ]が変わった。",z:"他的形象變了。"},
+ {w:"チャンス",r:"chance",m:"機會",s:"これは大きな[チャンス]だ。",z:"這是個大好機會。"},
+ {w:"サービス",r:"service",m:"服務",s:"あの店は[サービス]がいい。",z:"那家店服務很好。"},
+ {w:"レベル",r:"level",m:"程度、水準",s:"日本語の[レベル]が上がった。",z:"日語程度提升了。"},
+ {w:"テーマ",r:"theme",m:"主題",s:"発表の[テーマ]を決める。",z:"決定發表的主題。"},
+ {w:"グループ",r:"group",m:"小組、群組",s:"四人の[グループ]に分かれる。",z:"分成四人一組。"},
+ {w:"スケジュール",r:"schedule",m:"行程、時間表",s:"来週の[スケジュール]を確認する。",z:"確認下週的行程。"},
+ {w:"アイデア",r:"idea",m:"點子、主意",s:"いい[アイデア]が浮かんだ。",z:"想到了一個好點子。"},
+ {w:"エネルギー",r:"energy",m:"能源、能量",s:"[エネルギー]を大切に使おう。",z:"要珍惜能源。"},
+ {w:"パターン",r:"pattern",m:"模式、規律",s:"失敗には[パターン]がある。",z:"失敗是有模式的。"},
+ {w:"コミュニケーション",r:"communication",m:"溝通",s:"[コミュニケーション]が大切だ。",z:"溝通很重要。"},
+ {w:"チェック",r:"check",m:"檢查、確認",s:"間違いがないか[チェック]する。",z:"檢查有沒有錯。"},
+ {w:"アドバイス",r:"advice",m:"建議",s:"先輩に[アドバイス]をもらった。",z:"得到了前輩的建議。"},
+ {w:"ストレス",r:"stress",m:"壓力",s:"最近[ストレス]がたまっている。",z:"最近累積了很多壓力。"},
+ {w:"トラブル",r:"trouble",m:"糾紛、問題",s:"友達と[トラブル]になった。",z:"和朋友起了糾紛。"},
+ {w:"メッセージ",r:"message",m:"訊息",s:"留守電に[メッセージ]を残す。",z:"在語音信箱留個訊息。"},
+ {w:"タイミング",r:"timing",m:"時機",s:"話しかける[タイミング]が悪かった。",z:"搭話的時機不好。"},
+ {w:"ルール",r:"rule",m:"規則",s:"みんなで[ルール]を守りましょう。",z:"大家一起遵守規則吧。"},
+ {w:"スピード",r:"speed",m:"速度",s:"車の[スピード]を落とす。",z:"放慢車速。"},
 ];
 
 const QUIZ=[
@@ -1040,7 +1085,7 @@ function setGramLevel(lv){gramLevel=lv;gramFilter='all';
   renderGram();}
 function startGramPlayer(){openPlayer(gramDeck(),null,gramFilter)}
 function flash(b){b.classList.add('play');setTimeout(()=>b.classList.remove('play'),700)}
-function updMeta(){document.getElementById('gram-meta').textContent=`${gramLearned().length}/${gramArr().length}`;document.getElementById('vocab-meta').textContent=`${S.v.length}/80`;document.getElementById('plan-meta').textContent=`${S.p.length}/12`}
+function updMeta(){document.getElementById('gram-meta').textContent=`${gramLearned().length}/${gramArr().length}`;document.getElementById('vocab-meta').textContent=`${S.v.length}/${VOCAB.length}`;document.getElementById('plan-meta').textContent=`${S.p.length}/12`}
 
 /* ===================== VOCAB ===================== */
 let vocabFilter='all',vocabShuf=false;
@@ -1105,7 +1150,7 @@ function updHome(){
   const set=(id,n,d)=>{const b=document.getElementById(id);if(b)b.style.width=(n/d*100)+'%'};
   set('p-g',S.g.length,81);document.getElementById('p-g-n').textContent=`${S.g.length} / 81`;
   set('p-g4',S.g4.length,N4GRAMMAR.length);const g4n=document.getElementById('p-g4-n');if(g4n)g4n.textContent=`${S.g4.length} / ${N4GRAMMAR.length}`;
-  set('p-v',S.v.length,80);document.getElementById('p-v-n').textContent=`${S.v.length} / 80`;
+  set('p-v',S.v.length,VOCAB.length);document.getElementById('p-v-n').textContent=`${S.v.length} / ${VOCAB.length}`;
   set('p-p',S.p.length,12);document.getElementById('p-p-n').textContent=`${S.p.length} / 12`;
   const qn=document.getElementById('p-q-n'),qb=document.getElementById('p-q');
   if(S.q==null){qn.textContent='— / 20';qb.style.width='0'}else{qn.textContent=`${S.q} / 20`;qb.style.width=(S.q/20*100)+'%'}
