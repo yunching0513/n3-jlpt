@@ -1246,7 +1246,8 @@ function renderMyCards(){
   const el=document.getElementById('mycards');if(!el)return;
   if(!MYCARDS.length){el.innerHTML='<div class="card pad"><b style="font-family:var(--serif);font-size:15px">★ マイ単語カード</b><div class="tip" style="margin-top:4px">聽讀モードで「逐字中文」をオンにして単語をタップすると、自分だけの単語カードがここに貯まります（音声つき）。</div></div>';return;}
   const cards=MYCARDS.map((c,i)=>`<div class="mc2"><div class="mc2w">${esc(c.jp)}</div><div class="mc2d"><span class="mc2r">${esc(c.rj)}</span>${esc(c.zh)}</div><div class="mc2b"><button class="b mc-say" data-i="${i}">${SPK}</button><button class="b mc-del" data-i="${i}" title="削除">✕</button></div></div>`).join('');
-  el.innerHTML=`<div class="card pad"><div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><b style="font-family:var(--serif);font-size:15px">★ マイ単語カード</b><span class="pill">${MYCARDS.length}語</span><button class="spk" style="margin-left:auto" id="mc-playall">${SPK}<span>全部再生</span></button></div><div class="mcgrid">${cards}</div></div>`;
+  el.innerHTML=`<div class="card pad"><div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><b style="font-family:var(--serif);font-size:15px">★ マイ単語カード</b><span class="pill">${MYCARDS.length}語</span><span style="margin-left:auto;display:flex;gap:7px"><button class="spk" id="mc-shadow">▶ 跟讀</button><button class="spk" id="mc-playall">${SPK}<span>全部</span></button></span></div><div class="mcgrid">${cards}</div></div>`;
+  el.querySelector('#mc-shadow').onclick=()=>openPlayer('my',null,'all');
   el.querySelector('#mc-playall').onclick=()=>speakInlineLines(MYCARDS.map(c=>c.jp),0.85);
   el.querySelectorAll('.mc-say').forEach(b=>b.onclick=()=>speakInline(MYCARDS[+b.dataset.i].jp,0.9));
   el.querySelectorAll('.mc-del').forEach(b=>b.onclick=()=>{MYCARDS.splice(+b.dataset.i,1);saveMy();renderMyCards();syncToks()});
@@ -1299,15 +1300,15 @@ function updHome(){
 
 /* ===================== PLAYER ===================== */
 const P={deck:'gram',list:[],pos:0,rate:0.9,rep:1,auto:true,tr:true,shadow:true,pause:1.3,playing:false,_t:null,_dur:1500};
-function deckArr(d){return d==='vocab'?VOCAB:d==='n4'?N4GRAMMAR:d==='kaiwa'?KAIWA:GRAMMAR}
-function deckLearned(d){return d==='vocab'?S.v:d==='n4'?S.g4:d==='kaiwa'?S.k:S.g}
-function curSegs(){if(P.deck==='vocab'){const v=VOCAB[P.list[P.pos]];return[{s:null,t:v.s,z:v.z}]}return deckArr(P.deck)[P.list[P.pos]].l.map(a=>({s:a[0],t:a[1],z:a[2]}))}
+function deckArr(d){return d==='vocab'?VOCAB:d==='n4'?N4GRAMMAR:d==='kaiwa'?KAIWA:d==='my'?MYCARDS:GRAMMAR}
+function deckLearned(d){return d==='vocab'?S.v:d==='n4'?S.g4:d==='kaiwa'?S.k:d==='my'?[]:S.g}
+function curSegs(){if(P.deck==='vocab'){const v=VOCAB[P.list[P.pos]];return[{s:null,t:v.s,z:v.z}]}if(P.deck==='my'){const c=MYCARDS[P.list[P.pos]];return[{s:null,t:c.jp,z:c.zh}]}return deckArr(P.deck)[P.list[P.pos]].l.map(a=>({s:a[0],t:a[1],z:a[2]}))}
 function openPlayer(deck,startIdx,filter){
   P.deck=deck;const A=deckArr(deck),L=deckLearned(deck),all=A.map((_,i)=>i);
   let arr=filter==='todo'?all.filter(i=>!L.includes(i)):filter==='done'?all.filter(i=>L.includes(i)):all;
   if(!arr.length)arr=all;
   P.list=arr;P.pos=startIdx!=null?Math.max(0,arr.indexOf(startIdx)):0;
-  document.getElementById('p-title').textContent=deck==='vocab'?'聽讀・跟讀（単語）':deck==='n4'?'聽讀・跟讀（N4文型）':deck==='kaiwa'?'聴解・会話（短文）':'聽讀・跟讀（文法）';
+  document.getElementById('p-title').textContent=deck==='vocab'?'聽讀・跟讀（単語）':deck==='n4'?'聽讀・跟讀（N4文型）':deck==='kaiwa'?'聴解・会話（短文）':deck==='my'?'マイ単語カード（聽讀）':'聽讀・跟讀（文法）';
   document.getElementById('player').classList.add('show');
   renderItem();play();
 }
@@ -1316,7 +1317,12 @@ function renderItem(){
   const segs=curSegs();
   document.getElementById('p-cnt').textContent=`${P.pos+1} / ${P.list.length}`;
   document.getElementById('p-bar').style.width=((P.pos+1)/P.list.length*100)+'%';
-  if(P.deck==='vocab'){const v=VOCAB[P.list[P.pos]];
+  const lc=document.getElementById('chip-learn');if(lc)lc.style.display=(P.deck==='my')?'none':'';
+  if(P.deck==='my'){const c=MYCARDS[P.list[P.pos]];
+    document.getElementById('p-cat').textContent='マイ単語カード';
+    document.getElementById('p-pat').innerHTML=c.jp+(c.rj?'<span class="prd">'+c.rj+'</span>':'');
+    document.getElementById('p-zh').textContent=c.zh;
+  }else if(P.deck==='vocab'){const v=VOCAB[P.list[P.pos]];
     document.getElementById('p-cat').textContent='単語の例文';
     document.getElementById('p-pat').innerHTML=v.w+'<span class="prd">'+v.r+'</span>';
     document.getElementById('p-zh').textContent=v.m;updLearnChip(S.v.includes(P.list[P.pos]));
@@ -1436,7 +1442,7 @@ function wireToks(div){div.querySelectorAll('.tok').forEach(el=>el.onclick=()=>{
 function toggleRJ(){T.rj=!T.rj;saveT();document.getElementById('chip-rj').classList.toggle('on',T.rj);refreshBreakdown()}
 function toggleZH(){T.zh=!T.zh;saveT();document.getElementById('chip-zh').classList.toggle('on',T.zh);refreshBreakdown()}
 function updLearnChip(on){const c=document.getElementById('chip-learn');c.classList.toggle('on',on);c.textContent=on?'✓ 覚えた':'覚えた'}
-function toggleLearn(){const gi=P.list[P.pos],L=deckLearned(P.deck);toggle(L,gi);save();updHome();updMeta();renderGram();renderVocab();updLearnChip(L.includes(gi))}
+function toggleLearn(){if(P.deck==='my')return;const gi=P.list[P.pos],L=deckLearned(P.deck);toggle(L,gi);save();updHome();updMeta();renderGram();renderVocab();updLearnChip(L.includes(gi))}
 document.querySelectorAll('#seg-speed button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#seg-speed button').forEach(x=>x.classList.remove('on'));b.classList.add('on');P.rate=parseFloat(b.dataset.r);if(P.playing){stopSpeak();stopTimers();play()}});
 document.querySelectorAll('#seg-pause button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#seg-pause button').forEach(x=>x.classList.remove('on'));b.classList.add('on');P.pause=parseFloat(b.dataset.p)});
 document.addEventListener('keydown',e=>{if(!document.getElementById('player').classList.contains('show'))return;if(e.code==='Space'){e.preventDefault();togglePlay()}else if(e.code==='ArrowRight')nextItem();else if(e.code==='ArrowLeft')prevItem();else if(e.code==='Escape')closePlayer()});
