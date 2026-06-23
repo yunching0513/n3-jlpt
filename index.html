@@ -222,6 +222,29 @@
   .mc2b{display:flex;gap:6px;margin-top:5px}
   .mc2b .b{width:32px;height:28px;border-radius:8px;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;cursor:pointer;color:var(--indigo)}
   .mc2b .b svg{width:14px;height:14px;fill:currentColor}
+  .cram-tip{font-size:11.5px;color:var(--ink-soft);margin-bottom:14px;line-height:1.6}
+  .cram-sec{margin-bottom:22px}
+  .cram-h{font-family:var(--serif);font-weight:800;font-size:16px;color:var(--vermilion-deep);margin:0 0 11px;display:flex;align-items:center;gap:9px}
+  .cram-h .num{background:var(--vermilion);color:#fff;width:22px;height:22px;border-radius:6px;display:grid;place-items:center;font-size:12px;font-weight:700;font-family:var(--serif);flex:none}
+  .crow{border-bottom:1px dashed var(--line);padding:9px 2px}
+  .crow:last-child{border:0}
+  .cw{font-family:var(--serif);font-size:17px;font-weight:700}
+  .cr{font-size:12.5px;color:var(--vermilion-deep);font-family:var(--serif)}
+  .cm{font-size:12.5px;color:var(--ink-soft)}
+  .ctrap{font-size:12px;color:var(--ink);background:#fbf3df;border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:6px 10px;margin-top:6px;line-height:1.6}
+  .cgram{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px 15px;margin-bottom:10px;box-shadow:var(--shadow)}
+  .cgram .gt{font-family:var(--serif);font-weight:700;font-size:16px;margin-bottom:6px}
+  .cgram .gt .x{color:var(--vermilion)}
+  .cgram .gl{font-size:13px;margin:3px 0;line-height:1.6}
+  .cgram .gl b{color:var(--indigo)}
+  .cex{font-family:var(--serif);font-size:15px;margin-top:7px;background:var(--paper);border-radius:8px;padding:8px 11px}
+  .ceq{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-family:var(--serif);font-size:16px;padding:9px 2px;border-bottom:1px dashed var(--line)}
+  .ceq:last-child{border:0}
+  .ceq .eq{color:var(--vermilion);font-weight:700}
+  .chipsay{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:3px 10px}
+  .jaclick{cursor:pointer;color:var(--vermilion-deep);border-bottom:1px dashed var(--vermilion)}
+  .jaclick:active{opacity:.55}
+  .chipsay .jaclick{border-bottom:0}
   .pline.active.glow .ltext{animation:gl 1.3s ease-in-out infinite}
   @keyframes gl{0%,100%{opacity:.92}50%{opacity:1}}
   .wave{display:flex; gap:4px; align-items:flex-end; height:20px; margin-top:18px; opacity:0; transition:.3s}
@@ -418,6 +441,11 @@
     <div class="tip"><b>跟讀（シャドーイング）</b>を毎日の軸に。聞く→止める→真似して言う、を1日通して。前日は新しい事をせず軽く流して早寝。</div>
     <div class="foot">2026.06.22 ・ <button class="reset" onclick="resetAll()">進捗をリセット</button></div>
   </section>
+
+  <section class="tab" id="t-cram">
+    <div class="sec-h"><span class="ji">要</span><h2>要点まとめ（考前秘笈）</h2></div>
+    <div id="cram"></div>
+  </section>
 </div>
 
 <nav id="nav">
@@ -426,6 +454,7 @@
   <button data-go="vocab"><span class="ji">語</span><span class="lb">単語</span></button>
   <button data-go="quiz"><span class="ji">問</span><span class="lb">クイズ</span></button>
   <button data-go="plan"><span class="ji">計</span><span class="lb">プラン</span></button>
+  <button data-go="cram"><span class="ji">要</span><span class="lb">要点</span></button>
 </nav>
 
 <div id="toast"></div>
@@ -1333,6 +1362,41 @@ function renderPlan(){
   const tt=document.getElementById('today-task');if(tt){const x=PLAN.find(p=>p[0]===t);tt.innerHTML=x?`<b style="color:var(--vermilion-deep)">${x[1]}</b>　${x[2]}`:'プランの日付は 6/22〜7/3。今日のぶんをチェックしよう。'}
 }
 
+/* ===================== 要点まとめ（秘笈） ===================== */
+function renderCram(){
+  const el=document.getElementById('cram');if(!el)return;
+  const J=t=>`<span class="jaclick" data-say="${esc(t)}">${esc(t)}</span>`;
+  const s1=[["主要","しゅよう","主要的","⚠️ 易與「重要（じゅうよう）」混淆！主要沒有濁音。"],["父母","ふぼ","父母","⚠️ 沒有長音，不是 ふうぼ。"],["感情的","かんじょうてき","情緒化的","⚠️ 感（かん）無濁、情（じょう）有濁。"],["石油","せきゆ","石油","音讀せきゆ，勿被訓讀「いし」干擾。"],["加熱","かねつ","加熱","「加」短音か，勿與「加壓（かあつ）」搞混。"],["順番","じゅんばん","順序","順（じゅん）＋番（ばん）。"],["左右","さゆう","左右","順序固定「左右」，勿選「右左」。"],["逆","ぎゃく","相反","與「違い・変」的意思區別。"],["過去","かこ","過去","過（か）＋去（こ）。"]];
+  const s1h=s1.map(r=>`<div class="crow"><div style="display:flex;align-items:baseline;gap:10px"><span class="cw">${J(r[0])}</span><span class="cr">${r[1]}</span><span class="cm" style="margin-left:auto">${r[2]}</span></div><div class="ctrap">${r[3]}</div></div>`).join('');
+  const s2=[
+    {t:'〜<span class="x">たとたん（に）</span>',l:['<b>接續</b> 動詞た形＋とたん','<b>意思</b> 一⋯就⋯','<b>陷阱</b> 後接「意外・突發」，不能接意志/命令/勸誘；勿與「たばかり・最中」混。'],ex:'ドアを開けたとたん、猫が飛び出した。'},
+    {t:'<span class="x">せいで</span> / <span class="x">おかげで</span> / <span class="x">くせに</span>',l:['<b>せいで</b> 都怪⋯（負面結果）','<b>おかげで</b> 多虧⋯（正面結果）','<b>くせに</b> 明明⋯卻⋯（責備轉折）'],ex:'雨のせいで試合が中止になった。'},
+    {t:'〜<span class="x">させられる</span>（使役受身）',l:['<b>結構</b> A は B に 〜させられる（A 被 B 逼做）','<b>陷阱</b> 主詞是「被迫者」就選させられる，別選「させました」。'],ex:'先輩にお酒を飲まされた。'},
+    {t:'〜<span class="x">てくれる</span> / 〜<span class="x">てもらう</span>（授受）',l:['<b>てくれる</b> 別人主動為我做（主詞＝別人）','<b>てもらう</b> 我請別人為我做（主詞＝我）'],ex:'友達が引っ越しを手伝ってくれた。'},
+    {t:'い形容詞＋動詞（去い改く）',l:['<b>規則</b> 修飾動詞或接なる時，い→く。'],ex:'川が深くなる。'}
+  ];
+  const s2h=s2.map(g=>`<div class="cgram"><div class="gt">${g.t}</div>${g.l.map(x=>`<div class="gl">${x}</div>`).join('')}<div class="cex">${J(g.ex)}</div></div>`).join('');
+  const s3=[["ぐっすり","香甜地、熟睡地","睡眠專用！只接「寝る／眠る」，不能用在吃喝或練習。","ぐっすり眠る"],["一応","總之先、暫且","「可能沒用，但總之先試試」的語感。","一応誘う"],["目が覚める","醒來","慣用，前面必定是「目が」。","目が覚める"],["汗をかく","流汗","「汗（あせ）」固定動詞是「かく」。","汗をかく"],["気をつける","小心、注意","て形「気をつけて」，日常必備。","気をつけて"]];
+  const s3h=s3.map(r=>`<div class="crow"><div style="display:flex;align-items:baseline;gap:10px"><span class="cw">${J(r[0])}</span><span class="cm" style="margin-left:auto">${r[1]}</span></div><div class="ctrap">${r[2]}　例：${J(r[3])}</div></div>`).join('');
+  const s4=[
+    {h:'勤める vs 働く（工作）',p:['<b>〜に勤める</b>：在某機構任職（重視所屬，助詞 <b>に</b>）','<b>〜で働く</b>：在某地工作（重視地點與行為，助詞 <b>で</b>）'],s:['銀行に勤める','工場で働く']},
+    {h:'内容 vs 中身（內容物）',p:['<b>内容（ないよう）</b>：抽象、無形的資訊（信、計畫）','<b>中身（なかみ）</b>：具體、實體的物品（錢包、箱子）'],s:['手紙の内容','財布の中身']},
+    {h:'活動（かつどう）',p:['專指「人／團體」為特定目的的行為。','機器運轉用「動く」、商店營業用「営業する」。'],s:['クラブ活動']},
+    {h:'性格（せいかく）',p:['專指「人／動物」與生俱來的個性。','不能形容國家歷史或車子性能。'],s:['優しい性格']}
+  ];
+  const s4h=s4.map(c=>`<div class="cgram"><div class="gt" style="font-size:15px;color:var(--vermilion-deep)">${c.h}</div>${c.p.map(x=>`<div class="gl">${x}</div>`).join('')}<div style="margin-top:7px;display:flex;gap:7px;flex-wrap:wrap">${c.s.map(x=>`<span class="chipsay">${J(x)}</span>`).join('')}</div></div>`).join('');
+  const s5=[["検討する","よく考える"],["企業","会社"],["バックする","後ろに下がる"],["一流の","素晴らしい"],["ようやく","やっと"]];
+  const s5h=s5.map(r=>`<div class="ceq"><span>${J(r[0])}</span><span class="eq">＝</span><span>${J(r[1])}</span></div>`).join('');
+  const sec=(n,title,inner)=>`<div class="cram-sec"><div class="cram-h"><span class="num">${n}</span>${title}</div>${inner}</div>`;
+  el.innerHTML='<div class="cram-tip">🔊 日本語をタップで音声。考前快速掃過這份重點即可。</div>'
+    +sec('一','漢字 讀音・寫法の陷阱',s1h)
+    +sec('二','核心文法・句型',s2h)
+    +sec('三','必背副詞・慣用搭配',s3h)
+    +sec('四','易混淆 単語の辨析',s4h)
+    +sec('五','近義詞 替換（類義語）',s5h);
+  el.onclick=e=>{const t=e.target.closest('.jaclick');if(t)speakInline(t.dataset.say,0.9)};
+}
+
 /* ===================== HOME ===================== */
 function updHome(){
   const set=(id,n,d)=>{const b=document.getElementById(id);if(b)b.style.width=(n/d*100)+'%'};
@@ -1495,7 +1559,7 @@ document.querySelectorAll('#seg-pause button').forEach(b=>b.onclick=()=>{documen
 document.addEventListener('keydown',e=>{if(!document.getElementById('player').classList.contains('show'))return;if(e.code==='Space'){e.preventDefault();togglePlay()}else if(e.code==='ArrowRight')nextItem();else if(e.code==='ArrowLeft')prevItem();else if(e.code==='Escape')closePlayer()});
 
 /* ===================== NAV ===================== */
-const TABS={home:'t-home',gram:'t-gram',vocab:'t-vocab',quiz:'t-quiz',plan:'t-plan'};
+const TABS={home:'t-home',gram:'t-gram',vocab:'t-vocab',quiz:'t-quiz',plan:'t-plan',cram:'t-cram'};
 function go(name){Object.values(TABS).forEach(id=>document.getElementById(id).classList.remove('show'));document.getElementById(TABS[name]).classList.add('show');document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===name));window.scrollTo({top:0,behavior:'smooth'})}
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.go));
 document.querySelectorAll('#gram-f button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#gram-f button').forEach(x=>x.classList.remove('on'));b.classList.add('on');gramFilter=b.dataset.f;renderGram()});
@@ -1539,7 +1603,7 @@ async function testTTS(){
 }
 
 /* ===================== INIT ===================== */
-countdown();renderGram();renderVocab();renderMyCards();renderPlan();startQuiz();updHome();updMeta();reflectSettings();setInterval(countdown,60000);
+countdown();renderGram();renderVocab();renderMyCards();renderPlan();renderCram();startQuiz();updHome();updMeta();reflectSettings();setInterval(countdown,60000);
 </script>
 </body>
 </html>
