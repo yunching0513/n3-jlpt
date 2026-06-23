@@ -129,6 +129,7 @@
   .q-prog i{display:block; height:100%; background:var(--vermilion); transition:width .4s}
   .q-text{font-family:var(--serif); font-size:20px; line-height:1.7; margin:6px 0 18px}
   .q-text .x{color:var(--vermilion)}
+  .q-text .qb{text-decoration:underline;text-decoration-color:var(--vermilion);text-underline-offset:3px;font-weight:700}
   .opts{display:grid; gap:10px}
   .opt{font-family:var(--serif); font-size:16px; text-align:left; padding:13px 16px; border-radius:13px; border:1px solid var(--line); background:var(--card); cursor:pointer; transition:.16s; display:flex; gap:11px; align-items:center}
   .opt .k{font-family:var(--sans); font-size:12px; font-weight:700; width:22px; height:22px; border-radius:7px; background:var(--paper-2); display:grid; place-items:center; flex:none; color:var(--ink-soft)}
@@ -402,7 +403,11 @@
 
   <!-- QUIZ -->
   <section class="tab" id="t-quiz">
-    <div class="sec-h"><span class="ji">問</span><h2>模擬クイズ</h2><span class="meta">全40問</span></div>
+    <div class="sec-h"><span class="ji">問</span><h2>クイズ</h2><span class="meta" id="quiz-meta">全40問</span></div>
+    <div class="seg" id="quiz-set" style="width:100%;margin-bottom:12px">
+      <button class="on" style="flex:1" data-s="mock" onclick="setQuizSet('mock')">模擬 40問</button>
+      <button style="flex:1" data-s="kako" onclick="setQuizSet('kako')">2024/7 過去問 35</button>
+    </div>
     <div id="quiz-area"></div>
   </section>
 
@@ -1059,6 +1064,45 @@ const QUIZ=[
  ["「つまり」の意味は？",["也就是說","順便","果然","偶然"],0,"つまり＝也就是說（換句話說）。"],
 ];
 
+/* 2024年7月 N3「文字・語彙」過去問（35問） */
+const KAKO2024=[
+ ["山田さんがちらしを<u class='qb'>配った</u>。",["ひろった","くばった","やぶった","はった"],1,"配る（くばる）＝發放、分發。"],
+ ["私の国は<u class='qb'>石油</u>を輸入しています。",["いしゅ","せきう","せきゆ","いしう"],2,"石油＝せきゆ。"],
+ ["卒業式には生徒の<u class='qb'>父母</u>もたくさん来ていた。",["ふば","ふぼ","ふうぼ","ふうば"],1,"父母＝ふぼ。"],
+ ["この町の<u class='qb'>主要</u>な産業は何ですか。",["じゅうおう","しゅおう","じゅうよう","しゅよう"],3,"主要＝しゅよう。"],
+ ["これは<u class='qb'>加熱</u>してから食べてください。",["かねつ","かあつ","かいねつ","かいあつ"],0,"加熱＝かねつ。"],
+ ["川はあの辺りで<u class='qb'>深く</u>なっている。",["ふかく","あさく","ひろく","せまく"],0,"深い（ふかい）→深く。"],
+ ["文句を言われたので、つい<u class='qb'>感情的</u>になってしまった。",["がんじょうてき","かんしょうてき","かんじょうてき","がんしょうてき"],2,"感情＝かんじょう→感情的。"],
+ ["これは<u class='qb'>残さ</u>ないでください。",["なくさないで","よごさないで","こぼさないで","のこさないで"],3,"残す（のこす）＝留下。"],
+ ["ここから<u class='qb'>じゅんばん</u>に見てください。",["順番","項番","順審","項審"],0,"じゅんばん＝順番。"],
+ ["父は銀行に<u class='qb'>つとめて</u>います。",["勤めて","働めて","仕めて","労めて"],0,"（銀行に）つとめる＝勤める。"],
+ ["ポケットが<u class='qb'>さゆう</u>にあるんですね。",["裏表","右左","表裏","左右"],3,"さゆう＝左右。"],
+ ["昨日の試合は<u class='qb'>まけて</u>しまいました。",["退けて","負けて","失けて","欠けて"],1,"まける＝負ける（輸）。"],
+ ["<u class='qb'>かこ</u>の例も調べてみましょう。",["適去","過去","過古","適古"],1,"かこ＝過去（你給的選項2、3重複，正解為「過去」）。"],
+ ["この資料はページが<u class='qb'>ぎゃく</u>になっていますよ。",["違","変","逆","別"],2,"ぎゃく＝逆。"],
+ ["大雪で朝から電車が（　）している。",["縮小","滞在","延期","運休"],3,"電車が運休（停駛）している。"],
+ ["今日は暑かったので、シャツが（　）でぬれてしまった。",["いびき","あくび","あせ","いき"],2,"汗（あせ）でぬれる。"],
+ ["皆さんに声がよく聞こえるように（　）を使って話してください。",["サイレン","エンジン","ノック","マイク"],3,"マイク（麥克風）。"],
+ ["昨日は早く寝たが、夜中に大きな音がして目が（　）しまった。",["嫌がって","覚めて","驚いて","怖がって"],1,"目が覚める（醒來）。"],
+ ["林さんはいつも冗談ばかり言うので、その話も本当かどうか（　）。",["怪しい","恐ろしい","憎らしい","貧しい"],0,"怪しい＝可疑、靠不住。"],
+ ["本日の面接の結果は、１週間以内にメールで（　）します。",["広告","合図","通知","伝言"],2,"通知する（通知）。"],
+ ["兄はいつも（　）シャツを着ているので、遠くにいてもすぐ見つかる。",["派手な","盛んな","わがままな","身近な"],0,"派手（華麗、顯眼）。"],
+ ["ここに車を止めることは規則で（　）されていますから、すぐ移動してください。",["支配","失敗","禁止","批判"],2,"禁止されている（被禁止）。"],
+ ["このコートは古いがまだ着られるので、捨ててしまうのが（　）です。",["もったいない","仕方ない","可愛らしい","恋しい"],0,"もったいない＝可惜、浪費。"],
+ ["誕生日まで弟に見つからないように、たんすの奥に（　）。",["包んだ","隠した","囲む","閉じた"],1,"隠す（藏起來）。"],
+ ["山口は来られないかもしれないが、（　）誘うつもりだ。",["十分","一応","結構","たいてい"],1,"一応＝姑且、總之先（誘ってみる）。"],
+ ["明日までに<u class='qb'>検討して</u>おきます。",["よく考えて","よく探して","よく読んで","よく数えて"],0,"検討する＝よく考える。"],
+ ["来週、ここで<u class='qb'>企業</u>の説明会があります。",["旅行","会社","大学","建物"],1,"企業＝会社。"],
+ ["ちょっと<u class='qb'>バックして</u>ください。",["前に進んでください","後ろに下がってください","横に動いてください","そこで止まってください"],1,"バックする＝後退、往後。"],
+ ["鈴木さんは<u class='qb'>一流</u>の選手です。",["かっこいい","普通","人気がある","素晴らしい"],3,"一流＝最頂尖、素晴らしい。"],
+ ["田中さんが<u class='qb'>ようやく</u>来てくれました。",["本当に","すぐに","やっと","はじめて"],2,"ようやく＝やっと（終於）。"],
+ ["【用法】内容",["修理のため、エアコンの内容を一度取り出します。","鍋の中にカレーの内容を入れて、一時間くらい煮てください。","古い財布から新しい財布への内容を移しました。","この手紙の内容は、ほかの人には秘密にしてください。"],3,"内容＝（信、話的）內容。其他應用「中身・部品」。"],
+ ["【用法】活動",["彼は有名なロック歌手だったが、今は活動していない。","山に登ると、新鮮な空気が活動していて気持ちがいい。","さっきまで活動していたパソコンが、急に動かなくなった。","駅前のコンビニは24時間活動しているので便利だ。"],0,"活動する＝（人、團體）活動。機器用「動く・営業」。"],
+ ["【用法】落ち着く",["この辺りは、冬になると雪が落ち着いて、春になるまで溶けません。","シャツにしみが落ち着いてしまって、洗ってもきれいになりません。","あそこの木の上に美しい鳥が落ち着いています。","大好きなこの曲を聞くと、いつも気持ちが落ち着きます。"],3,"落ち着く＝心情平靜。其他用「積もる・つく・とまる」。"],
+ ["【用法】ぐっすり",["遠慮しないで、ぐっすり食べてください。","優勝できたのは、毎日ぐっすり練習したからだと思う。","今日は疲れているので、朝までぐっすり眠れそうだ。","古い友人と久しぶりに会って、ぐっすりおしゃべりした。"],2,"ぐっすり＝熟睡的樣子（ぐっすり眠る）。"],
+ ["【用法】性格",["日本の古い性格に興味がある、神社やお寺によく行きます。","森さんはおとなしい性格で、自分の意見はあまり言いません。","値段が高くても、安全で性格のいい車を買うつもりです。","音楽の性格を伸ばすために、５歳から専門家の指導を受けました。"],1,"性格＝（人的）個性。其他用「文化・性能・才能」。"],
+];
+
 const PLAN=[
  ["6/22","文字・語彙①","名詞系の単語を一気に。単語タブを全部めくる＋🔊で発音。"],
  ["6/23","文字・語彙②","漢字の読み練習。間違えた語だけ反復。"],
@@ -1076,7 +1120,7 @@ const PLAN=[
 
 /* ===================== STATE ===================== */
 const KEY="n3_shadow_v1";
-const S=Object.assign({g:[],v:[],p:[],q:null,g4:[],k:[]},JSON.parse(localStorage.getItem(KEY)||"{}"));
+const S=Object.assign({g:[],v:[],p:[],q:null,g4:[],k:[],qk:null},JSON.parse(localStorage.getItem(KEY)||"{}"));
 function save(){localStorage.setItem(KEY,JSON.stringify(S))}
 const MYCARDS=JSON.parse(localStorage.getItem('n3_mycards')||'[]');
 function saveMy(){localStorage.setItem('n3_mycards',JSON.stringify(MYCARDS))}
@@ -1254,27 +1298,30 @@ function renderMyCards(){
 }
 
 /* ===================== QUIZ ===================== */
-let qi=0,qscore=0;
-function startQuiz(){qi=0;qscore=0;renderQ()}
+let qi=0,qscore=0,quizSet='mock';
+function quizArr(){return quizSet==='kako'?KAKO2024:QUIZ}
+function quizBestKey(){return quizSet==='kako'?'qk':'q'}
+function setQuizSet(s){quizSet=s;document.querySelectorAll('#quiz-set button').forEach(b=>b.classList.toggle('on',b.dataset.s===s));startQuiz()}
+function startQuiz(){qi=0;qscore=0;const m=document.getElementById('quiz-meta');if(m)m.textContent='全'+quizArr().length+'問';renderQ()}
 function renderQ(){
-  const a=document.getElementById('quiz-area');
-  if(qi>=QUIZ.length){
-    const best=S.q==null?qscore:Math.max(S.q,qscore);S.q=best;save();updHome();
-    const pass=qscore>=Math.ceil(QUIZ.length*0.6);
+  const A=quizArr(),a=document.getElementById('quiz-area');
+  if(qi>=A.length){
+    const bk=quizBestKey(),best=S[bk]==null?qscore:Math.max(S[bk],qscore);S[bk]=best;save();updHome();
+    const pass=qscore>=Math.ceil(A.length*0.6);
     a.innerHTML=`<div class="card q-card center stagger"><div style="font-family:var(--serif);font-size:15px;color:var(--ink-soft)">結果</div>
-      <div class="score-big" style="margin:8px 0">${qscore}<span style="font-size:24px;color:var(--ink-soft)"> / ${QUIZ.length}</span></div>
+      <div class="score-big" style="margin:8px 0">${qscore}<span style="font-size:24px;color:var(--ink-soft)"> / ${A.length}</span></div>
       <div style="font-family:var(--serif);font-size:18px;color:${pass?'var(--green)':'var(--vermilion)'};margin-bottom:6px">${pass?'合格ライン突破！':'もう一歩。復習しよう'}</div>
-      <div class="tip center" style="margin-bottom:18px">自己最高：<b>${best}/${QUIZ.length}</b></div>
+      <div class="tip center" style="margin-bottom:18px">自己最高：<b>${best}/${A.length}</b></div>
       <button class="btn" onclick="startQuiz()">もう一度</button><button class="btn ghost" onclick="go('gram')" style="margin-left:8px">文法を復習</button></div>`;return;
   }
-  const q=QUIZ[qi];
-  a.innerHTML=`<div class="card q-card stagger"><div class="q-top"><span>第 ${qi+1} 問</span><span class="q-prog"><i style="width:${qi/QUIZ.length*100}%"></i></span><span>得点 ${qscore}</span></div>
+  const q=A[qi];
+  a.innerHTML=`<div class="card q-card stagger"><div class="q-top"><span>第 ${qi+1} 問</span><span class="q-prog"><i style="width:${qi/A.length*100}%"></i></span><span>得点 ${qscore}</span></div>
     <div class="q-text">${q[0].replace('（　）','<span class="x">＿＿</span>')}</div><div class="opts" id="opts"></div><div class="expl" id="expl"></div>
     <div id="qnext" style="margin-top:16px;text-align:right;display:none"><button class="btn" onclick="qi++;renderQ()">次へ →</button></div></div>`;
   const ks=['A','B','C','D'],opts=document.getElementById('opts');
   q[1].forEach((o,j)=>{const b=document.createElement('button');b.className='opt';b.innerHTML=`<span class="k">${ks[j]}</span><span>${o}</span>`;b.onclick=()=>answer(j);opts.appendChild(b)});
 }
-function answer(j){const q=QUIZ[qi],c=q[2];document.querySelectorAll('#opts .opt').forEach((b,k)=>{b.disabled=true;if(k===c)b.classList.add('ok');if(k===j&&j!==c)b.classList.add('no')});if(j===c)qscore++;const ex=document.getElementById('expl');ex.innerHTML=`<b>${j===c?'正解！':'解説'}</b>　${q[3]}`;ex.classList.add('show');document.getElementById('qnext').style.display='block'}
+function answer(j){const q=quizArr()[qi],c=q[2];document.querySelectorAll('#opts .opt').forEach((b,k)=>{b.disabled=true;if(k===c)b.classList.add('ok');if(k===j&&j!==c)b.classList.add('no')});if(j===c)qscore++;const ex=document.getElementById('expl');ex.innerHTML=`<b>${j===c?'正解！':'解説'}</b>　${q[3]}`;ex.classList.add('show');document.getElementById('qnext').style.display='block'}
 
 /* ===================== PLAN ===================== */
 function renderPlan(){
@@ -1453,7 +1500,7 @@ function go(name){Object.values(TABS).forEach(id=>document.getElementById(id).cl
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.go));
 document.querySelectorAll('#gram-f button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#gram-f button').forEach(x=>x.classList.remove('on'));b.classList.add('on');gramFilter=b.dataset.f;renderGram()});
 document.querySelectorAll('#vocab-f button').forEach(b=>b.onclick=()=>{if(b.dataset.f==='shuffle'){vocabShuf=true;renderVocab();return}document.querySelectorAll('#vocab-f button').forEach(x=>x.classList.remove('on'));b.classList.add('on');vocabFilter=b.dataset.f;vocabShuf=false;renderVocab()});
-function resetAll(){if(!confirm('すべての進捗を消去します。よろしいですか？'))return;S.g=[];S.g4=[];S.v=[];S.p=[];S.q=null;S.k=[];save();renderGram();renderVocab();renderPlan();updHome();updMeta()}
+function resetAll(){if(!confirm('すべての進捗を消去します。よろしいですか？'))return;S.g=[];S.g4=[];S.v=[];S.p=[];S.q=null;S.k=[];S.qk=null;save();renderGram();renderVocab();renderPlan();updHome();updMeta()}
 
 /* ===================== TTS SETTINGS UI ===================== */
 function ttsStatus(msg,err){const e=document.getElementById('tts-status');if(!e)return;e.textContent=msg;e.style.color=err?'var(--vermilion-deep)':'var(--green)'}
