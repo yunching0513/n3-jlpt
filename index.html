@@ -1510,8 +1510,9 @@ function renderItem(){
 function speakSeg(li,onend){
   const segs=curSegs(),lineEl=document.querySelector(`#p-ex .pline[data-li="${li}"]`);
   document.querySelectorAll('#p-ex .pline').forEach(p=>{p.classList.toggle('active',p===lineEl);p.classList.toggle('glow',p===lineEl)});
-  if(lineEl)lineEl.scrollIntoView({block:'center',behavior:'smooth'});
+  if(lineEl){lineEl.querySelectorAll('.ch').forEach(s=>s.classList.remove('spoken'));lineEl.scrollIntoView({block:'nearest',behavior:'smooth'});}
   const text=clean(segs[li].t);
+  const spans=lineEl?lineEl.querySelectorAll('.ch'):[];
   stopAll();const g=speakGen;
   const finish=()=>{if(g!==speakGen)return;setWave(false);lineEl&&lineEl.classList.remove('glow');onend&&onend()};
   if(getEngine()==='gemini'){
@@ -1520,7 +1521,8 @@ function speakSeg(li,onend){
       if(g!==speakGen)return;
       const a=new Audio(url);a.playbackRate=P.rate;curAudio=a;
       a.onloadedmetadata=()=>{if(isFinite(a.duration))P._dur=(a.duration/P.rate)*1000};
-      a.onended=()=>{curAudio=null;finish()};
+      a.ontimeupdate=()=>{if(g!==speakGen||!a.duration||!isFinite(a.duration))return;const upto=Math.ceil(a.currentTime/a.duration*spans.length);for(let i=0;i<spans.length;i++)spans[i].classList.toggle('spoken',i<upto)};
+      a.onended=()=>{for(let i=0;i<spans.length;i++)spans[i].classList.add('spoken');curAudio=null;finish()};
       a.onerror=()=>{curAudio=null;finish()};
       a.play().catch(()=>finish());
     }).catch(e=>{
@@ -1535,14 +1537,13 @@ function speakSeg(li,onend){
 }
 function browserSeg(text,lineEl,g,finish){
   if(!window.speechSynthesis){finish();return}
-  speechSynthesis.cancel();
   const u=new SpeechSynthesisUtterance(text);u.lang='ja-JP';if(JA_VOICE)u.voice=JA_VOICE;u.rate=P.rate;u.pitch=1;
   const spans=lineEl?lineEl.querySelectorAll('.ch'):[];let t0=0;
   u.onstart=()=>{t0=performance.now();setWave(true)};
   u.onboundary=e=>{if(e.charIndex==null)return;const up=e.charIndex+(e.charLength||1);spans.forEach(s=>{if(+s.dataset.i<up)s.classList.add('spoken')})};
-  u.onend=()=>{if(t0)P._dur=performance.now()-t0;finish()};
+  u.onend=()=>{if(t0)P._dur=performance.now()-t0;spans.forEach(s=>s.classList.add('spoken'));finish()};
   u.onerror=()=>finish();
-  speechSynthesis.speak(u);
+  setTimeout(()=>{if(g!==speakGen)return;try{speechSynthesis.resume();speechSynthesis.speak(u)}catch(e){finish()}},45);
 }
 function play(){P.playing=true;setPlayIcon();P.repLeft=P.rep;playSegs(0)}
 function playSegs(li){
