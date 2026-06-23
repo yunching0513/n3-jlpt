@@ -345,6 +345,13 @@
         <div class="l3">N3でよく出る会話・場面の短文を音声で。聞き取り→真似して言う耳の練習に。</div>
         <div class="gobtn">▶ 聴解を始める</div>
       </div>
+
+      <div class="launch" style="margin-top:10px;background:linear-gradient(135deg,#33271c,#4a3826)" onclick="openPlayer('story',null,'all')">
+        <div class="l1">READING ・ 読解</div>
+        <div class="l2">物語「面接の日」</div>
+        <div class="l3">学んだ語彙・文法をストーリーで。1文ずつ音声＋跟讀、逐字中文・ローマ字も。</div>
+        <div class="gobtn">▶ 物語を読む</div>
+      </div>
       <div class="card pad">
         <div style="font-family:var(--serif); font-weight:700; font-size:15px; margin-bottom:4px">進み具合</div>
         <div class="prow"><b>文法 81</b><span class="n" id="p-g-n">0 / 81</span></div><div class="bar"><i id="p-g"></i></div>
@@ -921,6 +928,23 @@ const KAIWA=[
    ["店員","三点で、千五百円になります。","三件，一共一千五百日圓。"]]},
 ];
 
+/* 読解・物語 */
+const STORY=[{p:"面接の日",m:"学んだ語彙・文法を物語で（読解）",scene:"田中さんの面接",l:[
+ [null,"大学を卒業してから、田中さんは長い時間をかけて準備し、今日[ようやく]貴重な面接のチャンスを手に入れました。","大學畢業後，田中花了很長時間準備，今天終於得到了寶貴的面試機會。"],
+ [null,"彼が夢見ていたのは、非常に有名な[企業]、つまり日常会話でよく言う会社に入ることでした。","他夢寐以求的，是進入一家非常有名的企業，也就是日常會話常說的「公司」。"],
+ [null,"この会社の[主要]な業務はAIソフトウェアの開発で、業界では[一流]、つまり素晴らしいと高く評価されています。","這家公司主要的業務是 AI 軟體開發，在業界被評為一流、也就是非常出色。"],
+ [null,"田中さんは待合室に座りながら、緊張のあまり[汗をかいて]いました。","田中坐在等候室，緊張得直冒汗。"],
+ [null,"しばらくして、人事の担当者が出てきて言いました。「皆さん、[順番]にオフィスに入ってください。」","過了一會兒，人事負責人出來說：「各位，請依序進辦公室。」"],
+ [null,"田中さんの[順番]になった時、面接官は履歴書を見て質問しました。「なぜ、我が社に[勤める]ことを希望したのですか？」","輪到田中時，面試官看著履歷問：「你為什麼希望到本公司任職呢？」"],
+ [null,"彼が自信を持って答えた後、念入りに準備した企画を説明しました。","他充滿自信地回答後，說明了精心準備的企劃。"],
+ [null,"面接官はその抽象的なアイデアと目に見えない工夫が詰まった[内容]を見て、満足そうに頷きながら言いました。","面試官看著那充滿抽象點子與看不見巧思的內容，滿意地點頭說："],
+ [null,"「あなたの提案はとても面白いですね。明日までに[検討して]おきます。」つまり、「よく考えておきます」ということです。","「你的提案很有意思。我會在明天前好好研議。」也就是「我會好好考慮」的意思。"],
+ [null,"ビルを出た時、田中さんはホッと息をつきました。","走出大樓時，田中鬆了一口氣。"],
+ [null,"道を歩いていると、突然トラックが近づいてきて、運転手が顔を出して叫びました。「すみません、車を止めるので、少し[バックして]ください！」","走在路上時，突然一輛卡車靠近，司機探出頭喊：「不好意思，我要停車，請稍微後退一下！」"],
+ [null,"田中さんはすぐにこの外来語を理解し、素直に後ろに下がって道を譲りました。","田中立刻聽懂這個外來語，乖乖往後退讓開了路。"],
+ [null,"今日の面接は、なんだかいい兆しが見えますね！","今天的面試，總覺得有好兆頭呢！"]
+]}];
+
 /* VOCAB: {w, r, m, s(含[單字]), z} */
 const VOCAB=[
  {w:"約束",r:"やくそく",m:"約定",s:"友達と[約束]したのに、彼は時間になっても来なかった。",z:"明明和朋友約好了，他到了時間卻沒來。"},
@@ -1411,15 +1435,15 @@ function updHome(){
 
 /* ===================== PLAYER ===================== */
 const P={deck:'gram',list:[],pos:0,rate:0.9,rep:1,auto:true,tr:true,shadow:true,pause:1.3,playing:false,_t:null,_dur:1500};
-function deckArr(d){return d==='vocab'?VOCAB:d==='n4'?N4GRAMMAR:d==='kaiwa'?KAIWA:d==='my'?MYCARDS:GRAMMAR}
-function deckLearned(d){return d==='vocab'?S.v:d==='n4'?S.g4:d==='kaiwa'?S.k:d==='my'?[]:S.g}
+function deckArr(d){return d==='vocab'?VOCAB:d==='n4'?N4GRAMMAR:d==='kaiwa'?KAIWA:d==='my'?MYCARDS:d==='story'?STORY:GRAMMAR}
+function deckLearned(d){return d==='vocab'?S.v:d==='n4'?S.g4:d==='kaiwa'?S.k:(d==='my'||d==='story')?[]:S.g}
 function curSegs(){if(P.deck==='vocab'){const v=VOCAB[P.list[P.pos]];return[{s:null,t:v.s,z:v.z}]}if(P.deck==='my'){const c=MYCARDS[P.list[P.pos]];return[{s:null,t:c.jp,z:c.zh}]}return deckArr(P.deck)[P.list[P.pos]].l.map(a=>({s:a[0],t:a[1],z:a[2]}))}
 function openPlayer(deck,startIdx,filter){
   P.deck=deck;const A=deckArr(deck),L=deckLearned(deck),all=A.map((_,i)=>i);
   let arr=filter==='todo'?all.filter(i=>!L.includes(i)):filter==='done'?all.filter(i=>L.includes(i)):all;
   if(!arr.length)arr=all;
   P.list=arr;P.pos=startIdx!=null?Math.max(0,arr.indexOf(startIdx)):0;
-  document.getElementById('p-title').textContent=deck==='vocab'?'聽讀・跟讀（単語）':deck==='n4'?'聽讀・跟讀（N4文型）':deck==='kaiwa'?'聴解・会話（短文）':deck==='my'?'マイ単語カード（聽讀）':'聽讀・跟讀（文法）';
+  document.getElementById('p-title').textContent=deck==='vocab'?'聽讀・跟讀（単語）':deck==='n4'?'聽讀・跟讀（N4文型）':deck==='kaiwa'?'聴解・会話（短文）':deck==='my'?'マイ単語カード（聽讀）':deck==='story'?'読解・物語':'聽讀・跟讀（文法）';
   document.getElementById('player').classList.add('show');
   renderItem();play();
 }
@@ -1428,7 +1452,7 @@ function renderItem(){
   const segs=curSegs();
   document.getElementById('p-cnt').textContent=`${P.pos+1} / ${P.list.length}`;
   document.getElementById('p-bar').style.width=((P.pos+1)/P.list.length*100)+'%';
-  const lc=document.getElementById('chip-learn');if(lc)lc.style.display=(P.deck==='my')?'none':'';
+  const lc=document.getElementById('chip-learn');if(lc)lc.style.display=(P.deck==='my'||P.deck==='story')?'none':'';
   if(P.deck==='my'){const c=MYCARDS[P.list[P.pos]];
     document.getElementById('p-cat').textContent='マイ単語カード';
     document.getElementById('p-pat').innerHTML=c.jp+(c.rj?'<span class="prd">'+c.rj+'</span>':'');
@@ -1438,9 +1462,9 @@ function renderItem(){
     document.getElementById('p-pat').innerHTML=v.w+'<span class="prd">'+v.r+'</span>';
     document.getElementById('p-zh').textContent=v.m;updLearnChip(S.v.includes(P.list[P.pos]));
   }else{const g=deckArr(P.deck)[P.list[P.pos]];
-    const cat=P.deck==='n4'?'文法 N4 ・ ':P.deck==='kaiwa'?'聴解・会話 ・ ':'文法 ・ ';
+    const cat=P.deck==='n4'?'文法 N4 ・ ':P.deck==='kaiwa'?'聴解・会話 ・ ':P.deck==='story'?'読解・物語 ・ ':'文法 ・ ';
     document.getElementById('p-cat').textContent=cat+g.scene;
-    document.getElementById('p-pat').innerHTML=(P.deck==='kaiwa'?'':'〜')+'<span class="x">'+g.p+'</span>';
+    document.getElementById('p-pat').innerHTML=((P.deck==='kaiwa'||P.deck==='story')?'':'〜')+'<span class="x">'+g.p+'</span>';
     document.getElementById('p-zh').textContent=g.m;updLearnChip(deckLearned(P.deck).includes(P.list[P.pos]));
   }
   const ex=document.getElementById('p-ex');
@@ -1457,6 +1481,7 @@ function renderItem(){
 function speakSeg(li,onend){
   const segs=curSegs(),lineEl=document.querySelector(`#p-ex .pline[data-li="${li}"]`);
   document.querySelectorAll('#p-ex .pline').forEach(p=>{p.classList.toggle('active',p===lineEl);p.classList.toggle('glow',p===lineEl)});
+  if(lineEl)lineEl.scrollIntoView({block:'center',behavior:'smooth'});
   const text=clean(segs[li].t);
   stopAll();const g=speakGen;
   const finish=()=>{if(g!==speakGen)return;setWave(false);lineEl&&lineEl.classList.remove('glow');onend&&onend()};
@@ -1553,7 +1578,7 @@ function wireToks(div){div.querySelectorAll('.tok').forEach(el=>el.onclick=()=>{
 function toggleRJ(){T.rj=!T.rj;saveT();document.getElementById('chip-rj').classList.toggle('on',T.rj);refreshBreakdown()}
 function toggleZH(){T.zh=!T.zh;saveT();document.getElementById('chip-zh').classList.toggle('on',T.zh);refreshBreakdown()}
 function updLearnChip(on){const c=document.getElementById('chip-learn');c.classList.toggle('on',on);c.textContent=on?'✓ 覚えた':'覚えた'}
-function toggleLearn(){if(P.deck==='my')return;const gi=P.list[P.pos],L=deckLearned(P.deck);toggle(L,gi);save();updHome();updMeta();renderGram();renderVocab();updLearnChip(L.includes(gi))}
+function toggleLearn(){if(P.deck==='my'||P.deck==='story')return;const gi=P.list[P.pos],L=deckLearned(P.deck);toggle(L,gi);save();updHome();updMeta();renderGram();renderVocab();updLearnChip(L.includes(gi))}
 document.querySelectorAll('#seg-speed button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#seg-speed button').forEach(x=>x.classList.remove('on'));b.classList.add('on');P.rate=parseFloat(b.dataset.r);if(P.playing){stopSpeak();stopTimers();play()}});
 document.querySelectorAll('#seg-pause button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#seg-pause button').forEach(x=>x.classList.remove('on'));b.classList.add('on');P.pause=parseFloat(b.dataset.p)});
 document.addEventListener('keydown',e=>{if(!document.getElementById('player').classList.contains('show'))return;if(e.code==='Space'){e.preventDefault();togglePlay()}else if(e.code==='ArrowRight')nextItem();else if(e.code==='ArrowLeft')prevItem();else if(e.code==='Escape')closePlayer()});
