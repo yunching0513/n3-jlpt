@@ -245,6 +245,25 @@
   .jaclick{cursor:pointer;color:var(--vermilion-deep);border-bottom:1px dashed var(--vermilion)}
   .jaclick:active{opacity:.55}
   .chipsay .jaclick{border-bottom:0}
+  #reader{position:fixed;inset:0;z-index:55;background:var(--paper);display:none;flex-direction:column}
+  #reader.show{display:flex;animation:fade .3s both}
+  .rtop{display:flex;align-items:center;gap:12px;padding:calc(14px + env(safe-area-inset-top)) 18px 10px;border-bottom:1px solid var(--line)}
+  .rsel{margin-left:auto;display:flex;gap:6px}
+  .rselb{width:32px;height:32px;border-radius:9px;border:1px solid var(--line);background:var(--card);cursor:pointer;font-size:14px;color:var(--ink-soft)}
+  .rselb.on{background:var(--vermilion);color:#fff;border-color:var(--vermilion)}
+  .rbody{flex:1;overflow-y:auto;width:100%;max-width:720px;margin:0 auto;padding:14px 22px 40px}
+  .rtitle{font-family:var(--serif);font-size:22px;font-weight:800;margin:6px 0 3px}
+  .rscene{font-size:12px;color:var(--ink-soft);margin-bottom:20px}
+  .rpara{margin-bottom:16px;border-bottom:1px dashed var(--line);padding-bottom:13px}
+  .rja{font-family:var(--serif);font-size:19px;line-height:1.95}
+  .rja .x{color:var(--vermilion-deep);font-weight:700}
+  .rrow{display:flex;align-items:center;gap:8px;margin-top:9px}
+  .rzh{font-size:13.5px;color:var(--ink-soft);line-height:1.7}
+  #reader.notr .rzh{display:none}
+  .rbtn{width:32px;height:28px;border-radius:8px;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;cursor:pointer;color:var(--indigo);flex:none}
+  .rbtn:active{transform:scale(.94)}
+  .rbtn svg{width:14px;height:14px;fill:currentColor}
+  .rctrl{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:12px 16px calc(14px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:rgba(251,246,236,.7)}
   .pline.active.glow .ltext{animation:gl 1.3s ease-in-out infinite}
   @keyframes gl{0%,100%{opacity:.92}50%{opacity:1}}
   .wave{display:flex; gap:4px; align-items:flex-end; height:20px; margin-top:18px; opacity:0; transition:.3s}
@@ -346,10 +365,10 @@
         <div class="gobtn">▶ 聴解を始める</div>
       </div>
 
-      <div class="launch" style="margin-top:10px;background:linear-gradient(135deg,#33271c,#4a3826)" onclick="openPlayer('story',null,'all')">
+      <div class="launch" style="margin-top:10px;background:linear-gradient(135deg,#33271c,#4a3826)" onclick="openReader(0)">
         <div class="l1">READING ・ 読解</div>
         <div class="l2">読解・物語（3話）</div>
-        <div class="l3">「面接の日」「家族旅行」「料理修行」。1文ずつ音声＋跟讀、逐字中文・ローマ字も。⏭で次の物語へ。</div>
+        <div class="l3">「面接の日」「家族旅行」「料理修行」。記事レイアウトで読む＋1文ずつ音声・音声DL。跟讀モードも選べます。</div>
         <div class="gobtn">▶ 物語を読む</div>
       </div>
       <div class="card pad">
@@ -466,6 +485,22 @@
 
 <div id="toast"></div>
 
+<!-- ===== READER（記事） ===== -->
+<div id="reader">
+  <div class="rtop">
+    <button class="px" onclick="closeReader()">✕</button>
+    <span style="font-family:var(--serif);font-weight:700;letter-spacing:.1em;font-size:14px">読解（記事）</span>
+    <span class="rsel" id="r-sel"></span>
+  </div>
+  <div class="rbody" id="r-body"></div>
+  <div class="rctrl">
+    <button class="chip" id="r-tr">訳</button>
+    <button class="chip" id="r-playall">▶ 全文再生</button>
+    <button class="chip" id="r-dlall">⬇ 全文DL</button>
+    <button class="chip" id="r-shadow">▶ 跟讀モード</button>
+  </div>
+</div>
+
 <!-- ===== PLAYER ===== -->
 <div id="player">
   <div class="ptop">
@@ -511,6 +546,7 @@
 <script>
 /* ===================== DATA ===================== */
 const SPK='<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 00-2.5-4v8a4.5 4.5 0 002.5-4zM14 3.2v2.1a7 7 0 010 13.4v2.1a9 9 0 000-17.6z"/></svg>';
+const DL='<svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zm7-4l5-5-1.4-1.4L13 12.2V4h-2v8.2L8.4 9.6 7 11l5 5z"/></svg>';
 /* GRAMMAR: {p, m(中), scene(中), l:[[speaker, 日(含[文法]), 中]...]} */
 const GRAMMAR=[
  {p:"うちに",m:"趁著…時／在…之內",scene:"前輩給後輩建議",l:[
@@ -1613,6 +1649,35 @@ document.querySelectorAll('#seg-speed button').forEach(b=>b.onclick=()=>{documen
 document.querySelectorAll('#seg-pause button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#seg-pause button').forEach(x=>x.classList.remove('on'));b.classList.add('on');P.pause=parseFloat(b.dataset.p)});
 document.addEventListener('keydown',e=>{if(!document.getElementById('player').classList.contains('show'))return;if(e.code==='Space'){e.preventDefault();togglePlay()}else if(e.code==='ArrowRight')nextItem();else if(e.code==='ArrowLeft')prevItem();else if(e.code==='Escape')closePlayer()});
 
+/* ===================== 読解（記事レイアウト） ===================== */
+let RIDX=0,rTr=true;
+function openReader(idx){RIDX=idx||0;document.getElementById('reader').classList.add('show');renderReader();const b=document.getElementById('r-body');if(b)b.scrollTop=0;}
+function closeReader(){stopAll();document.getElementById('reader').classList.remove('show')}
+function renderReader(){
+  const st=STORY[RIDX];if(!st)return;
+  document.getElementById('reader').classList.toggle('notr',!rTr);
+  const marks=['①','②','③','④','⑤','⑥'];
+  document.getElementById('r-sel').innerHTML=STORY.map((s,i)=>`<button class="rselb${i===RIDX?' on':''}" data-i="${i}">${marks[i]||(i+1)}</button>`).join('');
+  const fname='story'+(RIDX+1);
+  const body=st.l.map((ln,i)=>`<div class="rpara"><div class="rja">${exHTML(ln[1])}</div><div class="rrow"><button class="rbtn r-say" data-t="${esc(clean(ln[1]))}">${SPK}</button><button class="rbtn r-dl" data-t="${esc(clean(ln[1]))}" data-f="${fname}_${i+1}">${DL}</button><span class="rzh">${esc(ln[2])}</span></div></div>`).join('');
+  document.getElementById('r-body').innerHTML=`<div class="rtitle">${esc(st.p)}</div><div class="rscene">${esc(st.scene)}・${esc(st.m)}</div>${body}`;
+  document.querySelectorAll('#r-sel .rselb').forEach(b=>b.onclick=()=>{RIDX=+b.dataset.i;renderReader();document.getElementById('r-body').scrollTop=0});
+  document.querySelectorAll('#r-body .r-say').forEach(b=>b.onclick=()=>speakInline(b.dataset.t,0.9));
+  document.querySelectorAll('#r-body .r-dl').forEach(b=>b.onclick=()=>downloadAudio(b.dataset.t,b.dataset.f));
+}
+function downloadAudio(text,filename){
+  if(getEngine()!=='gemini'||!T.key){toast('音声DLには Gemini キーが必要です');return}
+  toast('音声を生成中…');
+  geminiSynth(clean(text)).then(url=>{const a=document.createElement('a');a.href=url;a.download=(filename||'audio')+'.wav';document.body.appendChild(a);a.click();a.remove();toast('音声をダウンロードしました')}).catch(e=>toast('DL失敗：'+(e.message||'').slice(0,40)));
+}
+function wireReader(){
+  document.getElementById('r-tr').onclick=()=>{rTr=!rTr;document.getElementById('reader').classList.toggle('notr',!rTr)};
+  document.getElementById('r-playall').onclick=()=>speakInlineLines(STORY[RIDX].l.map(x=>x[1]),0.9);
+  document.getElementById('r-dlall').onclick=()=>downloadAudio(STORY[RIDX].l.map(x=>clean(x[1])).join('、'),'story'+(RIDX+1)+'_full');
+  document.getElementById('r-shadow').onclick=()=>{closeReader();openPlayer('story',RIDX,'all')};
+  document.addEventListener('keydown',e=>{if(document.getElementById('reader').classList.contains('show')&&e.code==='Escape')closeReader()});
+}
+
 /* ===================== NAV ===================== */
 const TABS={home:'t-home',gram:'t-gram',vocab:'t-vocab',quiz:'t-quiz',plan:'t-plan',cram:'t-cram'};
 function go(name){Object.values(TABS).forEach(id=>document.getElementById(id).classList.remove('show'));document.getElementById(TABS[name]).classList.add('show');document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===name));window.scrollTo({top:0,behavior:'smooth'})}
@@ -1658,7 +1723,7 @@ async function testTTS(){
 }
 
 /* ===================== INIT ===================== */
-countdown();renderGram();renderVocab();renderMyCards();renderPlan();renderCram();startQuiz();updHome();updMeta();reflectSettings();setInterval(countdown,60000);
+countdown();renderGram();renderVocab();renderMyCards();renderPlan();renderCram();wireReader();startQuiz();updHome();updMeta();reflectSettings();setInterval(countdown,60000);
 </script>
 </body>
 </html>
