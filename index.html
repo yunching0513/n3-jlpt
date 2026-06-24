@@ -298,6 +298,8 @@
   .chzh{font-size:12.5px;color:var(--ink-soft);margin-top:2px;padding-left:40px;line-height:1.6}
   #choukai.norj .chrj{display:none}
   #choukai.nozh .chzh{display:none}
+  ruby rt{font-size:.52em;color:var(--vermilion-deep);font-weight:400;font-family:var(--sans);line-height:1}
+  .furi-t ruby{margin:0 .5px}
   .pline.active.glow .ltext{animation:gl 1.3s ease-in-out infinite}
   @keyframes gl{0%,100%{opacity:.92}50%{opacity:1}}
   .wave{display:flex; gap:4px; align-items:flex-end; height:20px; margin-top:18px; opacity:0; transition:.3s}
@@ -537,6 +539,7 @@
   <div class="rbody" id="r-body"></div>
   <div class="rctrl">
     <button class="chip" id="r-tr">訳</button>
+    <button class="chip" id="r-furi">ふり</button>
     <button class="chip" id="r-playall">▶ 全文再生</button>
     <button class="chip" id="r-dlall">⬇ 全文DL</button>
     <button class="chip" id="r-shadow">▶ 跟讀モード</button>
@@ -566,6 +569,7 @@
   <div class="ch-toggles">
     <button class="chip" id="ch-rj">羅字</button>
     <button class="chip" id="ch-zh">訳</button>
+    <button class="chip" id="ch-furi">ふり</button>
     <span class="chyt-note">音声は公式プレイリストで（同じ日付の動画を選択）</span>
   </div>
   <div class="ch-body" id="ch-body"></div>
@@ -1396,6 +1400,31 @@ async function geminiAnalyze(text){
   if(!Array.isArray(toks))toks=[];
   ANCACHE[text]=toks;saveAN();return toks;
 }
+/* ---- ふりがな（Gemini・遅延ロード） ---- */
+const FURICACHE=JSON.parse(localStorage.getItem('n3_furi')||'{}');
+function saveFuri(){try{localStorage.setItem('n3_furi',JSON.stringify(FURICACHE))}catch(e){}}
+function escA(s){return esc(s).replace(/"/g,'&quot;')}
+async function geminiFuri(text){
+  if(FURICACHE[text])return FURICACHE[text];
+  if(!T.key)throw new Error('NOKEY');
+  const schema={type:"ARRAY",items:{type:"OBJECT",properties:{s:{type:"STRING"},h:{type:"STRING"}},required:["s","h"]}};
+  const prompt='次の日本語を語に分け、各語を {s:表記, h:ひらがな読み} のJSON配列で返してください。漢字を含む語のhはその語全体のひらがな読み、かな・記号・数字はhにそのまま入れてください。文：「'+text+'」';
+  const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(T.tmodel)+':generateContent?key='+encodeURIComponent(T.key),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{responseMimeType:'application/json',responseSchema:schema,temperature:0}})});
+  if(!res.ok)throw new Error('HTTP '+res.status);
+  const j=await res.json();const parts=(((j.candidates||[])[0]||{}).content||{}).parts||[];const t=(parts.find(p=>p.text)||{}).text||'[]';
+  let toks;try{toks=JSON.parse(t)}catch(e){const m=t.match(/\[[\s\S]*\]/);toks=m?JSON.parse(m[0]):[]}
+  if(!Array.isArray(toks))toks=[];FURICACHE[text]=toks;saveFuri();return toks;
+}
+function furiHTML(toks){return toks.map(t=>{const s=(t.s||'')+'',hh=(t.h||'')+'';return (/[\u3400-\u9fff\u3005]/.test(s)&&hh&&hh!==s)?'<ruby>'+esc(s)+'<rt>'+esc(hh)+'</rt></ruby>':esc(s)}).join('')}
+let furiObserver=null;
+function clearFuri(){if(furiObserver){furiObserver.disconnect();furiObserver=null}}
+function setupFuri(rootSel){
+  clearFuri();
+  if(getEngine()!=='gemini'||!T.key){toast('ふりがなには Gemini キーが必要です');return}
+  const root=document.querySelector(rootSel);if(!root)return;
+  furiObserver=new IntersectionObserver((ents,obs)=>{ents.forEach(en=>{if(!en.isIntersecting)return;const el=en.target;obs.unobserve(el);if(el.dataset.fd)return;el.dataset.fd='1';geminiFuri(el.dataset.ft||el.textContent).then(tk=>{el.innerHTML=furiHTML(tk)}).catch(()=>{el.dataset.fd=''})})},{root:root,rootMargin:'300px'});
+  root.querySelectorAll('.furi-t').forEach(el=>furiObserver.observe(el));
+}
 /* ---- 内蔵（フォールバック） ---- */
 function sayB(text,rate){if(!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(clean(text));u.lang='ja-JP';if(JA_VOICE)u.voice=JA_VOICE;u.rate=rate||0.9;speechSynthesis.speak(u)}
 function sayLinesB(arr,rate){if(!window.speechSynthesis)return;speechSynthesis.cancel();let k=0;const go=()=>{if(k>=arr.length)return;const u=new SpeechSynthesisUtterance(clean(arr[k]));u.lang='ja-JP';if(JA_VOICE)u.voice=JA_VOICE;u.rate=rate||0.9;u.onend=()=>{k++;if(k<arr.length)setTimeout(go,300)};speechSynthesis.speak(u)};go()}
@@ -1735,7 +1764,7 @@ document.querySelectorAll('#seg-pause button').forEach(b=>b.onclick=()=>{documen
 document.addEventListener('keydown',e=>{if(!document.getElementById('player').classList.contains('show'))return;if(e.code==='Space'){e.preventDefault();togglePlay()}else if(e.code==='ArrowRight')nextItem();else if(e.code==='ArrowLeft')prevItem();else if(e.code==='Escape')closePlayer()});
 
 /* ===================== 読解（記事レイアウト） ===================== */
-let RIDX=0,rTr=true;
+let RIDX=0,rTr=true,rFuri=false;
 function openReader(idx){RIDX=idx||0;document.getElementById('reader').classList.add('show');renderReader();const b=document.getElementById('r-body');if(b)b.scrollTop=0;}
 function closeReader(){stopAll();document.getElementById('reader').classList.remove('show')}
 function renderReader(){
@@ -1744,11 +1773,12 @@ function renderReader(){
   const marks=['①','②','③','④','⑤','⑥'];
   document.getElementById('r-sel').innerHTML=STORY.map((s,i)=>`<button class="rselb${i===RIDX?' on':''}" data-i="${i}">${marks[i]||(i+1)}</button>`).join('');
   const fname='story'+(RIDX+1);
-  const body=st.l.map((ln,i)=>`<div class="rpara"><div class="rja">${exHTML(ln[1])}</div><div class="rrow"><button class="rbtn r-say" data-t="${esc(clean(ln[1]))}">${SPK}</button><button class="rbtn r-dl" data-t="${esc(clean(ln[1]))}" data-f="${fname}_${i+1}">${DL}</button><span class="rzh">${esc(ln[2])}</span></div></div>`).join('');
+  const body=st.l.map((ln,i)=>`<div class="rpara"><div class="rja furi-t" data-ft="${escA(clean(ln[1]))}">${exHTML(ln[1])}</div><div class="rrow"><button class="rbtn r-say" data-t="${esc(clean(ln[1]))}">${SPK}</button><button class="rbtn r-dl" data-t="${esc(clean(ln[1]))}" data-f="${fname}_${i+1}">${DL}</button><span class="rzh">${esc(ln[2])}</span></div></div>`).join('');
   document.getElementById('r-body').innerHTML=`<div class="rtitle">${esc(st.p)}</div><div class="rscene">${esc(st.scene)}・${esc(st.m)}</div>${body}`;
   document.querySelectorAll('#r-sel .rselb').forEach(b=>b.onclick=()=>{RIDX=+b.dataset.i;renderReader();document.getElementById('r-body').scrollTop=0});
   document.querySelectorAll('#r-body .r-say').forEach(b=>b.onclick=()=>speakInline(b.dataset.t,0.9));
   document.querySelectorAll('#r-body .r-dl').forEach(b=>b.onclick=()=>downloadAudio(b.dataset.t,b.dataset.f));
+  if(rFuri)setupFuri('#r-body');else clearFuri();
 }
 function downloadAudio(text,filename){
   if(getEngine()!=='gemini'||!T.key){toast('音声DLには Gemini キーが必要です');return}
@@ -1760,6 +1790,7 @@ function wireReader(){
   document.getElementById('r-playall').onclick=()=>speakInlineLines(STORY[RIDX].l.map(x=>x[1]),0.9);
   document.getElementById('r-dlall').onclick=()=>downloadAudio(STORY[RIDX].l.map(x=>clean(x[1])).join('、'),'story'+(RIDX+1)+'_full');
   document.getElementById('r-shadow').onclick=()=>{closeReader();openPlayer('story',RIDX,'all')};
+  document.getElementById('r-furi').onclick=()=>{rFuri=!rFuri;document.getElementById('r-furi').classList.toggle('on',rFuri);renderReader()};
   document.addEventListener('keydown',e=>{if(document.getElementById('reader').classList.contains('show')&&e.code==='Escape')closeReader()});
 }
 
@@ -1811,7 +1842,7 @@ function hideMapDetail(){const p=document.getElementById('gm-panel');if(p)p.styl
 
 /* ===================== 聴解 過去問 ===================== */
 const CH_YT='https://www.youtube.com/playlist?list=PLd_-LrksNYemY3mHxyqLvPLi3RLWEDKxR';
-let CHIDX=0,chRj=true,chZh=true;
+let CHIDX=0,chRj=true,chZh=true,chFuri=false;
 function openChoukai(idx){CHIDX=idx||0;document.getElementById('choukai').classList.add('show');renderChoukai();const b=document.getElementById('ch-body');if(b)b.scrollTop=0;}
 function closeChoukai(){stopAll();document.getElementById('choukai').classList.remove('show')}
 function renderChoukai(){
@@ -1820,15 +1851,17 @@ function renderChoukai(){
   wrap.classList.toggle('norj',!chRj);wrap.classList.toggle('nozh',!chZh);
   document.getElementById('ch-sel').innerHTML=CHOUKAI.map((e,i)=>`<button class="chselb${i===CHIDX?' on':''}" data-i="${i}">${esc(e.t)}</button>`).join('');
   let html='';
-  ex.sec.forEach((s,si)=>{html+=`<div class="chsec">${esc(s.h)}</div>`;s.r.forEach((r,ri)=>{html+=`<div class="chrow"><div class="chja"><button class="rbtn ch-say" data-si="${si}" data-ri="${ri}">${SPK}</button><span>${esc(r[0])}</span></div><div class="chrj">${esc(r[1])}</div><div class="chzh">${esc(r[2])}</div></div>`;});});
+  ex.sec.forEach((s,si)=>{html+=`<div class="chsec">${esc(s.h)}</div>`;s.r.forEach((r,ri)=>{html+=`<div class="chrow"><div class="chja"><button class="rbtn ch-say" data-si="${si}" data-ri="${ri}">${SPK}</button><span class="furi-t" data-ft="${escA(r[0])}">${esc(r[0])}</span></div><div class="chrj">${esc(r[1])}</div><div class="chzh">${esc(r[2])}</div></div>`;});});
   document.getElementById('ch-body').innerHTML=html;
   document.querySelectorAll('#ch-sel .chselb').forEach(b=>b.onclick=()=>{CHIDX=+b.dataset.i;renderChoukai();document.getElementById('ch-body').scrollTop=0});
   const yt=document.getElementById('ch-yt');if(yt)yt.href=CH_YT;
+  if(chFuri)setupFuri('#ch-body');else clearFuri();
 }
 function wireChoukai(){
   document.getElementById('ch-body').onclick=e=>{const b=e.target.closest('.ch-say');if(!b)return;const r=CHOUKAI[CHIDX].sec[+b.dataset.si].r[+b.dataset.ri];if(r)speakInline(r[0],0.9)};
   document.getElementById('ch-rj').onclick=()=>{chRj=!chRj;document.getElementById('choukai').classList.toggle('norj',!chRj)};
   document.getElementById('ch-zh').onclick=()=>{chZh=!chZh;document.getElementById('choukai').classList.toggle('nozh',!chZh)};
+  document.getElementById('ch-furi').onclick=()=>{chFuri=!chFuri;document.getElementById('ch-furi').classList.toggle('on',chFuri);renderChoukai()};
   document.addEventListener('keydown',e=>{if(document.getElementById('choukai').classList.contains('show')&&e.code==='Escape')closeChoukai()});
 }
 
