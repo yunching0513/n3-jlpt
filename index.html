@@ -497,9 +497,10 @@
   <!-- QUIZ -->
   <section class="tab" id="t-quiz">
     <div class="sec-h"><span class="ji">問</span><h2>クイズ</h2><span class="meta" id="quiz-meta">全40問</span></div>
-    <div class="seg" id="quiz-set" style="width:100%;margin-bottom:12px">
-      <button class="on" style="flex:1" data-s="mock" onclick="setQuizSet('mock')">模擬 40問</button>
-      <button style="flex:1" data-s="kako" onclick="setQuizSet('kako')">2024/7 過去問 35</button>
+    <div class="seg" id="quiz-set" style="width:100%;margin-bottom:12px;flex-wrap:wrap">
+      <button class="on" style="flex:1;min-width:88px" data-s="mock" onclick="setQuizSet('mock')">模擬 40</button>
+      <button style="flex:1;min-width:88px" data-s="kako" onclick="setQuizSet('kako')">文字語彙'24/7</button>
+      <button style="flex:1;min-width:88px" data-s="kako2" onclick="setQuizSet('kako2')">文法読解'24/12</button>
     </div>
     <div id="quiz-area"></div>
   </section>
@@ -1310,6 +1311,32 @@ const KAKO2024=[
  ["【用法】性格",["日本の古い性格に興味がある、神社やお寺によく行きます。","森さんはおとなしい性格で、自分の意見はあまり言いません。","値段が高くても、安全で性格のいい車を買うつもりです。","音楽の性格を伸ばすために、５歳から専門家の指導を受けました。"],1,"性格＝（人的）個性。其他用「文化・性能・才能」。"],
 ];
 
+/* 2024年12月 文法・読解 過去問（22問） */
+const KAKO2024B=[
+ ["私は、自分の作ったパンをたくさんの人（　）食べてほしいと思って、パン屋を始めた。",["は","に","まで","なら"],1,"「〜に〜てほしい」＝希望某人做。人＋に。"],
+ ["先生、来週の発表（　）、ちょっとご相談したいのですが。",["にとって","によると","のことで","のほか"],2,"「〜のことで」＝關於…的事（要商量）。"],
+ ["今日は宿題が1時間（　）終わりそうだ。",["ごろに","ごろで","ぐらいに","ぐらいで"],3,"時間量用「ぐらい」、「で」表所需時間；ごろ用於時刻。"],
+ ["母「えっ、（　）ご飯を食べたばかりなのに、もうお腹すいたの？」",["そろそろ","だんだん","さっき","ずっと"],2,"剛剛＝さっき。〜たばかり＝剛…。"],
+ ["大事なレシートをズボンのポケットに（　）洗濯してしまった。",["入れたまま","入ったまま","入れている間","入っている間"],0,"自己放進去（他動詞）＋まま＝入れたまま。"],
+ ["B「いや、（　）もう間に合わないと思うよ。次の電車にしよう。」",["走ってて","走ったって","走りなきゃ","走っちゃ"],1,"「〜たって」＝即使…（＝ても，口語）。"],
+ ["洋服はネットで買わない。実際（　）分からないからだ。",["着てみないと","着ておかないと","着てみてから","着ておいてから"],0,"「〜ないと分からない」＝不…就不知道；試穿才知道。"],
+ ["B「どうぞたくさん（　）ください。」（料理をすすめる）",["なさって","おっしゃって","召し上がって","いらっしゃって"],2,"吃／喝的尊敬語＝召し上がる。"],
+ ["A「最近寒くなって（　）ね。」 B「今日は特に冷えますね。」",["いいました","ありました","いきました","きました"],3,"變化逐漸至今用「〜てくる」。寒くなってきた。"],
+ ["B「楽しかったよ。緊張したけど、新しい友達もできた（　）。」",["行ってよかったよ","行こうかと思うよ","行きたかったなあ","行けたらいいなあ"],0,"已去且滿意→「行ってよかった」（幸好去了）。"],
+ ["学生「すみません。ペンを（　）。」 事務所の人「これを使ってください。」",["お貸しできますか","お貸しいたしますか","貸したらいかがですか","貸していただけませんか"],3,"請對方借給我→「貸していただけませんか」。"],
+ ["父「雨が降っているし、車で（　）？」 娘「いいの？ありがとう。」",["送ってこない","送ってこようか","送ってあげない","送ってあげようか"],3,"我為你做＋提議→「送ってあげようか」。"],
+ ["中山「あ、これからABC銀行に（　）。戻ってからでもいいですか。」",["行くところだからです","行くところなんです","行っているところだからです","行っているところなんです"],1,"正要去（即將）→「行くところなんです」。"],
+ ["【並べ替え】新入生が ＿＿ ＿★＿ ＿＿ ＿＿ にアンケート調査を行う。（1大学生活 2持っている 3に対して 4イメージ）",["大学生活","持っている","に対して","イメージ"],2,"順：大学生活→に対して→持っている→イメージ。★＝に対して。"],
+ ["【並べ替え】来週の夫の誕生日には、＿＿ ＿★＿ ＿＿ ＿＿ つもりだ。（1最近 2プレゼントする 3かばんを 4欲しがっている）",["最近","プレゼントする","かばんを","欲しがっている"],3,"順：最近→欲しがっている→かばんを→プレゼントする。★＝欲しがっている。"],
+ ["【並べ替え】私は、健康の ＿＿ ＿＿ ＿★＿ ＿＿ 。（1している 2ために 3毎日8時間以上寝る 4ように）",["している","ために","毎日8時間以上寝る","ように"],3,"順：ために→毎日8時間以上寝る→ように→している。★＝ように。"],
+ ["【並べ替え】部長が ＿＿ ＿＿ ＿★＿ ＿＿ クッキーがおいしい。（1たびに 2買ってきてくれる 3お土産の 4東京へ出張に行く）",["たびに","買ってきてくれる","お土産の","東京へ出張に行く"],1,"順：東京へ出張に行く→たびに→買ってきてくれる→お土産の。★＝買ってきてくれる。"],
+ ["【並べ替え】本の数が多い ＿＿ ＿＿ ＿★＿ ＿＿ いい。（1景色を楽しみながら 2大きな窓から海が見えて 3だけでなく 4読書ができるのも）",["景色を楽しみながら","大きな窓から海が見えて","だけでなく","読書ができるのも"],0,"順：だけでなく→大きな窓から海が見えて→景色を楽しみながら→読書ができるのも。★＝景色を楽しみながら。"],
+ ["【読解】私は夏休みに日本人の友達の家に<span class='x'>＿＿(19)</span>。日本人の家に泊まるのは初めてで、行く前は少し不安でした。（20）行ってみたらとても楽しかったです。",["招待してくれたのです","招待してくれたはずです","招待してくれたばかりです","招待してくれたそうです"],0,"敘述自己的體驗、說明原委→「〜のです」。はず/ばかり/そうだ不合語境。"],
+ ["【読解】行く前は少し不安でした。<span class='x'>＿＿(20)</span>、行ってみたらとても楽しかったです。（前後逆接）",["それで","でも","実は","また"],1,"前面不安、後面卻很開心→逆接「でも」。"],
+ ["【読解】畑で育てた野菜で料理をしました。私は、お店で売られている野菜<span class='x'>＿＿(21)</span>食べたことがありませんでした。",["は","などを","しか","だけ"],2,"「〜しか…ない」＝只…（食べたことが『ありません』呼應）。"],
+ ["【読解】お母さんに教えてもらったやり方で、私も野菜を<span class='x'>＿＿(22)</span>。今、2種類の野菜を育てています。",["育ててみてほしいです","育ててみてもいいです","育ててみようとしました","育ててみることにしました"],3,"自己下決定→「〜ことにしました」。"],
+];
+
 const PLAN=[
  ["6/22","文字・語彙①","名詞系の単語を一気に。単語タブを全部めくる＋🔊で発音。"],
  ["6/23","文字・語彙②","漢字の読み練習。間違えた語だけ反復。"],
@@ -1327,7 +1354,7 @@ const PLAN=[
 
 /* ===================== STATE ===================== */
 const KEY="n3_shadow_v1";
-const S=Object.assign({g:[],v:[],p:[],q:null,g4:[],k:[],qk:null},JSON.parse(localStorage.getItem(KEY)||"{}"));
+const S=Object.assign({g:[],v:[],p:[],q:null,g4:[],k:[],qk:null,qk2:null},JSON.parse(localStorage.getItem(KEY)||"{}"));
 function save(){localStorage.setItem(KEY,JSON.stringify(S))}
 const MYCARDS=JSON.parse(localStorage.getItem('n3_mycards')||'[]');
 function saveMy(){localStorage.setItem('n3_mycards',JSON.stringify(MYCARDS))}
@@ -1531,8 +1558,8 @@ function renderMyCards(){
 
 /* ===================== QUIZ ===================== */
 let qi=0,qscore=0,quizSet='mock';
-function quizArr(){return quizSet==='kako'?KAKO2024:QUIZ}
-function quizBestKey(){return quizSet==='kako'?'qk':'q'}
+function quizArr(){return quizSet==='kako'?KAKO2024:quizSet==='kako2'?KAKO2024B:QUIZ}
+function quizBestKey(){return quizSet==='kako'?'qk':quizSet==='kako2'?'qk2':'q'}
 function setQuizSet(s){quizSet=s;document.querySelectorAll('#quiz-set button').forEach(b=>b.classList.toggle('on',b.dataset.s===s));startQuiz()}
 function startQuiz(){qi=0;qscore=0;const m=document.getElementById('quiz-meta');if(m)m.textContent='全'+quizArr().length+'問';renderQ()}
 function renderQ(){
@@ -1871,7 +1898,7 @@ function go(name){Object.values(TABS).forEach(id=>document.getElementById(id).cl
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.go));
 document.querySelectorAll('#gram-f button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#gram-f button').forEach(x=>x.classList.remove('on'));b.classList.add('on');gramFilter=b.dataset.f;renderGram()});
 document.querySelectorAll('#vocab-f button').forEach(b=>b.onclick=()=>{if(b.dataset.f==='shuffle'){vocabShuf=true;renderVocab();return}document.querySelectorAll('#vocab-f button').forEach(x=>x.classList.remove('on'));b.classList.add('on');vocabFilter=b.dataset.f;vocabShuf=false;renderVocab()});
-function resetAll(){if(!confirm('すべての進捗を消去します。よろしいですか？'))return;S.g=[];S.g4=[];S.v=[];S.p=[];S.q=null;S.k=[];S.qk=null;save();renderGram();renderVocab();renderPlan();updHome();updMeta()}
+function resetAll(){if(!confirm('すべての進捗を消去します。よろしいですか？'))return;S.g=[];S.g4=[];S.v=[];S.p=[];S.q=null;S.k=[];S.qk=null;S.qk2=null;save();renderGram();renderVocab();renderPlan();updHome();updMeta()}
 
 /* ===================== TTS SETTINGS UI ===================== */
 function ttsStatus(msg,err){const e=document.getElementById('tts-status');if(!e)return;e.textContent=msg;e.style.color=err?'var(--vermilion-deep)':'var(--green)'}
