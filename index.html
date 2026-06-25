@@ -326,9 +326,10 @@
   #ty-in:focus{border-color:var(--ink)}
   .ty-target{font-family:var(--serif);font-size:19px;line-height:1.9;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
   .tk-ok{color:var(--green)}
-  .tk-no{color:var(--vermilion);border-bottom:2px solid var(--vermilion)}
-  .tk-ex{color:#fff;background:var(--vermilion);border-radius:3px;text-decoration:line-through}
-  .tk-rev{color:var(--ink)}
+  .tk-no{color:#fff;background:var(--vermilion);border-radius:3px}
+  .tk-cur{color:var(--vermilion-deep);background:#fbf3df;border-radius:3px}
+  .tk-todo{color:var(--ink-soft)}
+  .ty-hint{font-size:11px;color:var(--ink-soft);align-self:center}
   .ty-result{font-size:14px;font-weight:700;min-height:20px}
   .ty-actions{display:flex;gap:8px;margin-top:4px}
   .ty-actions .btn{flex:1}
@@ -454,7 +455,7 @@
       <div class="launch" style="margin-top:10px;background:linear-gradient(135deg,#2a2438,#3d3654)" onclick="openTyping()">
         <div class="l1">TYPING ・ 入力練習</div>
         <div class="l2">⌨️ タイピング練習</div>
-        <div class="l3">文法・単語・会話・物語の例文を、聞いて／中文を見て日本語で打つ。文字レベルで採点・全問正解でチャイム。</div>
+        <div class="l3">文法・単語・会話・物語の例文を「見ながら打って」覚える。打つほど文字が緑に光る。</div>
         <div class="gobtn">▶ 打って練習</div>
       </div>
       <div class="card pad">
@@ -652,14 +653,14 @@
     <div class="ty-zh" id="ty-zh"></div>
     <div class="ty-tools">
       <button class="chip" onclick="tyPlay()">🔊 聞く</button>
-      <button class="chip" onclick="tyReveal()">答えを見る</button>
+      <span class="ty-hint">上の文を見ながら下に打って覚えよう（IMEを日本語に）</span>
     </div>
-    <textarea id="ty-in" rows="2" placeholder="ここに日本語で入力（IMEを日本語に切替）…"></textarea>
-    <div class="ty-target" id="ty-target" style="display:none"></div>
+    <div class="ty-target" id="ty-target"></div>
+    <textarea id="ty-in" rows="2" placeholder="ここに同じ文を打つ…"></textarea>
     <div class="ty-result" id="ty-result"></div>
     <div class="ty-actions">
-      <button class="btn" id="ty-check" onclick="tyCheck()">答え合わせ</button>
-      <button class="btn ghost" onclick="tyNext()">スキップ</button>
+      <button class="btn ghost" style="flex:1" onclick="var i=document.getElementById('ty-in');i.value='';tyHi();i.focus()">クリア</button>
+      <button class="btn" style="flex:1" onclick="tyNext()">次へ →</button>
     </div>
   </div>
 </div>
@@ -2092,37 +2093,34 @@ function tyStart(deck){
   tyRender();
 }
 function tyCur(){return tyList[tyPos]}
+function tyHi(){
+  const c=tyCur();if(!c)return;
+  const target=c.jp,a=((document.getElementById('ty-in')||{}).value||'').replace(/\s/g,''),b=target.replace(/\s/g,'');
+  let ti=0,html='';
+  for(const ch of target){
+    if(/\s/.test(ch)){html+=esc(ch);continue}
+    if(ti<a.length)html+='<span class="'+(a[ti]===ch?'tk-ok':'tk-no')+'">'+esc(ch)+'</span>';
+    else if(ti===a.length)html+='<span class="tk-cur">'+esc(ch)+'</span>';
+    else html+='<span class="tk-todo">'+esc(ch)+'</span>';
+    ti++;
+  }
+  document.getElementById('ty-target').innerHTML=html;
+  const res=document.getElementById('ty-result');
+  if(a===b&&b.length){if(!tyDone){tyDone=true;res.innerHTML='<span style="color:var(--green);font-weight:700">✓ 完璧！打って覚えた！</span>';sfxCorrect();}}
+  else{tyDone=false;res.textContent=''}
+}
 function tyRender(){
   tyDone=false;const c=tyCur();if(!c)return;
   document.getElementById('ty-cnt').textContent=(tyPos+1)+' / '+tyList.length;
-  document.getElementById('ty-zh').textContent=c.zh||'（音声を聞いて入力してください）';
+  document.getElementById('ty-zh').textContent=c.zh||'（意味なし）';
   const ta=document.getElementById('ty-in');ta.value='';ta.disabled=false;
-  const tg=document.getElementById('ty-target');tg.innerHTML='';tg.style.display='none';
+  tyHi();
   document.getElementById('ty-result').textContent='';
-  document.getElementById('ty-check').textContent='答え合わせ';
   setTimeout(()=>ta.focus(),60);
 }
-function tyDiff(typed,target){
-  const a=(typed||'').replace(/\s/g,''),b=(target||'').replace(/\s/g,'');
-  let html='',correct=0;
-  for(let i=0;i<b.length;i++){const ok=a[i]===b[i];if(ok)correct++;html+='<span class="'+(ok?'tk-ok':'tk-no')+'">'+esc(b[i])+'</span>'}
-  if(a.length>b.length)html+='<span class="tk-ex">'+esc(a.slice(b.length))+'</span>';
-  return {html:html,acc:b.length?Math.round(correct/b.length*100):0,perfect:a===b};
-}
-function tyCheck(){
-  const c=tyCur();if(!c)return;
-  if(tyDone){tyNext();return}
-  const r=tyDiff(document.getElementById('ty-in').value,c.jp);
-  const tg=document.getElementById('ty-target');tg.style.display='block';tg.innerHTML=r.html;
-  const res=document.getElementById('ty-result');
-  if(r.perfect){res.innerHTML='<span style="color:var(--green)">✓ 完璧！100%</span>';sfxCorrect();}
-  else{res.innerHTML='<span style="color:var(--vermilion-deep)">正確率 '+r.acc+'%（赤い字を直してもう一度）</span>';if(r.acc<60)sfxWrong();}
-  document.getElementById('ty-check').textContent='次へ →';tyDone=true;
-}
 function tyNext(){tyPos=(tyPos+1)%tyList.length;tyRender()}
-function tyReveal(){const c=tyCur();if(!c)return;const tg=document.getElementById('ty-target');tg.style.display='block';tg.innerHTML='<span class="tk-rev">'+esc(c.jp)+'</span>'}
 function tyPlay(){const c=tyCur();if(c)speakInline(c.jp,0.9)}
-function wireTyping(){document.addEventListener('keydown',e=>{if(document.getElementById('typing').classList.contains('show')&&e.code==='Escape')closeTyping()})}
+function wireTyping(){const ta=document.getElementById('ty-in');if(ta)ta.addEventListener('input',tyHi);document.addEventListener('keydown',e=>{if(document.getElementById('typing').classList.contains('show')&&e.code==='Escape')closeTyping()})}
 
 /* ===================== NAV ===================== */
 const TABS={home:'t-home',gram:'t-gram',vocab:'t-vocab',quiz:'t-quiz',plan:'t-plan',cram:'t-cram'};
