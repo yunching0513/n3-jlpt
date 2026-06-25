@@ -317,6 +317,21 @@
   .ai-input textarea{flex:1;resize:none;font-family:var(--sans);font-size:14px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink);max-height:120px;line-height:1.5;outline:none}
   .ai-input textarea:focus{border-color:var(--ink)}
   .ai-send{flex:none;background:var(--ink);color:#fff;border:0;border-radius:12px;padding:11px 16px;font-weight:700;font-size:14px;cursor:pointer}
+  #typing{position:fixed;inset:0;z-index:58;background:var(--paper);display:none;flex-direction:column}
+  #typing.show{display:flex;animation:fade .3s both}
+  .ty-body{flex:1;overflow-y:auto;width:100%;max-width:680px;margin:0 auto;padding:16px 20px 40px;display:flex;flex-direction:column;gap:12px}
+  .ty-zh{font-size:16px;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;line-height:1.7}
+  .ty-tools{display:flex;gap:8px}
+  #ty-in{width:100%;resize:vertical;font-family:var(--serif);font-size:18px;line-height:1.8;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink);outline:none;min-height:64px}
+  #ty-in:focus{border-color:var(--ink)}
+  .ty-target{font-family:var(--serif);font-size:19px;line-height:1.9;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .tk-ok{color:var(--green)}
+  .tk-no{color:var(--vermilion);border-bottom:2px solid var(--vermilion)}
+  .tk-ex{color:#fff;background:var(--vermilion);border-radius:3px;text-decoration:line-through}
+  .tk-rev{color:var(--ink)}
+  .ty-result{font-size:14px;font-weight:700;min-height:20px}
+  .ty-actions{display:flex;gap:8px;margin-top:4px}
+  .ty-actions .btn{flex:1}
   .pline.active.glow .ltext{animation:gl 1.3s ease-in-out infinite}
   @keyframes gl{0%,100%{opacity:.92}50%{opacity:1}}
   .wave{display:flex; gap:4px; align-items:flex-end; height:20px; margin-top:18px; opacity:0; transition:.3s}
@@ -434,6 +449,13 @@
         <div class="l2">聴解 過去問（6回）</div>
         <div class="l3">2023〜2025の本試験スクリプト（日・羅・中）。公式音声はYouTubeで、本文で確認・1文ずつ再生。</div>
         <div class="gobtn">▶ 過去問を開く</div>
+      </div>
+
+      <div class="launch" style="margin-top:10px;background:linear-gradient(135deg,#2a2438,#3d3654)" onclick="openTyping()">
+        <div class="l1">TYPING ・ 入力練習</div>
+        <div class="l2">⌨️ タイピング練習</div>
+        <div class="l3">文法・単語・会話・物語の例文を、聞いて／中文を見て日本語で打つ。文字レベルで採点・全問正解でチャイム。</div>
+        <div class="gobtn">▶ 打って練習</div>
       </div>
       <div class="card pad">
         <div style="font-family:var(--serif); font-weight:700; font-size:15px; margin-bottom:4px">進み具合</div>
@@ -615,6 +637,30 @@
   <div class="ai-input">
     <textarea id="ai-in" rows="1" placeholder="この画面のこと、文法・単語・翻訳など…（Enterで送信）"></textarea>
     <button class="ai-send" onclick="aiSend()">送信</button>
+  </div>
+</div>
+
+<!-- ===== タイピング練習 ===== -->
+<div id="typing">
+  <div class="rtop">
+    <button class="px" onclick="closeTyping()">✕</button>
+    <span style="font-family:var(--serif);font-weight:700;font-size:14px">タイピング練習</span>
+    <span id="ty-cnt" style="margin-left:auto;font-size:12.5px;color:var(--ink-soft)"></span>
+  </div>
+  <div class="ch-sel" id="ty-sel"></div>
+  <div class="ty-body">
+    <div class="ty-zh" id="ty-zh"></div>
+    <div class="ty-tools">
+      <button class="chip" onclick="tyPlay()">🔊 聞く</button>
+      <button class="chip" onclick="tyReveal()">答えを見る</button>
+    </div>
+    <textarea id="ty-in" rows="2" placeholder="ここに日本語で入力（IMEを日本語に切替）…"></textarea>
+    <div class="ty-target" id="ty-target" style="display:none"></div>
+    <div class="ty-result" id="ty-result"></div>
+    <div class="ty-actions">
+      <button class="btn" id="ty-check" onclick="tyCheck()">答え合わせ</button>
+      <button class="btn ghost" onclick="tyNext()">スキップ</button>
+    </div>
   </div>
 </div>
 
@@ -2028,6 +2074,56 @@ function wireAI(){
   document.addEventListener('keydown',e=>{if(document.getElementById('ai-panel').classList.contains('show')&&e.code==='Escape')closeAI()});
 }
 
+/* ===================== タイピング練習 ===================== */
+const TY_DECKS=[['gram','文法'],['n4','N4'],['vocab','単語'],['kaiwa','会話'],['story','物語']];
+let tyDeck='gram',tyList=[],tyPos=0,tyDone=false;
+function typingSet(deck){
+  if(deck==='vocab')return VOCAB.map(v=>({jp:clean(v.s),zh:v.z}));
+  const arr=deck==='n4'?N4GRAMMAR:deck==='kaiwa'?KAIWA:deck==='story'?STORY:GRAMMAR,out=[];
+  arr.forEach(it=>it.l.forEach(ln=>{const jp=clean(ln[1]);if(jp)out.push({jp:jp,zh:ln[2]||''})}));
+  return out;
+}
+function openTyping(){document.getElementById('typing').classList.add('show');tyStart(tyDeck)}
+function closeTyping(){stopAll();document.getElementById('typing').classList.remove('show')}
+function tyStart(deck){
+  tyDeck=deck;tyList=shuffle(typingSet(deck));tyPos=0;
+  document.getElementById('ty-sel').innerHTML=TY_DECKS.map(d=>'<button class="chselb'+(d[0]===deck?' on':'')+'" data-d="'+d[0]+'">'+d[1]+'</button>').join('');
+  document.querySelectorAll('#ty-sel .chselb').forEach(b=>b.onclick=()=>tyStart(b.dataset.d));
+  tyRender();
+}
+function tyCur(){return tyList[tyPos]}
+function tyRender(){
+  tyDone=false;const c=tyCur();if(!c)return;
+  document.getElementById('ty-cnt').textContent=(tyPos+1)+' / '+tyList.length;
+  document.getElementById('ty-zh').textContent=c.zh||'（音声を聞いて入力してください）';
+  const ta=document.getElementById('ty-in');ta.value='';ta.disabled=false;
+  const tg=document.getElementById('ty-target');tg.innerHTML='';tg.style.display='none';
+  document.getElementById('ty-result').textContent='';
+  document.getElementById('ty-check').textContent='答え合わせ';
+  setTimeout(()=>ta.focus(),60);
+}
+function tyDiff(typed,target){
+  const a=(typed||'').replace(/\s/g,''),b=(target||'').replace(/\s/g,'');
+  let html='',correct=0;
+  for(let i=0;i<b.length;i++){const ok=a[i]===b[i];if(ok)correct++;html+='<span class="'+(ok?'tk-ok':'tk-no')+'">'+esc(b[i])+'</span>'}
+  if(a.length>b.length)html+='<span class="tk-ex">'+esc(a.slice(b.length))+'</span>';
+  return {html:html,acc:b.length?Math.round(correct/b.length*100):0,perfect:a===b};
+}
+function tyCheck(){
+  const c=tyCur();if(!c)return;
+  if(tyDone){tyNext();return}
+  const r=tyDiff(document.getElementById('ty-in').value,c.jp);
+  const tg=document.getElementById('ty-target');tg.style.display='block';tg.innerHTML=r.html;
+  const res=document.getElementById('ty-result');
+  if(r.perfect){res.innerHTML='<span style="color:var(--green)">✓ 完璧！100%</span>';sfxCorrect();}
+  else{res.innerHTML='<span style="color:var(--vermilion-deep)">正確率 '+r.acc+'%（赤い字を直してもう一度）</span>';if(r.acc<60)sfxWrong();}
+  document.getElementById('ty-check').textContent='次へ →';tyDone=true;
+}
+function tyNext(){tyPos=(tyPos+1)%tyList.length;tyRender()}
+function tyReveal(){const c=tyCur();if(!c)return;const tg=document.getElementById('ty-target');tg.style.display='block';tg.innerHTML='<span class="tk-rev">'+esc(c.jp)+'</span>'}
+function tyPlay(){const c=tyCur();if(c)speakInline(c.jp,0.9)}
+function wireTyping(){document.addEventListener('keydown',e=>{if(document.getElementById('typing').classList.contains('show')&&e.code==='Escape')closeTyping()})}
+
 /* ===================== NAV ===================== */
 const TABS={home:'t-home',gram:'t-gram',vocab:'t-vocab',quiz:'t-quiz',plan:'t-plan',cram:'t-cram'};
 function go(name){Object.values(TABS).forEach(id=>document.getElementById(id).classList.remove('show'));document.getElementById(TABS[name]).classList.add('show');document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===name));window.scrollTo({top:0,behavior:'smooth'})}
@@ -2073,7 +2169,7 @@ async function testTTS(){
 }
 
 /* ===================== INIT ===================== */
-countdown();renderGram();renderVocab();renderMyCards();renderPlan();renderCram();wireReader();wireChoukai();wireAI();startQuiz();updHome();updMeta();reflectSettings();setInterval(countdown,60000);
+countdown();renderGram();renderVocab();renderMyCards();renderPlan();renderCram();wireReader();wireChoukai();wireAI();wireTyping();startQuiz();updHome();updMeta();reflectSettings();setInterval(countdown,60000);
 </script>
 </body>
 </html>
