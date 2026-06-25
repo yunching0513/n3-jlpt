@@ -330,6 +330,11 @@
   .tk-cur{color:var(--vermilion-deep);background:#fbf3df;border-radius:3px}
   .tk-todo{color:var(--ink-soft)}
   .ty-hint{font-size:11px;color:var(--ink-soft);align-self:center}
+  #p-type{width:100%;max-width:620px;margin:10px auto 0;display:flex;flex-direction:column;gap:8px;text-align:left}
+  #p-type .ty-target{font-size:17px}
+  #pty-in{width:100%;resize:none;font-family:var(--serif);font-size:16px;line-height:1.6;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);outline:none}
+  #pty-in:focus{border-color:var(--ink)}
+  #pty-res{font-size:13px;font-weight:700;min-height:18px;text-align:center}
   .ty-result{font-size:14px;font-weight:700;min-height:20px}
   .ty-actions{display:flex;gap:8px;margin-top:4px}
   .ty-actions .btn{flex:1}
@@ -410,6 +415,10 @@
           </div>
         </div>
         <div id="tts-status" class="tip" style="margin-top:8px"></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)">
+          <span style="font-family:var(--serif);font-weight:700;font-size:14px">仮 ふりがな（漢字に平假名）</span>
+          <button class="chip" id="furi-toggle" style="margin-left:auto" onclick="toggleFuri()">OFF</button>
+        </div>
         <div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)">
           <span style="font-family:var(--serif);font-weight:700;font-size:14px">🔔 クイズ効果音</span>
           <button class="chip" id="sfx-toggle" style="margin-left:auto" onclick="toggleSfx()">ON</button>
@@ -680,6 +689,11 @@
     <div class="pdiv"></div>
     <div class="pex" id="p-ex"></div>
     <div id="brk-tip" style="display:none;text-align:center;margin-top:6px">語をタップで単語カードに保存 ★</div>
+    <div id="p-type" style="display:none">
+      <div class="ty-target" id="pty-target"></div>
+      <textarea id="pty-in" rows="1" placeholder="表示中の文を打って覚える…（IMEを日本語に）"></textarea>
+      <div id="pty-res"></div>
+    </div>
     <div class="wave" id="p-wave"><span></span><span></span><span></span><span></span><span></span></div>
     <div class="mic" id="p-mic"><div class="label">🎤 あなたの番　どうぞ</div><div class="track"><i id="p-mic-bar"></i></div></div>
   </div>
@@ -697,6 +711,8 @@
       <button class="chip on" id="chip-tr" onclick="toggleTr()">訳</button>
       <button class="chip" id="chip-rj" onclick="toggleRJ()">Aa ローマ字</button>
       <button class="chip" id="chip-zh" onclick="toggleZH()">字 逐字中文</button>
+      <button class="chip" id="chip-type" onclick="toggleType()">⌨️ 打つ</button>
+      <button class="chip" id="chip-furi" onclick="toggleFuri()">仮 ふりがな</button>
       <button class="chip" id="chip-learn" onclick="toggleLearn()">覚えた</button>
     </div>
     <div class="transport">
@@ -1483,7 +1499,7 @@ const clean=s=>s.replace(/[\[\]]/g,'');
 const exHTML=s=>s.replace(/\[(.+?)\]/g,'<span class="x">$1</span>');
 
 /* ===================== TTS（Gemini AI ＋ 内蔵） ===================== */
-const T=Object.assign({engine:'gemini',key:'',model:'gemini-2.5-flash-preview-tts',voice:'Kore',tmodel:'gemini-2.5-flash',rj:false,zh:false,sfx:true},JSON.parse(localStorage.getItem('n3_tts')||'{}'));
+const T=Object.assign({engine:'gemini',key:'',model:'gemini-2.5-flash-preview-tts',voice:'Kore',tmodel:'gemini-2.5-flash',rj:false,zh:false,sfx:true,furi:false},JSON.parse(localStorage.getItem('n3_tts')||'{}'));
 function saveT(){localStorage.setItem('n3_tts',JSON.stringify(T))}
 function getEngine(){return (T.key&&T.engine==='gemini')?'gemini':'browser'}
 let JA_VOICE=null;
@@ -1562,6 +1578,7 @@ let furiObserver=null;
 function clearFuri(){if(furiObserver){furiObserver.disconnect();furiObserver=null}}
 function setupFuri(rootSel){
   clearFuri();
+  if(!T.furi)return;
   if(getEngine()!=='gemini'||!T.key){toast('ふりがなには Gemini キーが必要です');return}
   const root=document.querySelector(rootSel);if(!root)return;
   furiObserver=new IntersectionObserver((ents,obs)=>{ents.forEach(en=>{if(!en.isIntersecting)return;const el=en.target;obs.unobserve(el);if(el.dataset.fd)return;el.dataset.fd='1';geminiFuri(el.dataset.ft||el.textContent).then(tk=>{el.innerHTML=furiHTML(tk)}).catch(()=>{el.dataset.fd=''})})},{root:root,rootMargin:'300px'});
@@ -1715,6 +1732,8 @@ function sfxWrong(){
 }
 function reflectSfx(){const b=document.getElementById('sfx-toggle');if(!b)return;const on=T.sfx!==false;b.classList.toggle('on',on);b.textContent=on?'ON':'OFF'}
 function toggleSfx(){T.sfx=(T.sfx===false);saveT();reflectSfx();if(T.sfx)sfxCorrect()}
+function reflectFuri(){const on=!!T.furi;const ft=document.getElementById('furi-toggle');if(ft){ft.classList.toggle('on',on);ft.textContent=on?'ON':'OFF'}['chip-furi','r-furi','ch-furi'].forEach(id=>{const b=document.getElementById(id);if(b)b.classList.toggle('on',on)})}
+function toggleFuri(){T.furi=!T.furi;saveT();reflectFuri();if(document.getElementById('player').classList.contains('show'))renderItem();if(document.getElementById('reader').classList.contains('show'))renderReader();if(document.getElementById('choukai').classList.contains('show'))renderChoukai()}
 function answer(j){const q=quizArr()[qi],c=q[2];document.querySelectorAll('#opts .opt').forEach((b,k)=>{b.disabled=true;if(k===c)b.classList.add('ok');if(k===j&&j!==c)b.classList.add('no')});if(j===c){qscore++;sfxCorrect();}else sfxWrong();const ex=document.getElementById('expl');ex.innerHTML=`<b>${j===c?'正解！':'解説'}</b>　${q[3]}`;ex.classList.add('show');document.getElementById('qnext').style.display='block'}
 
 /* ===================== PLAN ===================== */
@@ -1813,11 +1832,13 @@ function renderItem(){
     let html='',idx=0,inB=false;
     for(const ch of ln.t){if(ch==='['){inB=true;continue}if(ch===']'){inB=false;continue}html+=`<span class="ch${inB?' x':''}" data-i="${idx}">${ch==='　'?'&#12288;':ch}</span>`;idx++;}
     const nm=ln.s?`<span class="lname">${ln.s}</span>`:'';
-    return `<div class="pline" data-li="${li}">${nm}<span class="ltext">${html}</span><div class="lz">${ln.z}</div></div><div class="brk" data-li="${li}"></div>`;
+    return `<div class="pline" data-li="${li}">${nm}<span class="ltext furi-t" data-ft="${escA(clean(ln.t))}">${html}</span><div class="lz">${ln.z}</div></div><div class="brk" data-li="${li}"></div>`;
   }).join('');
   ex.classList.toggle('notr',!P.tr);
   document.querySelectorAll('#p-ex .pline').forEach(p=>p.onclick=()=>{pause();speakSeg(+p.dataset.li,()=>{})});
   refreshBreakdown();
+  setupFuri('#p-ex');
+  if(P.typing){P._tyLine=0;ptySet()}
 }
 function speakSeg(li,onend){
   const segs=curSegs(),lineEl=document.querySelector(`#p-ex .pline[data-li="${li}"]`);
@@ -1920,6 +1941,38 @@ function wireToks(div){div.querySelectorAll('.tok').forEach(el=>el.onclick=()=>{
 function toggleRJ(){T.rj=!T.rj;saveT();document.getElementById('chip-rj').classList.toggle('on',T.rj);refreshBreakdown()}
 function toggleZH(){T.zh=!T.zh;saveT();document.getElementById('chip-zh').classList.toggle('on',T.zh);refreshBreakdown()}
 function updLearnChip(on){const c=document.getElementById('chip-learn');c.classList.toggle('on',on);c.textContent=on?'✓ 覚えた':'覚えた'}
+function toggleType(){
+  P.typing=!P.typing;
+  document.getElementById('chip-type').classList.toggle('on',P.typing);
+  const pt=document.getElementById('p-type');
+  if(P.typing){pause();pt.style.display='block';document.getElementById('pty-in').oninput=ptyHi;P._tyLine=0;ptySet();}
+  else{pt.style.display='none';document.getElementById('pty-res').textContent=''}
+}
+function ptySet(){
+  const segs=curSegs();if(!segs.length)return;
+  if(P._tyLine>=segs.length)P._tyLine=0;
+  document.querySelectorAll('#p-ex .pline').forEach(p=>p.classList.toggle('active',+p.dataset.li===P._tyLine));
+  const le=document.querySelector('#p-ex .pline[data-li="'+P._tyLine+'"]');if(le)le.scrollIntoView({block:'nearest'});
+  P._tyTxt=clean(segs[P._tyLine].t);P._tyDone=false;
+  const i=document.getElementById('pty-in');i.value='';ptyHi();setTimeout(()=>i.focus(),40);
+}
+function ptyHi(){
+  const target=P._tyTxt||'',a=((document.getElementById('pty-in')||{}).value||'').replace(/\s/g,''),b=target.replace(/\s/g,'');
+  let ti=0,html='';
+  for(const ch of target){
+    if(/\s/.test(ch)){html+=esc(ch);continue}
+    if(ti<a.length)html+='<span class="'+(a[ti]===ch?'tk-ok':'tk-no')+'">'+esc(ch)+'</span>';
+    else if(ti===a.length)html+='<span class="tk-cur">'+esc(ch)+'</span>';
+    else html+='<span class="tk-todo">'+esc(ch)+'</span>';
+    ti++;
+  }
+  document.getElementById('pty-target').innerHTML=html;
+  const res=document.getElementById('pty-res');
+  if(a===b&&b.length){if(!P._tyDone){P._tyDone=true;sfxCorrect();const segs=curSegs();
+    if(P._tyLine<segs.length-1){res.innerHTML='<span style="color:var(--green)">✓ 次の行へ</span>';setTimeout(()=>{if(P.typing){P._tyLine++;ptySet()}},650)}
+    else{res.innerHTML='<span style="color:var(--green)">✓ クリア！⏭ で次の項目へ</span>'}
+  }}else{P._tyDone=false;res.textContent=''}
+}
 function toggleLearn(){if(P.deck==='my'||P.deck==='story')return;const gi=P.list[P.pos],L=deckLearned(P.deck);toggle(L,gi);save();updHome();updMeta();renderGram();renderVocab();updLearnChip(L.includes(gi))}
 document.querySelectorAll('#seg-speed button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#seg-speed button').forEach(x=>x.classList.remove('on'));b.classList.add('on');P.rate=parseFloat(b.dataset.r);if(P.playing){stopSpeak();stopTimers();play()}});
 document.querySelectorAll('#seg-pause button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#seg-pause button').forEach(x=>x.classList.remove('on'));b.classList.add('on');P.pause=parseFloat(b.dataset.p)});
@@ -1940,7 +1993,7 @@ function renderReader(){
   document.querySelectorAll('#r-sel .rselb').forEach(b=>b.onclick=()=>{RIDX=+b.dataset.i;renderReader();document.getElementById('r-body').scrollTop=0});
   document.querySelectorAll('#r-body .r-say').forEach(b=>b.onclick=()=>speakInline(b.dataset.t,0.9));
   document.querySelectorAll('#r-body .r-dl').forEach(b=>b.onclick=()=>downloadAudio(b.dataset.t,b.dataset.f));
-  if(rFuri)setupFuri('#r-body');else clearFuri();
+  setupFuri('#r-body');
 }
 function downloadAudio(text,filename){
   if(getEngine()!=='gemini'||!T.key){toast('音声DLには Gemini キーが必要です');return}
@@ -1952,7 +2005,7 @@ function wireReader(){
   document.getElementById('r-playall').onclick=()=>speakInlineLines(STORY[RIDX].l.map(x=>x[1]),0.9);
   document.getElementById('r-dlall').onclick=()=>downloadAudio(STORY[RIDX].l.map(x=>clean(x[1])).join('、'),'story'+(RIDX+1)+'_full');
   document.getElementById('r-shadow').onclick=()=>{closeReader();openPlayer('story',RIDX,'all')};
-  document.getElementById('r-furi').onclick=()=>{rFuri=!rFuri;document.getElementById('r-furi').classList.toggle('on',rFuri);renderReader()};
+  document.getElementById('r-furi').onclick=()=>{toggleFuri()};
   document.addEventListener('keydown',e=>{if(document.getElementById('reader').classList.contains('show')&&e.code==='Escape')closeReader()});
 }
 
@@ -2017,13 +2070,13 @@ function renderChoukai(){
   document.getElementById('ch-body').innerHTML=html;
   document.querySelectorAll('#ch-sel .chselb').forEach(b=>b.onclick=()=>{CHIDX=+b.dataset.i;renderChoukai();document.getElementById('ch-body').scrollTop=0});
   const yt=document.getElementById('ch-yt');if(yt)yt.href=CH_YT;
-  if(chFuri)setupFuri('#ch-body');else clearFuri();
+  setupFuri('#ch-body');
 }
 function wireChoukai(){
   document.getElementById('ch-body').onclick=e=>{const b=e.target.closest('.ch-say');if(!b)return;const r=CHOUKAI[CHIDX].sec[+b.dataset.si].r[+b.dataset.ri];if(r)speakInline(r[0],0.9)};
   document.getElementById('ch-rj').onclick=()=>{chRj=!chRj;document.getElementById('choukai').classList.toggle('norj',!chRj)};
   document.getElementById('ch-zh').onclick=()=>{chZh=!chZh;document.getElementById('choukai').classList.toggle('nozh',!chZh)};
-  document.getElementById('ch-furi').onclick=()=>{chFuri=!chFuri;document.getElementById('ch-furi').classList.toggle('on',chFuri);renderChoukai()};
+  document.getElementById('ch-furi').onclick=()=>{toggleFuri()};
   document.addEventListener('keydown',e=>{if(document.getElementById('choukai').classList.contains('show')&&e.code==='Escape')closeChoukai()});
 }
 
@@ -2144,7 +2197,7 @@ function reflectSettings(){
   const tm=document.getElementById('tts-tmodel');if(tm)tm.value=T.tmodel;
   const cr=document.getElementById('chip-rj');if(cr)cr.classList.toggle('on',!!T.rj);
   const cz=document.getElementById('chip-zh');if(cz)cz.classList.toggle('on',!!T.zh);
-  ttsBadge();loadVoices();reflectSfx();
+  ttsBadge();loadVoices();reflectSfx();reflectFuri();
 }
 function setEngineUI(e){T.engine=e;saveT();reflectSettings()}
 function saveTTS(){
