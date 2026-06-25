@@ -1644,7 +1644,16 @@ function renderQ(){
   const ks=['A','B','C','D'],opts=document.getElementById('opts');
   q[1].forEach((o,j)=>{const b=document.createElement('button');b.className='opt';b.innerHTML=`<span class="k">${ks[j]}</span><span>${o}</span>`;b.onclick=()=>answer(j);opts.appendChild(b)});
 }
-function answer(j){const q=quizArr()[qi],c=q[2];document.querySelectorAll('#opts .opt').forEach((b,k)=>{b.disabled=true;if(k===c)b.classList.add('ok');if(k===j&&j!==c)b.classList.add('no')});if(j===c)qscore++;const ex=document.getElementById('expl');ex.innerHTML=`<b>${j===c?'正解！':'解説'}</b>　${q[3]}`;ex.classList.add('show');document.getElementById('qnext').style.display='block'}
+let _sfxCtx=null;
+function sfxCorrect(){
+  try{
+    if(!_sfxCtx)_sfxCtx=new (window.AudioContext||window.webkitAudioContext)();
+    const ctx=_sfxCtx;if(ctx.state==='suspended')ctx.resume();
+    const now=ctx.currentTime,notes=[523.25,659.25,783.99,1046.50];
+    notes.forEach((f,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='triangle';o.frequency.value=f;const t=now+i*0.085;g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.2,t+0.015);g.gain.exponentialRampToValueAtTime(0.0001,t+0.34);o.connect(g);g.connect(ctx.destination);o.start(t);o.stop(t+0.36)});
+  }catch(e){}
+}
+function answer(j){const q=quizArr()[qi],c=q[2];document.querySelectorAll('#opts .opt').forEach((b,k)=>{b.disabled=true;if(k===c)b.classList.add('ok');if(k===j&&j!==c)b.classList.add('no')});if(j===c){qscore++;sfxCorrect();}const ex=document.getElementById('expl');ex.innerHTML=`<b>${j===c?'正解！':'解説'}</b>　${q[3]}`;ex.classList.add('show');document.getElementById('qnext').style.display='block'}
 
 /* ===================== PLAN ===================== */
 function renderPlan(){
