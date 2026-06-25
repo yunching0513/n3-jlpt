@@ -394,6 +394,10 @@
           </div>
         </div>
         <div id="tts-status" class="tip" style="margin-top:8px"></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)">
+          <span style="font-family:var(--serif);font-weight:700;font-size:14px">🔔 クイズ効果音</span>
+          <button class="chip" id="sfx-toggle" style="margin-left:auto" onclick="toggleSfx()">ON</button>
+        </div>
         <div class="tip" style="font-size:11px;margin-top:6px">🔒 キーはこの端末のブラウザ内（localStorage）にのみ保存され、HTMLファイルには書き込まれません。テストが「通信エラー」になる場合は file:// ではなく http://localhost で開いてください。</div>
       </div>
 
@@ -1432,7 +1436,7 @@ const clean=s=>s.replace(/[\[\]]/g,'');
 const exHTML=s=>s.replace(/\[(.+?)\]/g,'<span class="x">$1</span>');
 
 /* ===================== TTS（Gemini AI ＋ 内蔵） ===================== */
-const T=Object.assign({engine:'gemini',key:'',model:'gemini-2.5-flash-preview-tts',voice:'Kore',tmodel:'gemini-2.5-flash',rj:false,zh:false},JSON.parse(localStorage.getItem('n3_tts')||'{}'));
+const T=Object.assign({engine:'gemini',key:'',model:'gemini-2.5-flash-preview-tts',voice:'Kore',tmodel:'gemini-2.5-flash',rj:false,zh:false,sfx:true},JSON.parse(localStorage.getItem('n3_tts')||'{}'));
 function saveT(){localStorage.setItem('n3_tts',JSON.stringify(T))}
 function getEngine(){return (T.key&&T.engine==='gemini')?'gemini':'browser'}
 let JA_VOICE=null;
@@ -1645,7 +1649,7 @@ function renderQ(){
   q[1].forEach((o,j)=>{const b=document.createElement('button');b.className='opt';b.innerHTML=`<span class="k">${ks[j]}</span><span>${o}</span>`;b.onclick=()=>answer(j);opts.appendChild(b)});
 }
 let _sfxCtx=null;
-function sfxCorrect(){
+function sfxCorrect(){if(T.sfx===false)return;
   try{
     if(!_sfxCtx)_sfxCtx=new (window.AudioContext||window.webkitAudioContext)();
     const ctx=_sfxCtx;if(ctx.state==='suspended')ctx.resume();
@@ -1653,7 +1657,18 @@ function sfxCorrect(){
     notes.forEach((f,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='triangle';o.frequency.value=f;const t=now+i*0.085;g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.2,t+0.015);g.gain.exponentialRampToValueAtTime(0.0001,t+0.34);o.connect(g);g.connect(ctx.destination);o.start(t);o.stop(t+0.36)});
   }catch(e){}
 }
-function answer(j){const q=quizArr()[qi],c=q[2];document.querySelectorAll('#opts .opt').forEach((b,k)=>{b.disabled=true;if(k===c)b.classList.add('ok');if(k===j&&j!==c)b.classList.add('no')});if(j===c){qscore++;sfxCorrect();}const ex=document.getElementById('expl');ex.innerHTML=`<b>${j===c?'正解！':'解説'}</b>　${q[3]}`;ex.classList.add('show');document.getElementById('qnext').style.display='block'}
+function sfxWrong(){
+  if(T.sfx===false)return;
+  try{
+    if(!_sfxCtx)_sfxCtx=new (window.AudioContext||window.webkitAudioContext)();
+    const ctx=_sfxCtx;if(ctx.state==='suspended')ctx.resume();
+    const now=ctx.currentTime,notes=[311.13,233.08];
+    notes.forEach((f,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.value=f;const t=now+i*0.12;g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.12,t+0.03);g.gain.exponentialRampToValueAtTime(0.0001,t+0.3);o.connect(g);g.connect(ctx.destination);o.start(t);o.stop(t+0.32)});
+  }catch(e){}
+}
+function reflectSfx(){const b=document.getElementById('sfx-toggle');if(!b)return;const on=T.sfx!==false;b.classList.toggle('on',on);b.textContent=on?'ON':'OFF'}
+function toggleSfx(){T.sfx=(T.sfx===false);saveT();reflectSfx();if(T.sfx)sfxCorrect()}
+function answer(j){const q=quizArr()[qi],c=q[2];document.querySelectorAll('#opts .opt').forEach((b,k)=>{b.disabled=true;if(k===c)b.classList.add('ok');if(k===j&&j!==c)b.classList.add('no')});if(j===c){qscore++;sfxCorrect();}else sfxWrong();const ex=document.getElementById('expl');ex.innerHTML=`<b>${j===c?'正解！':'解説'}</b>　${q[3]}`;ex.classList.add('show');document.getElementById('qnext').style.display='block'}
 
 /* ===================== PLAN ===================== */
 function renderPlan(){
@@ -2035,7 +2050,7 @@ function reflectSettings(){
   const tm=document.getElementById('tts-tmodel');if(tm)tm.value=T.tmodel;
   const cr=document.getElementById('chip-rj');if(cr)cr.classList.toggle('on',!!T.rj);
   const cz=document.getElementById('chip-zh');if(cz)cz.classList.toggle('on',!!T.zh);
-  ttsBadge();loadVoices();
+  ttsBadge();loadVoices();reflectSfx();
 }
 function setEngineUI(e){T.engine=e;saveT();reflectSettings()}
 function saveTTS(){
