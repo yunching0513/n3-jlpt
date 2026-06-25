@@ -300,6 +300,23 @@
   #choukai.nozh .chzh{display:none}
   ruby rt{font-size:.52em;color:var(--vermilion-deep);font-weight:400;font-family:var(--sans);line-height:1}
   .furi-t ruby{margin:0 .5px}
+  #ai-fab{position:fixed;right:16px;bottom:calc(70px + env(safe-area-inset-bottom));z-index:59;width:54px;height:54px;border-radius:50%;border:0;background:var(--vermilion);color:#fff;font-family:var(--serif);font-weight:800;font-size:17px;letter-spacing:.02em;cursor:pointer;box-shadow:0 8px 22px -8px var(--vermilion);display:grid;place-items:center}
+  #ai-fab:active{transform:scale(.94)}
+  #ai-panel{position:fixed;inset:0;z-index:60;background:var(--paper);display:none;flex-direction:column}
+  #ai-panel.show{display:flex;animation:fade .3s both}
+  .ai-top{display:flex;align-items:center;gap:8px;padding:calc(14px + env(safe-area-inset-top)) 16px 10px;border-bottom:1px solid var(--line)}
+  .ai-ttl{font-family:var(--serif);font-weight:700;font-size:15px;flex:1}
+  .ai-msgs{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;max-width:760px;width:100%;margin:0 auto}
+  .ai-hint{font-size:12.5px;color:var(--ink-soft);line-height:1.8;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .ai-msg{max-width:86%;padding:10px 13px;border-radius:14px;font-size:14px;line-height:1.75}
+  .ai-msg.me{align-self:flex-end;background:var(--vermilion);color:#fff;border-bottom-right-radius:4px}
+  .ai-msg.bot{align-self:flex-start;background:var(--card);border:1px solid var(--line);border-bottom-left-radius:4px}
+  .ai-suggest{display:flex;gap:7px;overflow-x:auto;padding:0 16px 8px;max-width:760px;width:100%;margin:0 auto}
+  .ai-suggest button{flex:none;font-size:11.5px;white-space:nowrap;padding:6px 11px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);cursor:pointer}
+  .ai-input{display:flex;gap:8px;align-items:flex-end;padding:10px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);max-width:760px;width:100%;margin:0 auto}
+  .ai-input textarea{flex:1;resize:none;font-family:var(--sans);font-size:14px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink);max-height:120px;line-height:1.5;outline:none}
+  .ai-input textarea:focus{border-color:var(--ink)}
+  .ai-send{flex:none;background:var(--ink);color:#fff;border:0;border-radius:12px;padding:11px 16px;font-weight:700;font-size:14px;cursor:pointer}
   .pline.active.glow .ltext{animation:gl 1.3s ease-in-out infinite}
   @keyframes gl{0%,100%{opacity:.92}50%{opacity:1}}
   .wave{display:flex; gap:4px; align-items:flex-end; height:20px; margin-top:18px; opacity:0; transition:.3s}
@@ -574,6 +591,27 @@
     <span class="chyt-note">音声は公式プレイリストで（同じ日付の動画を選択）</span>
   </div>
   <div class="ch-body" id="ch-body"></div>
+</div>
+
+<button id="ai-fab" onclick="openAI()" aria-label="AIアシスタント">AI</button>
+<div id="ai-panel">
+  <div class="ai-top">
+    <span class="ai-ttl">AI 学習アシスタント</span>
+    <button class="chip" onclick="aiClear()">クリア</button>
+    <button class="px" onclick="closeAI()" style="margin-left:6px">✕</button>
+  </div>
+  <div class="ai-msgs" id="ai-msgs"></div>
+  <div class="ai-suggest">
+    <button onclick="aiAsk('今の画面について、何を勉強すればいいか教えて')">今の画面について</button>
+    <button onclick="aiFill('この文を中文に訳して：')">中文に訳して</button>
+    <button onclick="aiFill('「」を使った例文を3つ、ふりがな付きで作って')">例文を作って</button>
+    <button onclick="aiAsk('N3でよく間違える文法を3つ、例文付きで教えて')">よく出る文法</button>
+    <button onclick="aiAsk('試験前で緊張してる。やる気が出る一言を日本語と中文でちょうだい')">応援して</button>
+  </div>
+  <div class="ai-input">
+    <textarea id="ai-in" rows="1" placeholder="この画面のこと、文法・単語・翻訳など…（Enterで送信）"></textarea>
+    <button class="ai-send" onclick="aiSend()">送信</button>
+  </div>
 </div>
 
 <!-- ===== PLAYER ===== -->
@@ -1918,6 +1956,54 @@ function wireChoukai(){
   document.addEventListener('keydown',e=>{if(document.getElementById('choukai').classList.contains('show')&&e.code==='Escape')closeChoukai()});
 }
 
+/* ===================== AI 学習アシスタント ===================== */
+const AI_SYS="あなたはこのJLPT N3学習アプリ内の親しみやすい日本語チューターです。ユーザーは台湾の繁体字中国語話者で、2026年7月4日のN3試験に向けて勉強中。回答は基本的に【繁体字中国語】で、簡潔・やさしく・励ます口調で。日本語の例文には必要に応じてふりがな（かっこ書き）と中文訳を添える。文法・語彙・読解・聴解の質問、翻訳、例文作成、過去問の解説などに答える。長くなりすぎない。";
+let aiMsgs=[], aiBusy=false;
+function aiContext(){
+  const sh=id=>{const e=document.getElementById(id);return e&&e.classList.contains('show')};
+  if(sh('player')){return '聽讀プレイヤー。現在の項目:'+((document.getElementById('p-pat')||{}).textContent||'')+'（'+((document.getElementById('p-zh')||{}).textContent||'')+'）例文:'+((document.querySelector('#p-ex .pline.active .ltext')||{}).textContent||'')}
+  if(sh('reader')){return '読解（記事）物語:「'+((STORY[RIDX]||{}).p||'')+'」'}
+  if(sh('choukai')){return '聴解 過去問:'+((CHOUKAI[CHIDX]||{}).t||'')}
+  if(sh('gmap')){return '文法ネットワーク画面'}
+  const tab=document.querySelector('.tab.show');const nm={'t-home':'ホーム','t-gram':'文法','t-vocab':'単語','t-quiz':'クイズ','t-plan':'プラン','t-cram':'要点まとめ'};
+  return '画面:'+(nm[tab&&tab.id]||'アプリ')
+}
+function openAI(){document.getElementById('ai-panel').classList.add('show');renderAiMsgs();setTimeout(()=>{const i=document.getElementById('ai-in');if(i)i.focus()},120)}
+function closeAI(){document.getElementById('ai-panel').classList.remove('show')}
+function escAi(s){return esc(s).replace(/\n/g,'<br>')}
+function renderAiMsgs(){
+  const box=document.getElementById('ai-msgs');if(!box)return;
+  if(!aiMsgs.length){box.innerHTML='<div class="ai-hint">この画面のことや、N3の文法・単語・例文・翻訳など、何でも聞いてください。<br>例：「〜うちに と 〜ないうちに の違いは？」「この文を中文に訳して」「面接で使える敬語を教えて」</div>';return}
+  box.innerHTML=aiMsgs.map(m=>'<div class="ai-msg '+(m.role==='user'?'me':'bot')+'">'+escAi(m.text)+'</div>').join('');
+  box.scrollTop=box.scrollHeight
+}
+function aiFill(t){const i=document.getElementById('ai-in');i.value=t;i.focus()}
+function aiAsk(t){document.getElementById('ai-in').value=t;aiSend()}
+async function aiSend(){
+  if(aiBusy)return;
+  const inp=document.getElementById('ai-in');const q=(inp.value||'').trim();if(!q)return;
+  if(getEngine()!=='gemini'||!T.key){aiMsgs.push({role:'user',text:q});aiMsgs.push({role:'model',text:'AI助手には Gemini キーが必要です。ホーム上部の「音声エンジン」で同じキーを入力してください。'});renderAiMsgs();inp.value='';return}
+  inp.value='';aiMsgs.push({role:'user',text:q});aiMsgs.push({role:'model',text:'…'});renderAiMsgs();aiBusy=true;
+  const idx=aiMsgs.length-1;
+  const contents=aiMsgs.slice(0,-1).filter(m=>m.text&&m.text!=='…').map(m=>({role:m.role,parts:[{text:m.text}]}));
+  if(contents.length)contents[contents.length-1].parts[0].text='【現在の画面】'+aiContext()+'\n\n【質問】'+q;
+  const body={systemInstruction:{parts:[{text:AI_SYS}]},contents:contents,generationConfig:{temperature:0.6}};
+  try{
+    const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(T.tmodel)+':streamGenerateContent?alt=sse&key='+encodeURIComponent(T.key),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(!res.ok){const t=await res.text();throw new Error('HTTP '+res.status+' '+t.replace(/\s+/g,' ').slice(0,120))}
+    const reader=res.body.getReader();const dec=new TextDecoder();let buf='',acc='';
+    while(true){const r=await reader.read();if(r.done)break;buf+=dec.decode(r.value,{stream:true});let p;while((p=buf.indexOf('\n'))>=0){const s=buf.slice(0,p).trim();buf=buf.slice(p+1);if(s.indexOf('data:')===0){const js=s.slice(5).trim();if(js&&js!=='[DONE]'){try{const o=JSON.parse(js);const pa=(((o.candidates||[])[0]||{}).content||{}).parts||[];const tx=pa.map(x=>x.text||'').join('');if(tx){acc+=tx;aiMsgs[idx].text=acc;renderAiMsgs()}}catch(e){}}}}}
+    if(!acc)aiMsgs[idx].text='（応答が空でした。もう一度お試しください）'
+  }catch(e){aiMsgs[idx].text='エラー：'+((e.message||'')+'').slice(0,150)+'\n（モデル名やキーをご確認ください。解説モデルは設定で変更できます）'}
+  renderAiMsgs();aiBusy=false
+}
+function aiClear(){aiMsgs=[];renderAiMsgs()}
+function wireAI(){
+  const i=document.getElementById('ai-in');
+  if(i)i.addEventListener('keydown',e=>{if(e.code==='Enter'&&!e.shiftKey){e.preventDefault();aiSend()}});
+  document.addEventListener('keydown',e=>{if(document.getElementById('ai-panel').classList.contains('show')&&e.code==='Escape')closeAI()});
+}
+
 /* ===================== NAV ===================== */
 const TABS={home:'t-home',gram:'t-gram',vocab:'t-vocab',quiz:'t-quiz',plan:'t-plan',cram:'t-cram'};
 function go(name){Object.values(TABS).forEach(id=>document.getElementById(id).classList.remove('show'));document.getElementById(TABS[name]).classList.add('show');document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===name));window.scrollTo({top:0,behavior:'smooth'})}
@@ -1963,7 +2049,7 @@ async function testTTS(){
 }
 
 /* ===================== INIT ===================== */
-countdown();renderGram();renderVocab();renderMyCards();renderPlan();renderCram();wireReader();wireChoukai();startQuiz();updHome();updMeta();reflectSettings();setInterval(countdown,60000);
+countdown();renderGram();renderVocab();renderMyCards();renderPlan();renderCram();wireReader();wireChoukai();wireAI();startQuiz();updHome();updMeta();reflectSettings();setInterval(countdown,60000);
 </script>
 </body>
 </html>
