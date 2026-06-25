@@ -182,7 +182,7 @@
   .px{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--card);font-size:18px;color:var(--ink);cursor:pointer}
   .pbar{height:4px;background:var(--paper-2);margin:4px 18px 0;border-radius:3px;overflow:hidden}
   .pbar i{display:block;height:100%;background:var(--vermilion);transition:width .4s}
-  .pmain{flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:10px 20px; overflow-y:auto}
+  .pmain{flex:1; display:flex; flex-direction:column; justify-content:flex-start; align-items:center; text-align:center; padding:18px 20px 26px; overflow-y:auto}
   .pcat{font-size:11px; letter-spacing:.18em; color:var(--vermilion); margin-bottom:12px}
   .ppat{font-family:var(--serif); font-size:clamp(28px,8vw,42px); font-weight:800; line-height:1.1}
   .ppat .x{color:var(--vermilion)}
@@ -324,8 +324,8 @@
   .wave span{width:4px; background:var(--vermilion); border-radius:2px; height:6px; animation:wv 1s ease-in-out infinite}
   .wave span:nth-child(2){animation-delay:.15s}.wave span:nth-child(3){animation-delay:.3s}.wave span:nth-child(4){animation-delay:.45s}.wave span:nth-child(5){animation-delay:.6s}
   @keyframes wv{0%,100%{height:6px}50%{height:20px}}
-  .mic{display:none; flex-direction:column; align-items:center; gap:8px; margin-top:18px}
-  .mic.on{display:flex; animation:rise .3s}
+  .mic{display:flex; flex-direction:column; align-items:center; gap:8px; margin-top:14px; visibility:hidden}
+  .mic.on{visibility:visible}
   .mic .label{font-size:13px; color:var(--vermilion-deep); font-weight:700; letter-spacing:.06em}
   .mic .track{width:150px; height:6px; background:var(--paper-2); border-radius:3px; overflow:hidden}
   .mic .track i{display:block; height:100%; width:100%; background:var(--vermilion)}
