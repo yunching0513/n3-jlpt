@@ -361,7 +361,9 @@
   .mic .track i{display:block; height:100%; width:100%; background:var(--vermilion)}
 
   .pctrl{padding:10px 16px calc(16px + env(safe-area-inset-bottom)); border-top:1px solid var(--line); background:rgba(251,246,236,.7)}
-  .segs{display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-bottom:13px}
+  .segs{display:flex; flex-direction:column; gap:9px; margin-bottom:13px}
+  .ctrl-row{display:flex; flex-wrap:wrap; gap:6px; align-items:center; justify-content:center}
+  .ctrl-lbl{font-family:var(--sans); font-size:9.5px; font-weight:700; color:var(--ink-soft); opacity:.5; letter-spacing:.12em; flex:none; padding:0 3px; border-right:2px solid var(--line); margin-right:1px}
   .seg{display:flex; border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--card)}
   .seg button{font-family:var(--sans); font-size:11.5px; font-weight:600; border:0; background:none; padding:7px 10px; color:var(--ink-soft); cursor:pointer; transition:.15s}
   .seg button.on{background:var(--ink); color:#fff}
@@ -529,10 +531,13 @@
     </div>
     <button class="btn ghost" style="width:100%;margin-bottom:14px" onclick="openMap()">🕸 文法ネットワーク（用法でつながる地図）</button>
     <div class="tip" style="margin:0 4px 12px">「聞く」＝会話の前後文を音声で。例文タップでも再生。✓で覚えた。</div>
-    <div class="filters" id="gram-f">
-      <button class="on" data-f="all">全部</button>
-      <button data-f="todo">未習</button>
-      <button data-f="done">習得済</button>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 14px">
+      <div class="filters" id="gram-f" style="margin:0">
+        <button class="on" data-f="all">全部</button>
+        <button data-f="todo">未習</button>
+        <button data-f="done">習得済</button>
+      </div>
+      <button class="chip" id="g-furi" style="margin-left:auto" onclick="toggleFuri()">仮 ふりがな</button>
     </div>
     <div class="glist" id="gram-list"></div>
   </section>
@@ -547,11 +552,14 @@
       <div class="gobtn">▶ 125語を流す</div>
     </div>
     <div class="tip" style="margin:0 4px 12px">単語タップで読み・意味・例文を表示。🔊で例文を再生して真似しよう。</div>
-    <div class="filters" id="vocab-f">
-      <button class="on" data-f="all">全部</button>
-      <button data-f="todo">未習</button>
-      <button data-f="done">覚えた</button>
-      <button data-f="shuffle">シャッフル ⤮</button>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 14px">
+      <div class="filters" id="vocab-f" style="margin:0">
+        <button class="on" data-f="all">全部</button>
+        <button data-f="todo">未習</button>
+        <button data-f="done">覚えた</button>
+        <button data-f="shuffle">シャッフル ⤮</button>
+      </div>
+      <button class="chip" id="v-furi" style="margin-left:auto" onclick="toggleFuri()">仮 ふりがな</button>
     </div>
     <div class="grid" id="vocab-list"></div>
   </section>
@@ -708,21 +716,30 @@
   </div>
   <div class="pctrl">
     <div class="segs">
-      <div class="seg" id="seg-speed">
-        <button data-r="0.7">ゆっくり</button><button data-r="0.9" class="on">ふつう</button><button data-r="1.1">はやい</button>
+      <div class="ctrl-row">
+        <span class="ctrl-lbl">速度</span>
+        <div class="seg" id="seg-speed">
+          <button data-r="0.7">ゆっくり</button><button data-r="0.9" class="on">ふつう</button><button data-r="1.1">はやい</button>
+        </div>
+        <div class="seg" id="seg-pause">
+          <button data-p="1.3" class="on">間ふつう</button><button data-p="1.8">間ながめ</button>
+        </div>
       </div>
-      <div class="seg" id="seg-pause">
-        <button data-p="1.3" class="on">間ふつう</button><button data-p="1.8">間ながめ</button>
+      <div class="ctrl-row">
+        <span class="ctrl-lbl">練習</span>
+        <button class="chip red on" id="chip-shadow" onclick="toggleShadow()">🎤 跟讀</button>
+        <button class="chip on" id="chip-auto" onclick="toggleAuto()">▶▶ 自動</button>
+        <button class="chip on" id="chip-rep" onclick="toggleRep()">🔁 <span id="rep-n">1回</span></button>
+        <button class="chip" id="chip-type" onclick="toggleType()">⌨️ 打つ</button>
+        <button class="chip" id="chip-learn" onclick="toggleLearn()">覚えた</button>
       </div>
-      <button class="chip red on" id="chip-shadow" onclick="toggleShadow()">🎤 跟讀</button>
-      <button class="chip on" id="chip-rep" onclick="toggleRep()">🔁 <span id="rep-n">1回</span></button>
-      <button class="chip on" id="chip-auto" onclick="toggleAuto()">▶▶ 自動</button>
-      <button class="chip on" id="chip-tr" onclick="toggleTr()">訳</button>
-      <button class="chip" id="chip-rj" onclick="toggleRJ()">Aa ローマ字</button>
-      <button class="chip" id="chip-zh" onclick="toggleZH()">字 逐字中文</button>
-      <button class="chip" id="chip-type" onclick="toggleType()">⌨️ 打つ</button>
-      <button class="chip" id="chip-furi" onclick="toggleFuri()">仮 ふりがな</button>
-      <button class="chip" id="chip-learn" onclick="toggleLearn()">覚えた</button>
+      <div class="ctrl-row">
+        <span class="ctrl-lbl">表示</span>
+        <button class="chip on" id="chip-tr" onclick="toggleTr()">訳</button>
+        <button class="chip" id="chip-furi" onclick="toggleFuri()">仮 ふりがな</button>
+        <button class="chip" id="chip-rj" onclick="toggleRJ()">Aa ローマ字</button>
+        <button class="chip" id="chip-zh" onclick="toggleZH()">字 逐字中文</button>
+      </div>
     </div>
     <div class="transport">
       <button class="tbtn" onclick="prevItem()"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zm3.5 7L18 5v14z"/></svg></button>
@@ -1585,13 +1602,23 @@ async function geminiFuri(text){
 function furiHTML(toks){return toks.map(t=>{const s=(t.s||'')+'',hh=(t.h||'')+'';return (/[\u3400-\u9fff\u3005]/.test(s)&&hh&&hh!==s)?'<ruby>'+esc(s)+'<rt>'+esc(hh)+'</rt></ruby>':esc(s)}).join('')}
 let furiObserver=null;
 function clearFuri(){if(furiObserver){furiObserver.disconnect();furiObserver=null}}
-function setupFuri(rootSel){
+function setupFuri(rootSel,viewport){
   clearFuri();
-  if(!T.furi)return;
-  if(getEngine()!=='gemini'||!T.key){toast('ふりがなには Gemini キーが必要です');return}
+  if(!T.furi||getEngine()!=='gemini'||!T.key)return;
   const root=document.querySelector(rootSel);if(!root)return;
-  furiObserver=new IntersectionObserver((ents,obs)=>{ents.forEach(en=>{if(!en.isIntersecting)return;const el=en.target;obs.unobserve(el);if(el.dataset.fd)return;el.dataset.fd='1';geminiFuri(el.dataset.ft||el.textContent).then(tk=>{el.innerHTML=furiHTML(tk)}).catch(()=>{el.dataset.fd=''})})},{root:root,rootMargin:'300px'});
+  furiObserver=new IntersectionObserver((ents,obs)=>{ents.forEach(en=>{if(!en.isIntersecting)return;const el=en.target;obs.unobserve(el);if(el.dataset.fd)return;el.dataset.fd='1';geminiFuri(el.dataset.ft||el.textContent).then(tk=>{el.innerHTML=furiHTML(tk)}).catch(()=>{el.dataset.fd=''})})},{root:viewport?null:root,rootMargin:'300px'});
   root.querySelectorAll('.furi-t').forEach(el=>furiObserver.observe(el));
+}
+/* どの画面が表示中でも、その場所にふりがなを適用 */
+function applyFuriToActive(){
+  const sh=id=>{const e=document.getElementById(id);return e&&e.classList.contains('show')};
+  if(sh('player'))return setupFuri('#p-ex');
+  if(sh('reader'))return setupFuri('#r-body');
+  if(sh('choukai'))return setupFuri('#ch-body');
+  const tab=document.querySelector('.tab.show');
+  if(tab&&tab.id==='t-gram')return setupFuri('#gram-list',true);
+  if(tab&&tab.id==='t-vocab')return setupFuri('#vocab-list',true);
+  clearFuri();
 }
 /* ---- 内蔵（フォールバック） ---- */
 function sayB(text,rate){if(!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(clean(text));u.lang='ja-JP';if(JA_VOICE)u.voice=JA_VOICE;u.rate=rate||0.9;speechSynthesis.speak(u)}
@@ -1636,7 +1663,7 @@ function renderGram(){
     const g=A[i],done=L.includes(i),k=keyLine(g);
     const row=document.createElement('div');row.className='grow'+(done?' done':'');
     row.innerHTML=`<div class="top"><span class="pat">〜<span class="x">${g.p}</span></span><span class="scene">${g.scene}</span><span class="zh">${g.m}</span></div>
-      <div class="ex">${exHTML(k[1])}</div><div class="exzh">${k[2]}</div>
+      <div class="ex furi-t" data-ft="${escA(clean(k[1]))}">${exHTML(k[1])}</div><div class="exzh">${k[2]}</div>
       <div class="acts">
         <button class="spk b-listen">${SPK}<span>聞く（会話）</span></button>
         <button class="spk read b-slow">ゆっくり</button>
@@ -1649,7 +1676,7 @@ function renderGram(){
     row.querySelector('.b-mk').onclick=e=>{e.stopPropagation();toggle(L,i);save();renderGram();updHome();updMeta()};
     list.appendChild(row);
   });
-  updMeta();
+  updMeta();applyFuriToActive();
 }
 function setGramLevel(lv){gramLevel=lv;gramFilter='all';
   document.querySelectorAll('#gram-level button').forEach(b=>b.classList.toggle('on',b.dataset.lv===lv));
@@ -1673,7 +1700,7 @@ function renderVocab(){
       <div class="ico"><button class="b b-say">${SPK}</button><button class="b b-open"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button><button class="b mk b-mk">✓</button></div></div>
       <div class="hide">タップで読み・意味・例文を表示</div>
       <div class="reveal"><span class="r">${v.r}</span>　<span class="m">${v.m}</span>
-        <div class="vex">${exHTML(v.s)}</div><div class="vexz">${v.z}</div></div>`;
+        <div class="vex furi-t" data-ft="${escA(clean(v.s))}">${exHTML(v.s)}</div><div class="vexz">${v.z}</div></div>`;
     const open=()=>c.classList.add('open');
     c.querySelector('.w').onclick=()=>{open();speakInline(v.s,0.9)};
     c.querySelector('.vex')&&(c.querySelector('.reveal').querySelector('.vex').onclick=()=>speakInline(v.s,0.9));
@@ -1682,7 +1709,7 @@ function renderVocab(){
     c.querySelector('.b-mk').onclick=e=>{e.stopPropagation();toggle(S.v,i);save();renderVocab();updHome();updMeta()};
     list.appendChild(c);
   });
-  updMeta();
+  updMeta();applyFuriToActive();
 }
 
 /* ===================== マイ単語カード ===================== */
@@ -1741,8 +1768,16 @@ function sfxWrong(){
 }
 function reflectSfx(){const b=document.getElementById('sfx-toggle');if(!b)return;const on=T.sfx!==false;b.classList.toggle('on',on);b.textContent=on?'ON':'OFF'}
 function toggleSfx(){T.sfx=(T.sfx===false);saveT();reflectSfx();if(T.sfx)sfxCorrect()}
-function reflectFuri(){const on=!!T.furi;const ft=document.getElementById('furi-toggle');if(ft){ft.classList.toggle('on',on);ft.textContent=on?'ON':'OFF'}['chip-furi','r-furi','ch-furi'].forEach(id=>{const b=document.getElementById(id);if(b)b.classList.toggle('on',on)})}
-function toggleFuri(){T.furi=!T.furi;saveT();reflectFuri();if(document.getElementById('player').classList.contains('show'))renderItem();if(document.getElementById('reader').classList.contains('show'))renderReader();if(document.getElementById('choukai').classList.contains('show'))renderChoukai()}
+function reflectFuri(){const on=!!T.furi;const ft=document.getElementById('furi-toggle');if(ft){ft.classList.toggle('on',on);ft.textContent=on?'ON':'OFF'}['chip-furi','r-furi','ch-furi','g-furi','v-furi'].forEach(id=>{const b=document.getElementById(id);if(b)b.classList.toggle('on',on)})}
+function toggleFuri(){
+  T.furi=!T.furi;saveT();reflectFuri();
+  if(T.furi&&(getEngine()!=='gemini'||!T.key))toast('ふりがなには Gemini キーが必要です（ホーム上部で設定）');
+  const sh=id=>document.getElementById(id).classList.contains('show');
+  if(sh('player'))renderItem();
+  else if(sh('reader'))renderReader();
+  else if(sh('choukai'))renderChoukai();
+  else{const tab=document.querySelector('.tab.show');if(tab&&tab.id==='t-gram')renderGram();else if(tab&&tab.id==='t-vocab')renderVocab();else applyFuriToActive();}
+}
 function answer(j){const q=quizArr()[qi],c=q[2];document.querySelectorAll('#opts .opt').forEach((b,k)=>{b.disabled=true;if(k===c)b.classList.add('ok');if(k===j&&j!==c)b.classList.add('no')});if(j===c){qscore++;sfxCorrect();}else sfxWrong();const ex=document.getElementById('expl');ex.innerHTML=`<b>${j===c?'正解！':'解説'}</b>　${q[3]}`;ex.classList.add('show');document.getElementById('qnext').style.display='block'}
 
 /* ===================== PLAN ===================== */
@@ -2213,7 +2248,7 @@ function wireTyping(){const ta=document.getElementById('ty-in');if(ta)ta.addEven
 
 /* ===================== NAV ===================== */
 const TABS={home:'t-home',gram:'t-gram',vocab:'t-vocab',quiz:'t-quiz',plan:'t-plan',cram:'t-cram'};
-function go(name){Object.values(TABS).forEach(id=>document.getElementById(id).classList.remove('show'));document.getElementById(TABS[name]).classList.add('show');document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===name));window.scrollTo({top:0,behavior:'smooth'})}
+function go(name){Object.values(TABS).forEach(id=>document.getElementById(id).classList.remove('show'));document.getElementById(TABS[name]).classList.add('show');document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===name));window.scrollTo({top:0,behavior:'smooth'});applyFuriToActive()}
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.go));
 document.querySelectorAll('#gram-f button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#gram-f button').forEach(x=>x.classList.remove('on'));b.classList.add('on');gramFilter=b.dataset.f;renderGram()});
 document.querySelectorAll('#vocab-f button').forEach(b=>b.onclick=()=>{if(b.dataset.f==='shuffle'){vocabShuf=true;renderVocab();return}document.querySelectorAll('#vocab-f button').forEach(x=>x.classList.remove('on'));b.classList.add('on');vocabFilter=b.dataset.f;vocabShuf=false;renderVocab()});
