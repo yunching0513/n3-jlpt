@@ -662,7 +662,7 @@
     <button onclick="aiAsk('試験前で緊張してる。やる気が出る一言を日本語と中文でちょうだい')">応援して</button>
   </div>
   <div class="ai-input">
-    <textarea id="ai-in" rows="1" placeholder="この画面のこと、文法・単語・翻訳など…（Enterで送信）"></textarea>
+    <textarea id="ai-in" rows="1" placeholder="この画面のこと、文法・単語・翻訳など…（Enter2回で送信）"></textarea>
     <button class="ai-send" onclick="aiSend()">送信</button>
   </div>
 </div>
@@ -2195,7 +2195,17 @@ async function aiSend(){
 function aiClear(){aiMsgs=[];renderAiMsgs()}
 function wireAI(){
   const i=document.getElementById('ai-in');
-  if(i)i.addEventListener('keydown',e=>{if(e.code==='Enter'&&!e.shiftKey){e.preventDefault();aiSend()}});
+  if(i){
+    let lastEnter=0;
+    i.addEventListener('keydown',e=>{
+      if(e.code==='Enter'&&!e.shiftKey&&!e.isComposing&&e.keyCode!==229){
+        const now=Date.now();
+        if(now-lastEnter<900){e.preventDefault();lastEnter=0;aiSend();}   // 2回目のEnter → 送信
+        else{lastEnter=now;}                                              // 1回目のEnter → 改行（既定動作）
+      }else if(e.code!=='Enter'){lastEnter=0;}                            // 他のキーでリセット
+    });
+    i.addEventListener('blur',()=>{lastEnter=0});
+  }
   document.addEventListener('keydown',e=>{if(document.getElementById('ai-panel').classList.contains('show')&&e.code==='Escape')closeAI()});
 }
 
