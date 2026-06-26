@@ -311,6 +311,15 @@
   .ai-msg{max-width:86%;padding:10px 13px;border-radius:14px;font-size:14px;line-height:1.75}
   .ai-msg.me{align-self:flex-end;background:var(--vermilion);color:#fff;border-bottom-right-radius:4px}
   .ai-msg.bot{align-self:flex-start;background:var(--card);border:1px solid var(--line);border-bottom-left-radius:4px}
+  .ai-msg.bot strong{font-weight:700;color:var(--vermilion)}
+  .ai-msg.bot em{font-style:normal;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:2px}
+  .ai-msg.bot .ai-h{font-family:var(--serif);font-weight:700;font-size:14.5px;margin:8px 0 3px}
+  .ai-msg.bot .ai-h:first-child{margin-top:0}
+  .ai-msg.bot ul,.ai-msg.bot ol{margin:4px 0;padding-left:20px}
+  .ai-msg.bot li{margin:2px 0}
+  .ai-msg.bot .ai-code{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;background:var(--paper);border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+  .ai-msg.bot .ai-pre{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:9px 11px;margin:6px 0;overflow-x:auto;white-space:pre-wrap;line-height:1.55}
+  .ai-msg.bot a{color:var(--vermilion);text-decoration:underline}
   .ai-suggest{display:flex;gap:7px;overflow-x:auto;padding:0 16px 8px;max-width:760px;width:100%;margin:0 auto}
   .ai-suggest button{flex:none;font-size:11.5px;white-space:nowrap;padding:6px 11px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);cursor:pointer}
   .ai-input{display:flex;gap:8px;align-items:flex-end;padding:10px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);max-width:760px;width:100%;margin:0 auto}
@@ -2095,10 +2104,37 @@ function aiContext(){
 function openAI(){document.getElementById('ai-panel').classList.add('show');renderAiMsgs();setTimeout(()=>{const i=document.getElementById('ai-in');if(i)i.focus()},120)}
 function closeAI(){document.getElementById('ai-panel').classList.remove('show')}
 function escAi(s){return esc(s).replace(/\n/g,'<br>')}
+function mdInline(s){
+  s=s.replace(/`([^`]+)`/g,'<code class="ai-code">$1</code>');
+  s=s.replace(/\*\*([^*]+?)\*\*/g,'<strong>$1</strong>');
+  s=s.replace(/__([^_]+?)__/g,'<strong>$1</strong>');
+  s=s.replace(/(^|[^*\w])\*(?!\s)([^*\n]+?)\*/g,'$1<em>$2</em>');
+  s=s.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+  return s;
+}
+function mdAi(raw){
+  const lines=esc(raw).split('\n');
+  let html='',inUl=false,inOl=false,inPre=false;
+  const closeLists=()=>{if(inUl){html+='</ul>';inUl=false}if(inOl){html+='</ol>';inOl=false}};
+  for(const ln of lines){
+    if(/^\s*```/.test(ln)){if(inPre){html+='</pre>';inPre=false}else{closeLists();html+='<pre class="ai-pre">';inPre=true}continue}
+    if(inPre){html+=ln+'\n';continue}
+    let m;
+    if(m=ln.match(/^\s*#{1,6}\s+(.*)$/)){closeLists();html+='<div class="ai-h">'+mdInline(m[1])+'</div>';continue}
+    if(m=ln.match(/^\s*[-*+]\s+(.*)$/)){if(!inUl){closeLists();html+='<ul>';inUl=true}html+='<li>'+mdInline(m[1])+'</li>';continue}
+    if(m=ln.match(/^\s*\d+[.)]\s+(.*)$/)){if(!inOl){closeLists();html+='<ol>';inOl=true}html+='<li>'+mdInline(m[1])+'</li>';continue}
+    closeLists();
+    if(ln.trim()===''){html+='<br>';continue}
+    html+=mdInline(ln)+'<br>';
+  }
+  if(inPre)html+='</pre>';
+  closeLists();
+  return html.replace(/(<br>)+$/,'');
+}
 function renderAiMsgs(){
   const box=document.getElementById('ai-msgs');if(!box)return;
   if(!aiMsgs.length){box.innerHTML='<div class="ai-hint">この画面のことや、N3の文法・単語・例文・翻訳など、何でも聞いてください。<br>例：「〜うちに と 〜ないうちに の違いは？」「この文を中文に訳して」「面接で使える敬語を教えて」</div>';return}
-  box.innerHTML=aiMsgs.map(m=>'<div class="ai-msg '+(m.role==='user'?'me':'bot')+'">'+escAi(m.text)+'</div>').join('');
+  box.innerHTML=aiMsgs.map(m=>'<div class="ai-msg '+(m.role==='user'?'me':'bot')+'">'+(m.role==='user'?escAi(m.text):mdAi(m.text))+'</div>').join('');
   box.scrollTop=box.scrollHeight
 }
 function aiFill(t){const i=document.getElementById('ai-in');i.value=t;i.focus()}
