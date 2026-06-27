@@ -452,6 +452,30 @@
         <div class="tip" style="font-size:11px;margin-top:6px">🔒 キーはこの端末のブラウザ内（localStorage）にのみ保存され、HTMLファイルには書き込まれません。テストが「通信エラー」になる場合は file:// ではなく http://localhost で開いてください。</div>
       </div>
 
+      <div class="card pad" id="review-card" style="background:linear-gradient(135deg,#fff8ee,#fceede);border-color:#e8cda9">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <span style="font-family:var(--serif);font-weight:700;font-size:15px">🎯 今日の学習ダッシュボード</span>
+          <span class="pill" id="rv-days" style="margin-left:auto">試験まで —日</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin:8px 0 11px">
+          <div style="flex:1;line-height:1.3"><b id="rv-wrong-n" style="font-size:22px;font-family:var(--serif);color:var(--vermilion-deep)">0</b> <span style="font-size:12px;color:var(--ink-soft)">問の「間違いノート」</span></div>
+          <button class="btn" id="rv-wrong-btn" onclick="goWrong()" style="padding:9px 15px">🔁 間違い直し</button>
+        </div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:11px">
+          <button class="chip" onclick="goMix()">🎲 全ミックス</button>
+          <button class="chip" onclick="go('net')">🕸 つながりマップ</button>
+          <button class="chip" onclick="openPlayer('gram',null,'all')">🎤 跟讀</button>
+          <button class="chip" onclick="go('cram')">📌 要点</button>
+        </div>
+        <div class="tip" style="font-size:11.5px;line-height:1.8;margin:0;background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 11px">
+          <b style="color:var(--vermilion-deep)">科学的な回し方（試験直前ほど効く）</b><br>
+          ① <b>思い出す</b>：先にクイズで答える（読み返すより記憶に残る＝検索練習）。<br>
+          ② <b>間違いだけ</b>を翌日また解く（間隔反復で定着）。<br>
+          ③ <b>混ぜて</b>解く（全ミックスで本番の実戦力）。<br>
+          ④ 声に出して<b>跟讀</b>（産出＋聴解にも効く）。
+        </div>
+      </div>
+
       <div class="launch" onclick="openPlayer('gram',null,'all')">
         <div class="l1">LISTEN ・ READ ・ SHADOW</div>
         <div class="l2">聽讀・跟讀モード</div>
@@ -583,6 +607,8 @@
   <section class="tab" id="t-quiz">
     <div class="sec-h"><span class="ji">問</span><h2>クイズ</h2><span class="meta" id="quiz-meta">全40問</span></div>
     <div class="seg" id="quiz-set" style="width:100%;margin-bottom:12px;flex-wrap:wrap">
+      <button style="flex:1;min-width:108px" data-s="wrong" onclick="setQuizSet('wrong')">🔁 間違い直し <span id="wrong-n">0</span></button>
+      <button style="flex:1;min-width:96px" data-s="mix" onclick="setQuizSet('mix')">🎲 全ミックス</button>
       <button class="on" style="flex:1;min-width:88px" data-s="mock" onclick="setQuizSet('mock')">模擬 40</button>
       <button style="flex:1;min-width:88px" data-s="kako4" onclick="setQuizSet('kako4')">文字語彙'24/7</button>
       <button style="flex:1;min-width:88px" data-s="kako5" onclick="setQuizSet('kako5')">文法読解'24/7</button>
@@ -2140,22 +2166,46 @@ function renderMyCards(){
 
 /* ===================== QUIZ ===================== */
 let qi=0,qscore=0,quizSet='mock';
-function quizArr(){return quizSet==='kako'?KAKO2024:quizSet==='kako2'?KAKO2024B:quizSet==='kako3'?KAKO2023:quizSet==='kako4'?KAKO2024C:quizSet==='kako5'?KAKO2024D:quizSet==='kako6'?KAKO2023B:quizSet==='kako7'?KAKO2023C:QUIZ}
-function quizBestKey(){return quizSet==='kako'?'qk':quizSet==='kako2'?'qk2':quizSet==='kako3'?'qk3':quizSet==='kako4'?'qk4':quizSet==='kako5'?'qk5':quizSet==='kako6'?'qk6':quizSet==='kako7'?'qk7':'q'}
+/* 間違いノート（検索練習＋間隔反復）：間違えた問題を端末に記録し、正解で消える */
+let WRONG=JSON.parse(localStorage.getItem('n3_wrong')||'{}');
+function saveWrong(){try{localStorage.setItem('n3_wrong',JSON.stringify(WRONG))}catch(e){}}
+const SETMAP={mock:QUIZ,kako:KAKO2024,kako2:KAKO2024B,kako3:KAKO2023,kako4:KAKO2024C,kako5:KAKO2024D,kako6:KAKO2023B,kako7:KAKO2023C};
+const SETLABEL={mock:'模擬',kako:'24/12 文字',kako2:'24/12 文法',kako3:'23/12 文字',kako4:'24/7 文字',kako5:'24/7 文法',kako6:'23/7 文字',kako7:'23/7 文法'};
+let wrongOrigins=[],mixOrigins=[];
+function buildWrong(){wrongOrigins=Object.values(WRONG).filter(w=>SETMAP[w.s]&&SETMAP[w.s][w.i])}
+function buildMix(){const all=[];for(const k in SETMAP){if(k==='mock')continue;SETMAP[k].forEach((q,i)=>all.push({s:k,i}))}mixOrigins=shuffle(all).slice(0,30)}
+function curOrigin(idx){return quizSet==='wrong'?wrongOrigins[idx]:quizSet==='mix'?mixOrigins[idx]:{s:quizSet,i:idx}}
+function wrongCount(){return Object.keys(WRONG).length}
+function goWrong(){go('quiz');setQuizSet('wrong')}
+function goMix(){go('quiz');setQuizSet('mix')}
+function quizArr(){
+  if(quizSet==='wrong')return wrongOrigins.map(w=>SETMAP[w.s][w.i]);
+  if(quizSet==='mix')return mixOrigins.map(w=>SETMAP[w.s][w.i]);
+  return quizSet==='kako'?KAKO2024:quizSet==='kako2'?KAKO2024B:quizSet==='kako3'?KAKO2023:quizSet==='kako4'?KAKO2024C:quizSet==='kako5'?KAKO2024D:quizSet==='kako6'?KAKO2023B:quizSet==='kako7'?KAKO2023C:QUIZ}
+function quizBestKey(){if(quizSet==='wrong'||quizSet==='mix')return null;return quizSet==='kako'?'qk':quizSet==='kako2'?'qk2':quizSet==='kako3'?'qk3':quizSet==='kako4'?'qk4':quizSet==='kako5'?'qk5':quizSet==='kako6'?'qk6':quizSet==='kako7'?'qk7':'q'}
 function setQuizSet(s){quizSet=s;document.querySelectorAll('#quiz-set button').forEach(b=>b.classList.toggle('on',b.dataset.s===s));startQuiz()}
 function quizLabel(){return quizSet==='kako'?'2024年12月 ・ 文字語彙':quizSet==='kako2'?'2024年12月 ・ 文法読解':quizSet==='kako3'?'2023年12月 ・ 文字語彙':quizSet==='kako4'?'2024年7月 ・ 文字語彙':quizSet==='kako5'?'2024年7月 ・ 文法読解':quizSet==='kako6'?'2023年7月 ・ 文字語彙':quizSet==='kako7'?'2023年7月 ・ 文法読解':'模擬テスト（自編）'}
-function quizSrcBadge(){return '<div class="q-src">'+(quizSet==='mock'?'✏️ 模擬 ・ ':'📄 過去問 ・ ')+quizLabel()+'</div>'}
-function startQuiz(){qi=0;qscore=0;const m=document.getElementById('quiz-meta');if(m)m.textContent='全'+quizArr().length+'問';renderQ()}
+function quizSrcBadge(){
+  if(quizSet==='wrong'){const o=curOrigin(qi);return '<div class="q-src">🔁 間違い直し'+(o?' ・ '+SETLABEL[o.s]:'')+'</div>'}
+  if(quizSet==='mix'){const o=curOrigin(qi);return '<div class="q-src">🎲 全ミックス'+(o?' ・ '+SETLABEL[o.s]:'')+'</div>'}
+  return '<div class="q-src">'+(quizSet==='mock'?'✏️ 模擬 ・ ':'📄 過去問 ・ ')+quizLabel()+'</div>'}
+function startQuiz(){if(quizSet==='wrong')buildWrong();if(quizSet==='mix')buildMix();qi=0;qscore=0;const m=document.getElementById('quiz-meta');if(m)m.textContent='全'+quizArr().length+'問';renderQ()}
 function renderQ(){
   const A=quizArr(),a=document.getElementById('quiz-area');
+  if(A.length===0){
+    a.innerHTML=`<div class="card q-card center stagger">${quizSrcBadge()}<div class="tip center" style="font-size:14px;padding:14px 6px;line-height:1.8">🎉 間違いノートは空です！<br>クイズで間違えると自動でたまり、<b>弱点だけ</b>を効率よく復習できます。</div><button class="btn" onclick="setQuizSet('mix')">🎲 全ミックスを解く</button></div>`;return;
+  }
   if(qi>=A.length){
-    const bk=quizBestKey(),best=S[bk]==null?qscore:Math.max(S[bk],qscore);S[bk]=best;save();updHome();
-    const pass=qscore>=Math.ceil(A.length*0.6);
+    const bk=quizBestKey();let best=null;if(bk){best=S[bk]==null?qscore:Math.max(S[bk],qscore);S[bk]=best;save()}updHome();
+    const pass=qscore>=Math.ceil(A.length*0.6),wc=wrongCount();
     a.innerHTML=`<div class="card q-card center stagger">${quizSrcBadge()}<div style="font-family:var(--serif);font-size:15px;color:var(--ink-soft)">結果</div>
       <div class="score-big" style="margin:8px 0">${qscore}<span style="font-size:24px;color:var(--ink-soft)"> / ${A.length}</span></div>
       <div style="font-family:var(--serif);font-size:18px;color:${pass?'var(--green)':'var(--vermilion)'};margin-bottom:6px">${pass?'合格ライン突破！':'もう一歩。復習しよう'}</div>
-      <div class="tip center" style="margin-bottom:18px">自己最高：<b>${best}/${A.length}</b></div>
-      <button class="btn" onclick="startQuiz()">もう一度</button><button class="btn ghost" onclick="go('gram')" style="margin-left:8px">文法を復習</button></div>`;return;
+      ${bk?`<div class="tip center" style="margin-bottom:14px">自己最高：<b>${best}/${A.length}</b></div>`:'<div class="tip center" style="margin-bottom:14px">弱点を1つずつ消そう。</div>'}
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+      <button class="btn" onclick="startQuiz()">もう一度</button>
+      ${wc>0&&quizSet!=='wrong'?`<button class="btn" style="background:var(--vermilion-deep)" onclick="setQuizSet('wrong')">🔁 間違いだけ復習（${wc}）</button>`:''}
+      <button class="btn ghost" onclick="go('net')">🕸 つながりマップ</button></div></div>`;return;
   }
   const q=A[qi];
   a.innerHTML=`<div class="card q-card stagger">${quizSrcBadge()}<div class="q-top"><span>第 ${qi+1} 問</span><span class="q-prog"><i style="width:${qi/A.length*100}%"></i></span><span>得点 ${qscore}</span></div>
@@ -2194,7 +2244,12 @@ function toggleFuri(){
   else if(sh('choukai'))renderChoukai();
   else{const tab=document.querySelector('.tab.show');if(tab&&tab.id==='t-gram')renderGram();else if(tab&&tab.id==='t-vocab')renderVocab();else applyFuriToActive();}
 }
-function answer(j){const q=quizArr()[qi],c=q[2];document.querySelectorAll('#opts .opt').forEach((b,k)=>{b.disabled=true;if(k===c)b.classList.add('ok');if(k===j&&j!==c)b.classList.add('no')});if(j===c){qscore++;sfxCorrect();}else sfxWrong();const ex=document.getElementById('expl');ex.innerHTML=`<b>${j===c?'正解！':'解説'}</b>　${q[3]}`;ex.classList.add('show');document.getElementById('qnext').style.display='block'}
+function answer(j){const q=quizArr()[qi],c=q[2];document.querySelectorAll('#opts .opt').forEach((b,k)=>{b.disabled=true;if(k===c)b.classList.add('ok');if(k===j&&j!==c)b.classList.add('no')});
+  const org=curOrigin(qi),key=org?org.s+':'+org.i:null;
+  if(j===c){qscore++;sfxCorrect();if(key&&WRONG[key]){delete WRONG[key];saveWrong()}}
+  else{sfxWrong();if(key){WRONG[key]={s:org.s,i:org.i};saveWrong()}}
+  updHome();
+  const ex=document.getElementById('expl');ex.innerHTML=`<b>${j===c?'正解！':'解説'}</b>　${q[3]}`;ex.classList.add('show');document.getElementById('qnext').style.display='block'}
 
 /* ===================== PLAN ===================== */
 function renderPlan(){
@@ -2263,6 +2318,11 @@ function updHome(){
   set('p-p',S.p.length,12);document.getElementById('p-p-n').textContent=`${S.p.length} / 12`;
   const qn=document.getElementById('p-q-n'),qb=document.getElementById('p-q');
   if(S.q==null){qn.textContent=`— / ${QUIZ.length}`;qb.style.width='0'}else{qn.textContent=`${S.q} / ${QUIZ.length}`;qb.style.width=(S.q/QUIZ.length*100)+'%'}
+  const wc=wrongCount();
+  const rn=document.getElementById('rv-wrong-n');if(rn)rn.textContent=wc;
+  const wnb=document.getElementById('wrong-n');if(wnb)wnb.textContent=wc;
+  const rb=document.getElementById('rv-wrong-btn');if(rb){rb.disabled=wc===0;rb.style.opacity=wc===0?.45:1}
+  const rd=document.getElementById('rv-days');if(rd){const dd=Math.max(0,Math.ceil((new Date(2026,6,4,9,30,0)-new Date())/86400000));rd.textContent='試験まで '+dd+'日'}
 }
 
 /* ===================== PLAYER ===================== */
