@@ -125,6 +125,7 @@
   /* quiz */
   .q-card{padding:20px 18px}
   .q-top{display:flex; justify-content:space-between; align-items:center; font-size:12.5px; color:var(--ink-soft); margin-bottom:14px}
+  .q-src{display:inline-block; font-family:var(--sans); font-size:11px; font-weight:700; color:var(--vermilion-deep); background:var(--paper-2); border:1px solid var(--line); border-radius:999px; padding:3px 11px; margin-bottom:12px; letter-spacing:.03em}
   .q-prog{height:6px; border-radius:4px; background:var(--paper-2); overflow:hidden; flex:1; margin:0 12px}
   .q-prog i{display:block; height:100%; background:var(--vermilion); transition:width .4s}
   .q-text{font-family:var(--serif); font-size:20px; line-height:1.7; margin:6px 0 18px}
@@ -1930,20 +1931,22 @@ let qi=0,qscore=0,quizSet='mock';
 function quizArr(){return quizSet==='kako'?KAKO2024:quizSet==='kako2'?KAKO2024B:quizSet==='kako3'?KAKO2023:quizSet==='kako4'?KAKO2024C:quizSet==='kako5'?KAKO2024D:QUIZ}
 function quizBestKey(){return quizSet==='kako'?'qk':quizSet==='kako2'?'qk2':quizSet==='kako3'?'qk3':quizSet==='kako4'?'qk4':quizSet==='kako5'?'qk5':'q'}
 function setQuizSet(s){quizSet=s;document.querySelectorAll('#quiz-set button').forEach(b=>b.classList.toggle('on',b.dataset.s===s));startQuiz()}
+function quizLabel(){return quizSet==='kako'?'2024年12月 ・ 文字語彙':quizSet==='kako2'?'2024年12月 ・ 文法読解':quizSet==='kako3'?'2023年12月 ・ 文字語彙':quizSet==='kako4'?'2024年7月 ・ 文字語彙':quizSet==='kako5'?'2024年7月 ・ 文法読解':'模擬テスト（自編）'}
+function quizSrcBadge(){return '<div class="q-src">'+(quizSet==='mock'?'✏️ 模擬 ・ ':'📄 過去問 ・ ')+quizLabel()+'</div>'}
 function startQuiz(){qi=0;qscore=0;const m=document.getElementById('quiz-meta');if(m)m.textContent='全'+quizArr().length+'問';renderQ()}
 function renderQ(){
   const A=quizArr(),a=document.getElementById('quiz-area');
   if(qi>=A.length){
     const bk=quizBestKey(),best=S[bk]==null?qscore:Math.max(S[bk],qscore);S[bk]=best;save();updHome();
     const pass=qscore>=Math.ceil(A.length*0.6);
-    a.innerHTML=`<div class="card q-card center stagger"><div style="font-family:var(--serif);font-size:15px;color:var(--ink-soft)">結果</div>
+    a.innerHTML=`<div class="card q-card center stagger">${quizSrcBadge()}<div style="font-family:var(--serif);font-size:15px;color:var(--ink-soft)">結果</div>
       <div class="score-big" style="margin:8px 0">${qscore}<span style="font-size:24px;color:var(--ink-soft)"> / ${A.length}</span></div>
       <div style="font-family:var(--serif);font-size:18px;color:${pass?'var(--green)':'var(--vermilion)'};margin-bottom:6px">${pass?'合格ライン突破！':'もう一歩。復習しよう'}</div>
       <div class="tip center" style="margin-bottom:18px">自己最高：<b>${best}/${A.length}</b></div>
       <button class="btn" onclick="startQuiz()">もう一度</button><button class="btn ghost" onclick="go('gram')" style="margin-left:8px">文法を復習</button></div>`;return;
   }
   const q=A[qi];
-  a.innerHTML=`<div class="card q-card stagger"><div class="q-top"><span>第 ${qi+1} 問</span><span class="q-prog"><i style="width:${qi/A.length*100}%"></i></span><span>得点 ${qscore}</span></div>
+  a.innerHTML=`<div class="card q-card stagger">${quizSrcBadge()}<div class="q-top"><span>第 ${qi+1} 問</span><span class="q-prog"><i style="width:${qi/A.length*100}%"></i></span><span>得点 ${qscore}</span></div>
     <div class="q-text">${q[0].replace('（　）','<span class="x">＿＿</span>')}</div><div class="opts" id="opts"></div><div class="expl" id="expl"></div>
     <div id="qnext" style="margin-top:16px;text-align:right;display:none"><button class="btn" onclick="qi++;renderQ()">次へ →</button></div></div>`;
   const ks=['A','B','C','D'],opts=document.getElementById('opts');
