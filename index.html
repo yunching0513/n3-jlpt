@@ -569,7 +569,8 @@
     <div class="sec-h"><span class="ji">問</span><h2>クイズ</h2><span class="meta" id="quiz-meta">全40問</span></div>
     <div class="seg" id="quiz-set" style="width:100%;margin-bottom:12px;flex-wrap:wrap">
       <button class="on" style="flex:1;min-width:88px" data-s="mock" onclick="setQuizSet('mock')">模擬 40</button>
-      <button style="flex:1;min-width:88px" data-s="kako" onclick="setQuizSet('kako')">文字語彙'24/7</button>
+      <button style="flex:1;min-width:88px" data-s="kako" onclick="setQuizSet('kako')">文字語彙'24/7①</button>
+      <button style="flex:1;min-width:88px" data-s="kako4" onclick="setQuizSet('kako4')">文字語彙'24/7②</button>
       <button style="flex:1;min-width:88px" data-s="kako3" onclick="setQuizSet('kako3')">文字語彙'23/12</button>
       <button style="flex:1;min-width:88px" data-s="kako2" onclick="setQuizSet('kako2')">文法読解'24/12</button>
     </div>
@@ -1534,6 +1535,45 @@ const KAKO2023=[
  ["【用法】詰める",["旅行に持っていく物をスーツケースに詰めておきます。","味が薄かったので、スープに塩とこしょうを詰めました。","お客さんのコップに水を詰めてください。","時々窓を開けて、部屋の中に新鮮な空気を詰める。"],0,"詰める＝塞滿、裝入。其他用「足す・入れる」。"],
 ];
 
+/* 2024年7月 文字・語彙 過去問・第2版（35問） */
+const KAKO2024C=[
+ ["すみません、弟がこれを<u class='qb'>割って</u>しまいました。",["けって","おって","わって","さわって"],2,"割る（わる）＝打破。"],
+ ["ピアノを<u class='qb'>基本</u>から習いたい。",["ぎほん","しほん","きほん","じほん"],2,"基本＝きほん。"],
+ ["かばんは<u class='qb'>横</u>に置いてください。",["よこ","そば","となり","ゆか"],0,"横＝よこ（旁邊、側面）。"],
+ ["この仕事は今日が<u class='qb'>最初</u>です。",["さいしょ","さいしゅう","さいしょう","さいしゅ"],0,"最初＝さいしょ。"],
+ ["昨日、山田さんに本を<u class='qb'>返しました</u>。",["わかしました","もどしました","かしました","かえしました"],3,"返す（かえす）＝歸還。"],
+ ["この<u class='qb'>包丁</u>は使いやすい。",["ぼうちょう","ほうちょう","ほうちょ","ぼうちょ"],1,"包丁＝ほうちょう（菜刀）。"],
+ ["<u class='qb'>適当</u>なやり方を教えてください。",["てきどう","てきとう","ていとう","ていどう"],1,"適当＝てきとう。"],
+ ["部屋が狭いので、大きな<u class='qb'>家具</u>は置けません。",["やぐう","かぐう","やぐ","かぐ"],3,"家具＝かぐ。"],
+ ["この問題を<u class='qb'>といて</u>ください。",["試いて","答いて","解いて","調いて"],2,"とく＝解く（解題）。"],
+ ["今日は少し<u class='qb'>こし</u>が痛い。",["胸","腹","脇","腰"],3,"こし＝腰。"],
+ ["入学式の<u class='qb'>よくしゅう</u>から講義が始まる。",["翌週","次週","明週","遠週"],0,"よくしゅう＝翌週（隔週、下一週）。"],
+ ["今朝は気温が<u class='qb'>ひくかった</u>ので、水が凍っていた。",["寒かった","底かった","低かった","暑かった"],2,"ひくい＝低い。"],
+ ["湖はどの<u class='qb'>ほうこう</u>にありますか。",["方向","方角","法向","法角"],0,"ほうこう＝方向。"],
+ ["学校の<u class='qb'>きそく</u>が少し変わるそうだ。",["規側","規則","期則","期側"],1,"きそく＝規則（規定）。"],
+ ["野球が好きな友人の（　）で、私も野球に興味を持った。",["指定","申請","影響","通知"],2,"影響＝影響。"],
+ ["私は歌が苦手なので、歌の上手な人が（　）です。",["残念","なつかしい","うらやましい","不安"],2,"うらやましい＝羨慕。"],
+ ["ゴールまでもう少しだったので、足の痛みを（　）して走った。",["我慢","苦労","遠慮","努力"],0,"我慢する＝忍耐。"],
+ ["林さんは会議ではいつも（　）で、あまり自分の意見を言わない。",["人工的","消極的","自動的","間接的"],1,"消極的＝消極的。"],
+ ["このバスは駅を出発してから、図書館を（　）して美術館へ行きます。",["移動","経由","進行","下車"],1,"経由する＝途經、經過。"],
+ ["あの兄弟はとても（　）がよくて、ほとんどけんかをしないそうだ。",["組","間","形","仲"],3,"仲がいい＝感情好。"],
+ ["家のドアを開けるために、ポケットの中から鍵を（　）。",["取り付けた","取り出した","引き受けた","引き落とした"],1,"取り出す＝拿出來。"],
+ ["たくさんのことを（　）言われても、覚えられません。",["一度に","偶然","十分","平等に"],0,"一度に＝一次同時。"],
+ ["このホテルは空港からの（　）がいいので、外国からの客が多い。",["ストップ","セット","テイクアウト","アクセス"],3,"アクセス＝交通便利性、可達性。"],
+ ["大好きな歌手のコンサートに行きたかったが、チケットが高くて買えないので行くのを（　）。",["きらった","うたがった","あきらめた","うばった"],2,"あきらめる＝放棄。"],
+ ["タクシーの乗り場がわからなくて、駅の周りを（　）歩き回った。",["うろうろ","どきどき","ざあざあ","ちかちか"],0,"うろうろ＝徘徊、轉來轉去。"],
+ ["この商品は<u class='qb'>売り切れました</u>。",["ほとんど売れました","全部売れました","あまり売れませんでした","全部売れませんでした"],1,"売り切れ＝全部賣完。"],
+ ["あそこは道が<u class='qb'>カーブして</u>いるので、気をつけてください。",["狭くなって","曲がって","込んで","暗くなって"],1,"カーブ＝彎曲。"],
+ ["今夜は家に誰もいないから<u class='qb'>退屈だ</u>。",["つまらない","怖い","さびしい","忙しい"],0,"退屈＝無聊、つまらない。"],
+ ["テレビで紹介された店に<u class='qb'>さっそく</u>行った。",["初めて","やっと","たまに","すぐに"],3,"さっそく＝立刻、馬上。"],
+ ["このズボンは<u class='qb'>ゆるい</u>ので、別のズボンが欲しい。",["古い","小さい","大きい","薄い"],2,"ゆるい（褲子鬆）≈尺寸大きい。"],
+ ["【用法】知識",["いつ財布を落としたか知識がありません。","はさみがどこにあるか知識がありますか。","パーティーには私の知識がない人も大勢来ていた。","この仕事は医学の知識がないとできない。"],3,"知識＝（學問上的）知識。其他應用「記憶・心当たり・知り合い」。"],
+ ["【用法】ひびく",["台所からおいしそうなにおいがひびいている。","この技術は100年くらい前に外国からひびいたものだ。","この広場で歌を歌うと声がよくひびく。","社長が代わるといううわさが会社内でひびいている。"],2,"響く（ひびく）＝聲音迴盪。其他用「漂う・伝わる・広がる」。"],
+ ["【用法】完成",["みんなの意見が一つ完成したので、これから発表します。","娘は子供のころからの夢が完成して医者になった。","親戚の結婚が完成したので、お祝いを贈ろうと思います。","今建てている家が完成したら、ぜひ遊びに来てください。"],3,"完成＝（建築、作品）做好。其他用「まとまる・かなう・決まる」。"],
+ ["【用法】あわてる",["昨日大雨が降ったので、今日は川の水があわてて流れている。","寝坊をしてあわてて家を出たので、携帯電話を忘れてきてしまった。","マラソン大会で優勝するため、私はゴールまであわてて走り続けた。","あのレストランは人気があるので、お店の人はいつもあわてて働いている。"],1,"慌てる（あわてる）＝驚慌、急忙。其他用「激しく・必死に・忙しく」。"],
+ ["【用法】実物",["服はインターネットの写真だけではなく、実物を見てから買いたい。","そのときは彼女の実物の気持ちが分からなかった。","デパートで買い物したとき、実物が足りなかったので、クレジットカードで払った。","緊張したので発表のときは失敗しましたが、実物はもっと上手にできます。"],0,"実物＝實際的東西、實品。其他用「本当・現金・本来」。"],
+];
+
 const PLAN=[
  ["6/22","文字・語彙①","名詞系の単語を一気に。単語タブを全部めくる＋🔊で発音。"],
  ["6/23","文字・語彙②","漢字の読み練習。間違えた語だけ反復。"],
@@ -1766,8 +1806,8 @@ function renderMyCards(){
 
 /* ===================== QUIZ ===================== */
 let qi=0,qscore=0,quizSet='mock';
-function quizArr(){return quizSet==='kako'?KAKO2024:quizSet==='kako2'?KAKO2024B:quizSet==='kako3'?KAKO2023:QUIZ}
-function quizBestKey(){return quizSet==='kako'?'qk':quizSet==='kako2'?'qk2':quizSet==='kako3'?'qk3':'q'}
+function quizArr(){return quizSet==='kako'?KAKO2024:quizSet==='kako2'?KAKO2024B:quizSet==='kako3'?KAKO2023:quizSet==='kako4'?KAKO2024C:QUIZ}
+function quizBestKey(){return quizSet==='kako'?'qk':quizSet==='kako2'?'qk2':quizSet==='kako3'?'qk3':quizSet==='kako4'?'qk4':'q'}
 function setQuizSet(s){quizSet=s;document.querySelectorAll('#quiz-set button').forEach(b=>b.classList.toggle('on',b.dataset.s===s));startQuiz()}
 function startQuiz(){qi=0;qscore=0;const m=document.getElementById('quiz-meta');if(m)m.textContent='全'+quizArr().length+'問';renderQ()}
 function renderQ(){
@@ -2302,7 +2342,7 @@ function go(name){Object.values(TABS).forEach(id=>document.getElementById(id).cl
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.go));
 document.querySelectorAll('#gram-f button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#gram-f button').forEach(x=>x.classList.remove('on'));b.classList.add('on');gramFilter=b.dataset.f;renderGram()});
 document.querySelectorAll('#vocab-f button').forEach(b=>b.onclick=()=>{if(b.dataset.f==='shuffle'){vocabShuf=true;renderVocab();return}document.querySelectorAll('#vocab-f button').forEach(x=>x.classList.remove('on'));b.classList.add('on');vocabFilter=b.dataset.f;vocabShuf=false;renderVocab()});
-function resetAll(){if(!confirm('すべての進捗を消去します。よろしいですか？'))return;S.g=[];S.g4=[];S.v=[];S.p=[];S.q=null;S.k=[];S.qk=null;S.qk2=null;S.qk3=null;save();renderGram();renderVocab();renderPlan();updHome();updMeta()}
+function resetAll(){if(!confirm('すべての進捗を消去します。よろしいですか？'))return;S.g=[];S.g4=[];S.v=[];S.p=[];S.q=null;S.k=[];S.qk=null;S.qk2=null;S.qk3=null;S.qk4=null;save();renderGram();renderVocab();renderPlan();updHome();updMeta()}
 
 /* ===================== TTS SETTINGS UI ===================== */
 function ttsStatus(msg,err){const e=document.getElementById('tts-status');if(!e)return;e.textContent=msg;e.style.color=err?'var(--vermilion-deep)':'var(--green)'}
