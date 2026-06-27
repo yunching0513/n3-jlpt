@@ -282,6 +282,17 @@
   .gm-ex .x{color:var(--vermilion-deep);font-weight:700}
   .gm-exz{font-size:12.5px;color:var(--ink-soft);margin-top:3px}
   .gm-btns{display:flex;gap:8px;margin-top:12px}
+  .net-chips{display:flex;gap:7px;overflow-x:auto;padding:2px 2px 10px;-webkit-overflow-scrolling:touch}
+  .netchip{flex:none;font-family:var(--sans);font-size:12px;font-weight:600;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);cursor:pointer;white-space:nowrap}
+  .netchip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .net-legend{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;font-size:11px;color:var(--ink-soft);margin-bottom:2px}
+  .net-legend span{display:inline-flex;align-items:center;gap:5px}
+  .net-legend i{width:11px;height:11px;border-radius:50%;display:inline-block}
+  #net-stage{overflow-x:auto;display:flex;justify-content:center}
+  #net-stage svg{max-width:760px;width:100%}
+  #net-stage text{font-family:var(--serif)}
+  .net-panel{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:14px 16px;margin-top:4px;box-shadow:var(--shadow)}
+  .netbadge{display:inline-block;font-family:var(--sans);font-size:10.5px;font-weight:700;color:#fff;border-radius:6px;padding:2px 7px;margin-right:8px;vertical-align:middle}
   #choukai{position:fixed;inset:0;z-index:57;background:var(--paper);display:none;flex-direction:column}
   #choukai.show{display:flex;animation:fade .3s both}
   .ch-sel{display:flex;gap:6px;overflow-x:auto;padding:10px 16px 8px;border-bottom:1px solid var(--line)}
@@ -591,12 +602,28 @@
     <div class="sec-h"><span class="ji">要</span><h2>要点まとめ（考前秘笈）</h2></div>
     <div id="cram"></div>
   </section>
+
+  <!-- NETWORK MAP -->
+  <section class="tab" id="t-net">
+    <div class="sec-h"><span class="ji">繋</span><h2>つながりマップ</h2><span class="meta">記憶網</span></div>
+    <div class="tip" style="margin:0 4px 12px">関連する <b>単語・文法・慣用句</b> をテーマごとにまとめて記憶。テーマを選び、ノードをタップすると意味・例文・音声が出ます。</div>
+    <div class="net-chips" id="net-chips"></div>
+    <div class="net-legend">
+      <span><i style="background:#33506f"></i>文法</span>
+      <span><i style="background:#527a52"></i>単語</span>
+      <span><i style="background:#c4402a"></i>慣用・フレーズ</span>
+      <span><i style="background:#7a5285"></i>敬語</span>
+    </div>
+    <div id="net-stage"></div>
+    <div id="net-panel" class="net-panel" style="display:none"></div>
+  </section>
 </div>
 
 <nav id="nav">
   <button class="on" data-go="home"><span class="ji">家</span><span class="lb">ホーム</span></button>
   <button data-go="gram"><span class="ji">文</span><span class="lb">文法</span></button>
   <button data-go="vocab"><span class="ji">語</span><span class="lb">単語</span></button>
+  <button data-go="net"><span class="ji">繋</span><span class="lb">つながり</span></button>
   <button data-go="quiz"><span class="ji">問</span><span class="lb">クイズ</span></button>
   <button data-go="plan"><span class="ji">計</span><span class="lb">プラン</span></button>
   <button data-go="cram"><span class="ji">要</span><span class="lb">要点</span></button>
@@ -1329,6 +1356,77 @@ const GMAP=[
  {cat:'様子・状態',color:'#b07a2e',items:[['まま','まま'],['ずに／ないで','ずに'],['っぱなし','っぱなし'],['きり','きり'],['かけ','かけ'],['がち','がち'],['っぽい','っぽい'],['たて','たて']]},
  {cat:'意志・態度',color:'#3d6a8a',items:[['ことにする','ことにする'],['ことになる','ことになる'],['ように','ように'],['ようになる','ようになる'],['つもり','つもり'],['ようとする','ようとする'],['べき','べき'],['ことだ','ことだ'],['ことはない','ことはない'],['しかない','しかない']]},
  {cat:'語態・授受・敬語',color:'#9c4a3a',items:[['（さ）せる（使役）','使役'],['（ら）れる（受身）','受身'],['（さ）せられる（使役受身）','使役受身'],['てくれる／てもらう','てもらう'],['尊敬語（いらっしゃる等）','尊敬語'],['謙譲語（伺う等）','謙譲語']]},
+];
+
+/* つながりマップ：記憶用に「単語・文法・慣用句」をテーマで束ねる。node={t:型, n:見出し, r:読み, m:中文, e:例文[強調], ez:中文訳} */
+const NETMAP=[
+ {cat:'原因・結果',color:'#33506f',nodes:[
+  {t:'g',n:'せいで',r:'',m:'都怪…（負面原因）',e:'雨の[せいで]試合が中止になった。',ez:'都怪下雨，比賽取消了。'},
+  {t:'g',n:'おかげで',r:'',m:'多虧…（正面結果）',e:'先生の[おかげで]合格できた。',ez:'多虧老師，我才能考上。'},
+  {t:'g',n:'ため(に)',r:'',m:'因為／為了',e:'事故の[ため]、電車が遅れている。',ez:'因為事故，電車誤點了。'},
+  {t:'v',n:'原因',r:'げんいん',m:'原因',e:'火事の[原因]を調べる。',ez:'調查火災的原因。'},
+  {t:'v',n:'影響',r:'えいきょう',m:'影響',e:'台風の[影響]で学校が休みだ。',ez:'因颱風的影響，學校停課。'},
+  {t:'p',n:'〜によって',r:'',m:'依…而不同／由…',e:'人[によって]考え方が違う。',ez:'每個人的想法各不相同。'}
+ ]},
+ {cat:'時・タイミング',color:'#b08a3e',nodes:[
+  {t:'g',n:'うちに',r:'',m:'趁…的時候',e:'熱い[うちに]食べてください。',ez:'請趁熱吃。'},
+  {t:'g',n:'ないうちに',r:'',m:'趁還沒…之前',e:'暗くなら[ないうちに]帰ろう。',ez:'趁天還沒黑回家吧。'},
+  {t:'g',n:'たびに',r:'',m:'每次…就',e:'この歌を聞く[たびに]思い出す。',ez:'每次聽這首歌就會想起。'},
+  {t:'g',n:'たとたん',r:'',m:'一…就（突發）',e:'ドアを開けた[とたん]、猫が出てきた。',ez:'一打開門，貓就跑了出來。'},
+  {t:'v',n:'最中',r:'さいちゅう',m:'正在…的時候',e:'食事の[最中]に電話が来た。',ez:'正在吃飯時電話來了。'},
+  {t:'p',n:'〜たばかり',r:'',m:'剛…不久',e:'今、起きた[ばかり]です。',ez:'我現在剛起床。'}
+ ]},
+ {cat:'推量・伝聞',color:'#3d6a8a',nodes:[
+  {t:'g',n:'そうだ(様態)',r:'',m:'看起來快要…',e:'今にも雨が降り[そうだ]。',ez:'看起來馬上就要下雨了。'},
+  {t:'g',n:'そうだ(伝聞)',r:'',m:'聽說…',e:'彼は来ない[そうだ]。',ez:'聽說他不來。'},
+  {t:'g',n:'ようだ／みたい',r:'',m:'好像…（推測）',e:'風邪をひいた[みたいだ]。',ez:'好像感冒了。'},
+  {t:'g',n:'らしい',r:'',m:'似乎…（有根據）',e:'あの店は安い[らしい]。',ez:'那家店似乎很便宜。'},
+  {t:'g',n:'はず',r:'',m:'理應…（按理）',e:'今日は休みの[はず]だ。',ez:'今天理應是休假。'},
+  {t:'v',n:'たぶん',r:'',m:'大概',e:'[たぶん]大丈夫でしょう。',ez:'大概沒問題吧。'}
+ ]},
+ {cat:'逆接・対比',color:'#a3301d',nodes:[
+  {t:'g',n:'のに',r:'',m:'明明…卻',e:'約束した[のに]来なかった。',ez:'明明約好了卻沒來。'},
+  {t:'g',n:'くせに',r:'',m:'明明…卻（責備）',e:'知っている[くせに]教えてくれない。',ez:'明明知道卻不告訴我。'},
+  {t:'g',n:'ても',r:'',m:'即使…也',e:'雨が降っ[ても]行きます。',ez:'即使下雨也要去。'},
+  {t:'v',n:'しかし',r:'',m:'但是',e:'疲れた。[しかし]最後まで頑張る。',ez:'累了，但要堅持到最後。'},
+  {t:'v',n:'ところが',r:'',m:'然而（出乎意料）',e:'晴れると思った。[ところが]雨だった。',ez:'本以為會放晴，沒想到下雨了。'}
+ ]},
+ {cat:'程度・限定',color:'#2f7d8a',nodes:[
+  {t:'g',n:'ばかり',r:'',m:'光是／淨是',e:'ゲーム[ばかり]している。',ez:'光是在打電動。'},
+  {t:'g',n:'だけ',r:'',m:'只…',e:'一人[だけ]来た。',ez:'只來了一個人。'},
+  {t:'g',n:'しか〜ない',r:'',m:'只…（別無）',e:'百円[しか]ない。',ez:'只有一百日圓。'},
+  {t:'g',n:'ほど',r:'',m:'到…程度／越…',e:'死ぬ[ほど]疲れた。',ez:'累得要死。'},
+  {t:'g',n:'くらい／ぐらい',r:'',m:'大約／像…那樣',e:'一時間[ぐらい]待った。',ez:'等了大約一個小時。'}
+ ]},
+ {cat:'義務・許可・禁止',color:'#527a52',nodes:[
+  {t:'g',n:'なければならない',r:'',m:'必須…',e:'明日までに出さ[なければならない]。',ez:'明天之前必須交。'},
+  {t:'g',n:'なくてもいい',r:'',m:'不必…',e:'急が[なくてもいい]ですよ。',ez:'不必著急。'},
+  {t:'g',n:'てもいい',r:'',m:'可以…',e:'もう帰っ[てもいい]ですか。',ez:'我可以回去了嗎？'},
+  {t:'g',n:'てはいけない',r:'',m:'不可以…',e:'ここに入っ[てはいけない]。',ez:'不可以進入這裡。'},
+  {t:'g',n:'べき',r:'',m:'應該…',e:'すぐ謝る[べき]だ。',ez:'應該立刻道歉。'}
+ ]},
+ {cat:'授受表現',color:'#c4402a',nodes:[
+  {t:'g',n:'てあげる',r:'',m:'（我）為別人做',e:'友達の宿題を手伝っ[てあげた]。',ez:'我幫了朋友做作業。'},
+  {t:'g',n:'てくれる',r:'',m:'別人為我做',e:'友達が手伝っ[てくれた]。',ez:'朋友幫了我。'},
+  {t:'g',n:'てもらう',r:'',m:'請別人為我做',e:'友達に手伝っ[てもらった]。',ez:'我請朋友幫了忙。'},
+  {t:'k',n:'ていただく',r:'',m:'（謙）承蒙您…',e:'先生に教え[ていただいた]。',ez:'承蒙老師教導。'}
+ ]},
+ {cat:'体の慣用句',color:'#b07a2e',nodes:[
+  {t:'p',n:'目が覚める',r:'めがさめる',m:'醒來',e:'朝6時に[目が覚めた]。',ez:'早上六點醒來。'},
+  {t:'p',n:'汗をかく',r:'あせをかく',m:'流汗',e:'暑くてたくさん[汗をかいた]。',ez:'很熱，流了很多汗。'},
+  {t:'p',n:'気をつける',r:'きをつける',m:'小心、注意',e:'車に[気をつけて]ね。',ez:'小心車子喔。'},
+  {t:'p',n:'気にする',r:'きにする',m:'在意、介意',e:'失敗を[気にしない]で。',ez:'別在意失敗。'},
+  {t:'v',n:'ぐっすり',r:'',m:'熟睡地',e:'昨夜は[ぐっすり]眠れた。',ez:'昨晚睡得很熟。'},
+  {t:'v',n:'だるい',r:'',m:'倦怠、無力',e:'体が[だるい]。',ez:'身體倦怠無力。'}
+ ]},
+ {cat:'敬語（尊敬・謙譲）',color:'#7a5285',nodes:[
+  {t:'k',n:'なさる',r:'',m:'做（尊敬）',e:'社長はゴルフを[なさいます]。',ez:'社長會打高爾夫。'},
+  {t:'k',n:'いらっしゃる',r:'',m:'在/去/來（尊敬）',e:'先生は教室に[いらっしゃる]。',ez:'老師在教室。'},
+  {t:'k',n:'おっしゃる',r:'',m:'說（尊敬）',e:'部長がそう[おっしゃった]。',ez:'部長這麼說的。'},
+  {t:'k',n:'いたす',r:'',m:'做（謙讓）',e:'私が[いたします]。',ez:'由我來做。'},
+  {t:'k',n:'まいる',r:'',m:'去/來（謙讓）',e:'すぐに[まいります]。',ez:'我馬上過去。'},
+  {t:'k',n:'申す',r:'もうす',m:'說／叫做（謙讓）',e:'田中と[申します]。',ez:'敝姓田中。'}
+ ]}
 ];
 
 /* VOCAB: {w, r, m, s(含[單字]), z} */
@@ -2303,6 +2401,44 @@ function showMapDetail(p){
 }
 function hideMapDetail(){const p=document.getElementById('gm-panel');if(p)p.style.display='none'}
 
+/* ===================== つながりマップ ===================== */
+const NET_TYPECOL={g:'#33506f',v:'#527a52',p:'#c4402a',k:'#7a5285'};
+const NET_TYPENAME={g:'文法',v:'単語',p:'慣用・フレーズ',k:'敬語'};
+let netCat=0;
+function initNet(){
+  const ch=document.getElementById('net-chips');if(!ch)return;
+  ch.innerHTML=NETMAP.map((c,i)=>`<button class="netchip" data-i="${i}">${esc(c.cat)}</button>`).join('');
+  ch.querySelectorAll('.netchip').forEach(b=>b.onclick=()=>{netCat=+b.dataset.i;hideNetDetail();renderNet();const st=document.getElementById('net-stage');if(st)st.scrollIntoView({block:'nearest'})});
+  renderNet();
+}
+function renderNet(){
+  const c=NETMAP[netCat];if(!c)return;
+  const W=760,H=560,cx=W/2,cy=H/2;let edges='',nodes='';
+  const N=c.nodes.length;
+  c.nodes.forEach((nd,i)=>{
+    const a=-Math.PI/2+i/N*2*Math.PI,x=cx+Math.cos(a)*188,y=cy+Math.sin(a)*172;
+    const col=NET_TYPECOL[nd.t]||c.color;
+    edges+=`<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="${col}" stroke-width="1.5" opacity=".38"/>`;
+    nodes+=gmPill(x,y,nd.n,'#fbf6ec',col,'#241d16','netitem','data-i="'+i+'"',false);
+  });
+  nodes+=gmPill(cx,cy,c.cat,c.color,c.color,'#fff','netroot','',true);
+  document.getElementById('net-stage').innerHTML=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">${edges}${nodes}</svg>`;
+  document.querySelectorAll('#net-chips .netchip').forEach(b=>b.classList.toggle('on',+b.dataset.i===netCat));
+  document.querySelectorAll('#net-stage .netitem').forEach(g=>g.onclick=()=>showNetDetail(+g.dataset.i));
+}
+function showNetDetail(i){
+  const nd=NETMAP[netCat].nodes[i],p=document.getElementById('net-panel');if(!nd||!p)return;
+  p.style.display='block';
+  p.innerHTML=`<div class="gm-pat"><span class="netbadge" style="background:${NET_TYPECOL[nd.t]}">${NET_TYPENAME[nd.t]}</span><span class="x">${esc(nd.n)}</span>${nd.r?'<span class="gm-m">'+esc(nd.r)+'</span>':''}<span class="gm-m">${esc(nd.m)}</span></div>`
+   +`<div class="gm-ex furi-t" data-ft="${escA(clean(nd.e))}">${exHTML(nd.e)}</div><div class="gm-exz">${esc(nd.ez)}</div>`
+   +`<div class="gm-btns"><button class="spk" id="net-say">${SPK}<span>例文を聞く</span></button><button class="spk" id="net-sayw">${SPK}<span>${esc(nd.n)}</span></button></div>`;
+  document.getElementById('net-say').onclick=()=>speakInline(nd.e,0.9);
+  document.getElementById('net-sayw').onclick=()=>speakInline(nd.n,0.9);
+  if(T.furi)setupFuri('#net-panel',true);
+  p.scrollIntoView({block:'nearest'});
+}
+function hideNetDetail(){const p=document.getElementById('net-panel');if(p)p.style.display='none'}
+
 /* ===================== 聴解 過去問 ===================== */
 const CH_YT='https://www.youtube.com/playlist?list=PLd_-LrksNYemY3mHxyqLvPLi3RLWEDKxR';
 let CHIDX=0,chRj=true,chZh=true,chFuri=false;
@@ -2337,7 +2473,7 @@ function aiContext(){
   if(sh('reader')){return '読解（記事）物語:「'+((STORY[RIDX]||{}).p||'')+'」'}
   if(sh('choukai')){return '聴解 過去問:'+((CHOUKAI[CHIDX]||{}).t||'')}
   if(sh('gmap')){return '文法ネットワーク画面'}
-  const tab=document.querySelector('.tab.show');const nm={'t-home':'ホーム','t-gram':'文法','t-vocab':'単語','t-quiz':'クイズ','t-plan':'プラン','t-cram':'要点まとめ'};
+  const tab=document.querySelector('.tab.show');const nm={'t-home':'ホーム','t-gram':'文法','t-vocab':'単語','t-net':'つながりマップ','t-quiz':'クイズ','t-plan':'プラン','t-cram':'要点まとめ'};
   return '画面:'+(nm[tab&&tab.id]||'アプリ')
 }
 function openAI(){document.getElementById('ai-panel').classList.add('show');renderAiMsgs();setTimeout(()=>{const i=document.getElementById('ai-in');if(i)i.focus()},120)}
@@ -2461,8 +2597,8 @@ function tyPlay(){const c=tyCur();if(c)speakInline(c.jp,0.9)}
 function wireTyping(){const ta=document.getElementById('ty-in');if(ta)ta.addEventListener('input',tyHi);document.addEventListener('keydown',e=>{if(document.getElementById('typing').classList.contains('show')&&e.code==='Escape')closeTyping()})}
 
 /* ===================== NAV ===================== */
-const TABS={home:'t-home',gram:'t-gram',vocab:'t-vocab',quiz:'t-quiz',plan:'t-plan',cram:'t-cram'};
-function go(name){Object.values(TABS).forEach(id=>document.getElementById(id).classList.remove('show'));document.getElementById(TABS[name]).classList.add('show');document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===name));window.scrollTo({top:0,behavior:'smooth'});applyFuriToActive()}
+const TABS={home:'t-home',gram:'t-gram',vocab:'t-vocab',net:'t-net',quiz:'t-quiz',plan:'t-plan',cram:'t-cram'};
+function go(name){Object.values(TABS).forEach(id=>document.getElementById(id).classList.remove('show'));document.getElementById(TABS[name]).classList.add('show');document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===name));if(name==='net')renderNet();window.scrollTo({top:0,behavior:'smooth'});applyFuriToActive()}
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.go));
 document.querySelectorAll('#gram-f button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#gram-f button').forEach(x=>x.classList.remove('on'));b.classList.add('on');gramFilter=b.dataset.f;renderGram()});
 document.querySelectorAll('#vocab-f button').forEach(b=>b.onclick=()=>{if(b.dataset.f==='shuffle'){vocabShuf=true;renderVocab();return}document.querySelectorAll('#vocab-f button').forEach(x=>x.classList.remove('on'));b.classList.add('on');vocabFilter=b.dataset.f;vocabShuf=false;renderVocab()});
@@ -2505,7 +2641,7 @@ async function testTTS(){
 }
 
 /* ===================== INIT ===================== */
-countdown();renderGram();renderVocab();renderMyCards();renderPlan();renderCram();wireReader();wireChoukai();wireAI();wireTyping();startQuiz();updHome();updMeta();reflectSettings();setInterval(countdown,60000);
+countdown();renderGram();renderVocab();renderMyCards();renderPlan();renderCram();initNet();wireReader();wireChoukai();wireAI();wireTyping();startQuiz();updHome();updMeta();reflectSettings();setInterval(countdown,60000);
 </script>
 </body>
 </html>
