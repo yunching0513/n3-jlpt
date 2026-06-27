@@ -233,6 +233,8 @@
   .cr{font-size:12.5px;color:var(--vermilion-deep);font-family:var(--serif)}
   .cm{font-size:12.5px;color:var(--ink-soft)}
   .ctrap{font-size:12px;color:var(--ink);background:#fbf3df;border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:6px 10px;margin-top:6px;line-height:1.6}
+  .ctip-box{font-size:12.5px;color:var(--ink);background:#f4ece0;border:1px solid var(--line);border-radius:11px;padding:11px 13px;margin-top:6px;line-height:1.7}
+  .ctip-box b{color:var(--vermilion-deep)}
   .cgram{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px 15px;margin-bottom:10px;box-shadow:var(--shadow)}
   .cgram .gt{font-family:var(--serif);font-weight:700;font-size:16px;margin-bottom:6px}
   .cgram .gt .x{color:var(--vermilion)}
@@ -2140,13 +2142,25 @@ function renderCram(){
   const s4h=s4.map(c=>`<div class="cgram"><div class="gt" style="font-size:15px;color:var(--vermilion-deep)">${c.h}</div>${c.p.map(x=>`<div class="gl">${x}</div>`).join('')}<div style="margin-top:7px;display:flex;gap:7px;flex-wrap:wrap">${c.s.map(x=>`<span class="chipsay">${J(x)}</span>`).join('')}</div></div>`).join('');
   const s5=[["検討する","よく考える"],["企業","会社"],["バックする","後ろに下がる"],["一流の","素晴らしい"],["ようやく","やっと"]];
   const s5h=s5.map(r=>`<div class="ceq"><span>${J(r[0])}</span><span class="eq">＝</span><span>${J(r[1])}</span></div>`).join('');
+  const s6=[
+    {k:'① 事項・時間混淆',d:'把 A 的數字／時間，套到 B 頭上。',e:'例：把「通知時間 15 時」當成「會議開始時間」。'},
+    {k:'② 多加・無視條件',d:'選項硬加原文沒有的條件，或無視原文寫明的條件。',e:'例：「與天氣無關照常開」忽略了原文「颱風則延期」。'},
+    {k:'③ 時序錯置',d:'把「之後才知道／才做」的事，當成「當下的原因」。',e:'例：問了才懂的語意，被當成當下覺得不可思議的原因。'},
+    {k:'④ 正反顛倒',d:'大小・明暗・粗細・增減・買不買，被寫成相反。',e:'例：原文「夜晚不要光」→選項「夜晚要光」；「細」↔「粗」。'},
+    {k:'⑤ 細節數值陷阱',d:'時間點、數字寫得似是而非。',e:'例：原文「直前(臨睡前)」喝→選項「30 分前」喝。'},
+    {k:'⑥ 部分正確但偏離主旨',d:'只對其中一段，不是全文的重點。',e:'例：「把場館變好玩」只是手段之一，非全文主旨。'}
+  ];
+  const s6h=s6.map(r=>`<div class="cgram"><div class="gt" style="font-size:14.5px">${r.k}</div><div class="gl">${r.d}</div><div class="gl" style="color:var(--ink-soft)">${r.e}</div></div>`).join('')
+    +`<div class="cgram"><div class="gt" style="font-size:14.5px;color:var(--vermilion-deep)">大問別のコツ</div><div class="gl"><b>問題4 短文</b>：先看問題再回頭定位；通知題抓「時間・條件・期限」。</div><div class="gl"><b>問題5 中文</b>：下線部往前後 2〜3 句找根據；注意因果與正反。</div><div class="gl"><b>問題6 長文</b>：標出轉折詞與「それで／そこで」；主旨題看結論段。</div><div class="gl"><b>問題7 情報檢索</b>：先鎖定對象(哪家／哪天／身分)，再逐條對規則，別漏看。</div></div>`
+    +`<div class="ctip-box">💡 <b>核對口訣</b>：選項裡出現「時間・數字、方向(大小增減)、或『與〜無關／一定』」這類字眼，<b>一定回原文找那一句逐字對</b>。這是讀解最划算的失分防線。</div>`;
   const sec=(n,title,inner)=>`<div class="cram-sec"><div class="cram-h"><span class="num">${n}</span>${title}</div>${inner}</div>`;
   el.innerHTML='<div class="cram-tip">🔊 日本語をタップで音声。考前快速掃過這份重點即可。</div>'
     +sec('一','漢字 讀音・寫法の陷阱',s1h)
     +sec('二','核心文法・句型',s2h)
     +sec('三','必背副詞・慣用搭配',s3h)
     +sec('四','易混淆 単語の辨析',s4h)
-    +sec('五','近義詞 替換（類義語）',s5h);
+    +sec('五','近義詞 替換（類義語）',s5h)
+    +sec('六','読解 解題技巧（6大陷阱）',s6h);
   el.onclick=e=>{const t=e.target.closest('.jaclick');if(t)speakInline(t.dataset.say,0.9)};
 }
 
