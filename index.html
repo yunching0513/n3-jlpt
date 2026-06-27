@@ -316,8 +316,9 @@
   .furi-t ruby{margin:0 .5px}
   #ai-fab{position:fixed;right:16px;bottom:calc(70px + env(safe-area-inset-bottom));z-index:59;width:54px;height:54px;border-radius:50%;border:0;background:var(--vermilion);color:#fff;font-family:var(--serif);font-weight:800;font-size:17px;letter-spacing:.02em;cursor:pointer;box-shadow:0 8px 22px -8px var(--vermilion);display:grid;place-items:center}
   #ai-fab:active{transform:scale(.94)}
-  #ai-panel{position:fixed;inset:0;z-index:60;background:var(--paper);display:none;flex-direction:column}
-  #ai-panel.show{display:flex;animation:fade .3s both}
+  #ai-panel{position:fixed;top:0;right:0;bottom:0;width:min(420px,92vw);z-index:60;background:var(--paper);display:none;flex-direction:column;border-left:1px solid var(--line);box-shadow:-14px 0 44px -18px rgba(40,28,16,.4)}
+  #ai-panel.show{display:flex;animation:aiSlideIn .26s cubic-bezier(.22,.61,.36,1) both}
+  @keyframes aiSlideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
   .ai-top{display:flex;align-items:center;gap:8px;padding:calc(14px + env(safe-area-inset-top)) 16px 10px;border-bottom:1px solid var(--line)}
   .ai-ttl{font-family:var(--serif);font-weight:700;font-size:15px;flex:1}
   .ai-msgs{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;max-width:760px;width:100%;margin:0 auto}
@@ -2583,7 +2584,6 @@ function wireAI(){
     });
     i.addEventListener('blur',()=>{lastEnter=0});
   }
-  document.addEventListener('keydown',e=>{if(document.getElementById('ai-panel').classList.contains('show')&&e.code==='Escape')closeAI()});
 }
 
 /* ===================== タイピング練習 ===================== */
