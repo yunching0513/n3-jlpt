@@ -306,6 +306,15 @@
   .ch-embed{margin:6px 0 14px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#000}
   .ch-embed iframe{display:block;width:100%;aspect-ratio:16/9;border:0}
   .ch-embed-tip{font-size:11.5px;color:var(--ink-soft);background:var(--card);padding:8px 11px;line-height:1.6}
+  .ch-paper{border:1px solid var(--line);border-radius:12px;background:var(--card);margin:8px 0 14px;padding:0 12px;box-shadow:var(--shadow)}
+  .ch-paper summary{cursor:pointer;font-family:var(--serif);font-weight:700;font-size:13.5px;padding:11px 2px;list-style:none;outline:none}
+  .ch-paper summary::-webkit-details-marker{display:none}
+  .ch-paper summary::before{content:'▸ ';color:var(--vermilion)}
+  .ch-paper[open] summary::before{content:'▾ '}
+  .qp-note{font-size:11px;color:var(--ink-soft);line-height:1.65;padding:0 2px 8px}
+  .qp-sec{font-family:var(--sans);font-weight:700;font-size:12px;color:var(--vermilion-deep);margin:10px 0 5px;border-top:1px solid var(--line);padding-top:8px}
+  .qp-item{font-size:12.5px;line-height:1.7;padding:3px 0;color:var(--ink)}
+  .qp-item b{color:var(--indigo);margin-right:4px}
   .chsec{font-family:var(--serif);font-weight:800;font-size:14px;color:#fff;background:var(--indigo);border-radius:8px;padding:5px 12px;margin:16px 0 10px;position:sticky;top:0;z-index:1}
   .chrow{padding:9px 2px;border-bottom:1px dashed var(--line)}
   .chja{font-family:var(--serif);font-size:17px;line-height:1.7;display:flex;gap:8px;align-items:flex-start}
@@ -699,14 +708,14 @@
   <div class="rtop">
     <button class="px" onclick="closeChoukai()">✕</button>
     <span style="font-family:var(--serif);font-weight:700;font-size:14px">聴解 過去問</span>
-    <a id="ch-yt" href="#" target="_blank" rel="noopener" class="chip" style="margin-left:auto;text-decoration:none">▶ 公式音声(YT)</a>
+    <a id="ch-yt" href="#" target="_blank" rel="noopener" class="chip" style="margin-left:auto;text-decoration:none">▶ 公式サンプル音声 (jlpt.jp)</a>
   </div>
   <div class="ch-sel" id="ch-sel"></div>
   <div class="ch-toggles">
     <button class="chip" id="ch-rj">羅字</button>
     <button class="chip" id="ch-zh">訳</button>
     <button class="chip" id="ch-furi">ふり</button>
-    <span class="chyt-note">音声は公式プレイリストで（同じ日付の動画を選択）</span>
+    <span class="chyt-note">過去問の音声は公式に無料配布されていません。各行の🔊で1文ずつ再生し、上のボタンで公式サンプル音声(無料)を入手できます。</span>
   </div>
   <div class="ch-body" id="ch-body"></div>
 </div>
@@ -2629,9 +2638,105 @@ function showNetDetail(i){
 function hideNetDetail(){const p=document.getElementById('net-panel');if(p)p.style.display='none'}
 
 /* ===================== 聴解 過去問 ===================== */
-const CH_YT='https://www.youtube.com/playlist?list=PLd_-LrksNYemY3mHxyqLvPLi3RLWEDKxR';
-/* 各回の公式音声（YouTube埋め込み・ストリーミング再生／ダウンロード・再配布はしない）。startは任意の開始秒 */
-const CH_VIDEO={'2025年7月':{id:'K7Y6y1yQf4c',start:0}};
+/* 公式の無料サンプル音声（日本国際教育支援協会・国際交流基金）。過去問の音声は公式に無料配布されていないため、リンクはサンプルへ。 */
+const CH_YT='https://www.jlpt.jp/samples/sampleindex.html';
+/* 各回の埋め込み音声。著作権者公式が配信する動画のみをここに入れる（第三者の無断アップロードは入れない）。現状は空。 */
+const CH_VIDEO={};
+/* 聴解 問題用紙の印刷部分（選択肢・場面）。本文は音声のみ、問題3・5は紙面空白、答えは音声依存のため無し。q1/q2＝文字選択肢、q4＝発話表現の場面 */
+const CHOUKAI_Q={
+ '2023年7月':{q1:[
+  "1 東京駅に行く／2 東京駅に電話する／3 山川駅に行く／4 山川駅に電話する",
+  "1 へやの予約時間を変える／2 大きいへやを予約する／3 人数を確認する／4 弁当の数を変える",
+  "【イラスト】1 棚のところで携帯を見る／2 足を開いてストレッチ／3 ベッドで横になる／4 テーブルで飲み物を飲む",
+  "1 3,000円／2 12,000円／3 13,000円／4 15,000円",
+  "【イラスト・組合せ】ア=絵はがき(風景) イ=お弁当箱 ウ=エプロン エ=運動靴 ／ 1 アイ・2 アウ・3 アエ・4 ウエ",
+  "1 小学校のグラウンド／2 みどり橋の上／3 山田さんの家／4 船の上"],
+ q2:[
+  "1 レポートがよくできていなかったこと／2 アルバイトをしすぎていること／3 しょうがくきんの応募に間に合わないこと／4 体の調子が悪そうなこと",
+  "1 外国語のパンフレットを置いたから／2 ようしきのベッドをへやに入れたから／3 全部のへやをたたみに変えたから／4 日本料理の教室を始めたから",
+  "1 ごみをかわかす／2 ごみをこおらせる／3 ごみにいすをかける／4 ごみを庭にうめる",
+  "1 はなを観察するため／2 小説のアイデアを考えるため／3 むすこに自信をつけさせるため／4 家族の会話を増やすため",
+  "1 レストランに行ってピザを食べる／2 家でピザを作って食べる／3 ピザ屋の配達のピザを食べる／4 レストランの持ち帰りのピザを食べる"],
+ q4:[
+  "駐車場：係員らしき男性と、車の運転手(➡)",
+  "棚・ステレオのある部屋：本棚に手を伸ばす男性(➡)と床に座る男性",
+  "ATM：ATM前に立つ眼鏡の男性(➡)と、後ろの男性",
+  "店のカウンター：商品を指さす女性客(➡)と、男性店員"]},
+ '2023年12月':{q1:[
+  "【イラスト・組合せ】ア=セーター イ=薬のびんと錠剤 ウ=切手(70円) ／ 1 アイ・2 アイウ・3 アウ・4 イウ",
+  "1 インターネットで調べる／2 レシピのメモをとる／3 せんぱいの本をかりる／4 本屋に行く",
+  "1 3時／2 3時半／3 4時半／4 5時",
+  "【イラスト】1 丸テーブルのまわりで掃除機をかける／2 ドアの所で椅子を運び入れる／3 男性2人が箱を手渡し／4 屋外でテーブルと椅子を並べる",
+  "1 かいぎしつをよやくする／2 かんけいしゃにメールする／3 しりょうをいんさつする／4 しゅっせきしゃのかくにんをする",
+  "1 しろの入り口でチケットを買う／2 しろの門の前に行く／3 ビデオを見る／4 レストランに行く"],
+ q2:[
+  "1 しゃちょうが好きな画家／2 日本をだいひょうする画家／3 しゃちょう／4 しゃちょうのむすめ",
+  "1 ねぼうしたから／2 友人がわすれものをとりに来るから／3 カフェで友人と会わなければいけないから／4 おりる駅をまちがえたから",
+  "1 おんせんに行きたい／2 着物の着方を習いたい／3 日本料理の作り方を習いたい／4 しんかんせんに乗りたい",
+  "1 りゅうこうしているがらだったから／2 自分ににあう色だったから／3 軽くて歩きやすかったから／4 ねだんが安かったから"],
+ q4:[
+  "立食パーティー：名札と飲み物の女性と、グラスを持つ男性(➡)",
+  "部屋：椅子のかばんに手を伸ばす女性(➡)と、戸口の男性",
+  "靴屋：エプロン姿の男性店員と、靴を持つ女性客(➡)",
+  "テーブルで向かい合う眼鏡の女性と、女性(➡)。何かを手渡す"]},
+ '2024年7月':{q1:[
+  "【イラスト】料理の手順4枚：1 台の上の生地を両手で押さえる／2 容器を持ち皿の上で注ぐ・混ぜる／3 まな板で包丁を使い黒い物を切る／4 トレーで丸い物を並べる・盛り付ける",
+  "1 グラフの説明文をけす／2 グラフの説明文をくわしくする／3 グラフをふやす／4 グラフをへらす",
+  "1 じゅぎょう中にはっぴょうする／2 先生のへやではっぴょうする／3 レポートを書いて出す／4 はっぴょうをビデオにとって出す",
+  "1 しゅっちょうのほうのほうこくを出す／2 しりょうをさがす／3 西田さんにれんらくする／4 かいぎしつにいすを運ぶ",
+  "1 せんざいとゴミぶくろ／2 せんざいとけいこうとう／3 ぞうきんとゴミぶくろ／4 ぞうきんとけいこうとう",
+  "1 工場を見学する／2 せいひんの作り方をおぼえる／3 仕事での話し方をれんしゅうする／4 しょうひんのはっぴょうかいに行く"],
+ q2:[
+  "1 子どもが好きだから／2 親の仕事がおもしろそうだったから／3 教えるのが好きだから／4 あこがれる先生がいたから",
+  "1 おいしいレストランで食事したこと／2 親切な運転手と知り合ったこと／3 森できれいなみずうみを見たこと／4 しぜんの中で子どもたちとあそんだこと",
+  "1 山田さんがねことあそびたがっていたから／2 新しくて人気のカフェだから／3 山田さんがアルバイトをさがしているから／4 カフェにいるねこを見てほしいから",
+  "1 空港からのむりょうのバス／2 ゆかたが着られるサービス／3 おりがみの教室／4 まんがやアニメのしょうかい",
+  "1 うまい人の動きを多く見たこと／2 足の動きを集中してれんしゅうしたこと／3 音楽をよく聞くようにしたこと／4 かがみで自分の動きを見たこと",
+  "1 9月4日／2 9月5日／3 9月26日／4 9月27日"],
+ q4:[
+  "玄関先：かばんを持つ人(➡)、スリッパ、奥に3人が出迎え",
+  "飲食店：トレーを持つ店員と、手を上げる女性客(➡)",
+  "屋外：マイクを持つ女性と、ソフトクリームを持つ女性(➡)。インタビュー",
+  "雨宿り・バス停：スーツの男性と、傘を持った男性(➡)"]},
+ '2024年12月':{q1:[
+  "1 しゅっちょうのもくてき／2 会った人のじょうほう／3 話し合いのけっか／4 つぎのほうもん日",
+  "1 パソコンでもうしこむ／2 利用カードを作る／3 もうしこみ用紙に書いて出す／4 かりている本をかえす",
+  "【イラスト・組合せ】ア=椅子を並べる イ=机を布で拭く ウ=丸椅子を運ぶ エ=ソファで打ち合わせ・読書 ／ 1 アイ・2 アイウ・3 アエ・4 イウエ",
+  "1 会場のよやく時間をかえる／2 しゃちょうに予定を聞く／3 先生に会いに行く／4 よていひょうをなおす",
+  "1 寝る前に携帯を見る習慣／2 夜、布団に入る時間／3 晩ご飯の時間／4 夜、食べる物",
+  "1 昼ご飯を食べる／2 市場を見物する／3 バスに乗る／4 名札をつける"],
+ q2:[
+  "1 しょるいをわすれたから／2 車で会社に行くことにしたから／3 のどがかわいたから／4 はがきをわすれたから",
+  "1 犬のさんぽがいい運動になること／2 知り合いがふえたこと／3 きそく正しい生活になったこと／4 かぞくの会話がふえたこと",
+  "1 店長の話を聞くため／2 店長と奥さんの写真を撮るため／3 新しいパンを試食するため／4 パンを買うため",
+  "1 クラブ活動をがんばること／2 つぎのがっきの計画を立てること／3 いろいろな内容の本を読むこと／4 ながいぶんしょうを書くこと",
+  "1 はたらきたい会社が見つかったこと／2 自分がしたい仕事が分かってきたこと／3 きぼうする会社の人と話せること／4 友人とじょうほうを交換できたこと",
+  "1 自分で組み立てるのが楽しいから／2 ぶつかっても、けがをしにくいから／3 軽くて動かしやすいから／4 値段が高くないから"],
+ q4:[
+  "休憩スペース・コンビニ：カウンターに座る男性(社員証)と、箱を持つ女性(➡)",
+  "電車・バスの車内：座る乗客と、かばんを持って立つ男性(➡)",
+  "食事中のテーブル：座る女性(➡)と、テーブル越しに手を伸ばす男性",
+  "オフィス：向かい合う机、女性(後ろ姿)と男性(➡)が紙・カードを見せ合う"]},
+ '2025年7月':{q1:[
+  "1 しんしつの棚に入れる／2 花子にわたす／3 はこを開けてみる／4 げんかんにおいておく",
+  "1 しりょうをいんさつする／2 しりょうをもう一度チェックする／3 パソコンのテストをする／4 マイクのテストをする",
+  "1 かいぎに出る／2 エアコンのしゅうりをたのむ／3 銀行に行く／4 はこをそうこに運ぶ",
+  "1 ことばのまちがいをなおす／2 クラスで習った文法を使う／3 文と文をむすぶことばを足す／4 ないようをふやす",
+  "【イラスト】1 階段・通路に数人／2 ステージ上の物を座った人が見上げる／3 高い丸テーブルを囲んで立って飲食／4 袋を持って手渡し(片づけ?)",
+  "1 ゴミに出す／2 友達にあげる／3 交流センターに持って行く／4 インターネットで売る"],
+ q2:[
+  "1 海へ遊びに行く／2 山登りをする／3 お祭りを見に行く／4 お寺を見に行く",
+  "1 水曜のグループレッスン／2 水曜の個人レッスン／3 金曜のグループレッスン／4 金曜の個人レッスン",
+  "1 作家が言いたいこと／2 本を選んだ理由／3 本に出てる人と自分との共通点／4 自分の考えの変化",
+  "1 けいごが正しく使えるかどうか／2 商品が覚えられるかどうか／3 クラブ活動の時間が取れるかどうか／4 店の人といい関係が作れるかどうか",
+  "1 いい会社に誘われたから／2 親がいる町に引っ越すから／3 残業が増えたから／4 出張が多くてたいへんだから",
+  "1 汚れをきれいにおとすこと／2 破れたところをわからなくすること／3 買ったときの状態に戻すこと／4 いんしょうが変わらないようにすること"],
+ q4:[
+  "混雑した電車の中：大勢の乗客と、車内の男性(➡)",
+  "教室：机に向かう女子生徒2人、左の子(➡)が小箱を見せる",
+  "オフィス：コピー機の前の女性社員と、横のスーツ姿の男性(➡＝上司らしき人)",
+  "窓口カウンターの前に立つ男性(➡)、内側に人"]}
+};
 let CHIDX=0,chRj=true,chZh=true,chFuri=false;
 function openChoukai(idx){CHIDX=idx||0;document.getElementById('choukai').classList.add('show');renderChoukai();const b=document.getElementById('ch-body');if(b)b.scrollTop=0;}
 function closeChoukai(){stopAll();document.getElementById('choukai').classList.remove('show')}
@@ -2643,9 +2748,17 @@ function renderChoukai(){
   const v=CH_VIDEO[ex.t];
   let embed='';
   if(v){embed=`<div class="ch-embed"><iframe src="https://www.youtube-nocookie.com/embed/${v.id}${v.start?'?start='+v.start:''}" title="${esc(ex.t)} 聴解 公式音声" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe><div class="ch-embed-tip">▶ タップで <b>${esc(ex.t)}</b> の公式音声を再生（YouTubeから配信）。下のスクリプトを見ながら「聞く→止める→真似する」。</div></div>`;}
+  const qp=CHOUKAI_Q[ex.t];let paper='';
+  if(qp){
+    const blk=(t,arr)=>arr&&arr.length?`<div class="qp-sec">${t}</div>`+arr.map((o,i)=>`<div class="qp-item"><b>${i+1}番</b>${esc(o)}</div>`).join(''):'';
+    paper=`<details class="ch-paper"><summary>📄 問題用紙（印刷された選択肢・場面）</summary>`
+      +`<div class="qp-note">聴解は会話・話（本文）が音声のみ。紙に印刷されるのは下の選択肢と問題4の場面だけです。<b>問題3・問題5は紙面が完全に空白</b>（選択肢も音声）。答えは音声で決まるため、ここには付きません。下のスクリプトを見ながら「選択肢を読む→聞く→選ぶ」練習に。</div>`
+      +blk('問題1（課題理解）',qp.q1)+blk('問題2（ポイント理解）',qp.q2)+blk('問題4（発話表現・場面）',qp.q4)
+      +`</details>`;
+  }
   let html='';
   ex.sec.forEach((s,si)=>{html+=`<div class="chsec">${esc(s.h)}</div>`;s.r.forEach((r,ri)=>{html+=`<div class="chrow"><div class="chja"><button class="rbtn ch-say" data-si="${si}" data-ri="${ri}">${SPK}</button><span class="furi-t" data-ft="${escA(r[0])}">${esc(r[0])}</span></div><div class="chrj">${esc(r[1])}</div><div class="chzh">${esc(r[2])}</div></div>`;});});
-  document.getElementById('ch-body').innerHTML=embed+html;
+  document.getElementById('ch-body').innerHTML=embed+paper+html;
   document.querySelectorAll('#ch-sel .chselb').forEach(b=>b.onclick=()=>{CHIDX=+b.dataset.i;renderChoukai();document.getElementById('ch-body').scrollTop=0});
   const yt=document.getElementById('ch-yt');if(yt)yt.href=CH_YT;
   setupFuri('#ch-body');
