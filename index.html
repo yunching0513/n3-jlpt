@@ -315,6 +315,12 @@
   .qp-sec{font-family:var(--sans);font-weight:700;font-size:12px;color:var(--vermilion-deep);margin:10px 0 5px;border-top:1px solid var(--line);padding-top:8px}
   .qp-item{font-size:12.5px;line-height:1.7;padding:3px 0;color:var(--ink)}
   .qp-item b{color:var(--indigo);margin-right:4px}
+  .ch-audio-card{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:11px 13px;margin:8px 0 12px;box-shadow:var(--shadow)}
+  .ca-row{display:flex;align-items:center;gap:8px}
+  .ca-lb{font-family:var(--serif);font-weight:700;font-size:13px;flex:1}
+  .ca-pick{display:inline-flex;align-items:center;gap:7px;background:var(--vermilion);color:#fff;font-family:var(--sans);font-weight:700;font-size:13px;padding:9px 14px;border-radius:10px;cursor:pointer}
+  .ca-note{font-size:11px;color:var(--ink-soft);line-height:1.6;margin-top:7px}
+  .ch-audio-card audio{width:100%;margin-top:8px}
   .chsec{font-family:var(--serif);font-weight:800;font-size:14px;color:#fff;background:var(--indigo);border-radius:8px;padding:5px 12px;margin:16px 0 10px;position:sticky;top:0;z-index:1}
   .chrow{padding:9px 2px;border-bottom:1px dashed var(--line)}
   .chja{font-family:var(--serif);font-size:17px;line-height:1.7;display:flex;gap:8px;align-items:flex-start}
@@ -721,7 +727,7 @@
     <button class="chip" id="ch-rj">羅字</button>
     <button class="chip" id="ch-zh">訳</button>
     <button class="chip" id="ch-furi">ふり</button>
-    <span class="chyt-note">過去問の音声は公式に無料配布されていません。各行の🔊で1文ずつ再生し、上のボタンで公式サンプル音声(無料)を入手できます。</span>
+    <span class="chyt-note">手持ちの音源は下の📂から読み込み（端末内のみ）。各行の🔊で1文ずつ再生も可。上のボタンは公式サンプル音声(無料)。</span>
   </div>
   <div class="ch-body" id="ch-body"></div>
 </div>
@@ -2006,13 +2012,17 @@ let _audioDB=null;
 function audioDB(){
   if(!('indexedDB' in window))return Promise.reject('no-idb');
   return _audioDB||(_audioDB=new Promise((res,rej)=>{
-    const r=indexedDB.open('n3_audio',1);
-    r.onupgradeneeded=e=>{const db=e.target.result;if(!db.objectStoreNames.contains('wav'))db.createObjectStore('wav')};
+    const r=indexedDB.open('n3_audio',2);
+    r.onupgradeneeded=e=>{const db=e.target.result;if(!db.objectStoreNames.contains('wav'))db.createObjectStore('wav');if(!db.objectStoreNames.contains('exam'))db.createObjectStore('exam')};
     r.onsuccess=e=>res(e.target.result);r.onerror=()=>rej(r.error);
   }));
 }
 async function idbGetWav(k){try{const db=await audioDB();return await new Promise(res=>{const q=db.transaction('wav','readonly').objectStore('wav').get(k);q.onsuccess=()=>res(q.result||null);q.onerror=()=>res(null)})}catch(e){return null}}
 async function idbPutWav(k,buf){try{const db=await audioDB();db.transaction('wav','readwrite').objectStore('wav').put(buf,k)}catch(e){}}
+/* 過去問の音声（ユーザーが端末から読み込む自分のファイル）。この端末のブラウザ内だけに保存＝アップロードも公開もしない */
+async function idbGetExam(k){try{const db=await audioDB();return await new Promise(res=>{const q=db.transaction('exam','readonly').objectStore('exam').get(k);q.onsuccess=()=>res(q.result||null);q.onerror=()=>res(null)})}catch(e){return null}}
+async function idbPutExam(k,blob){try{const db=await audioDB();await new Promise((res,rej)=>{const tx=db.transaction('exam','readwrite');tx.objectStore('exam').put(blob,k);tx.oncomplete=res;tx.onerror=()=>rej(tx.error)})}catch(e){throw e}}
+async function idbDelExam(k){try{const db=await audioDB();db.transaction('exam','readwrite').objectStore('exam').delete(k)}catch(e){}}
 async function idbAudioCount(){try{const db=await audioDB();return await new Promise(res=>{const q=db.transaction('wav','readonly').objectStore('wav').count();q.onsuccess=()=>res(q.result||0);q.onerror=()=>res(0)})}catch(e){return 0}}
 async function idbAudioClear(){try{const db=await audioDB();db.transaction('wav','readwrite').objectStore('wav').clear();audioCache.clear()}catch(e){}}
 async function geminiSynth(text){
@@ -2779,10 +2789,27 @@ function renderChoukai(){
   }
   let html='';
   ex.sec.forEach((s,si)=>{html+=`<div class="chsec">${esc(s.h)}</div>`;s.r.forEach((r,ri)=>{html+=`<div class="chrow"><div class="chja"><button class="rbtn ch-say" data-si="${si}" data-ri="${ri}">${SPK}</button><span class="furi-t" data-ft="${escA(r[0])}">${esc(r[0])}</span></div><div class="chrj">${esc(r[1])}</div><div class="chzh">${esc(r[2])}</div></div>`;});});
-  document.getElementById('ch-body').innerHTML=embed+paper+html;
+  document.getElementById('ch-body').innerHTML='<div id="ch-audio"></div>'+embed+paper+html;
+  renderExamAudio(ex.t);
   document.querySelectorAll('#ch-sel .chselb').forEach(b=>b.onclick=()=>{CHIDX=+b.dataset.i;renderChoukai();document.getElementById('ch-body').scrollTop=0});
   const yt=document.getElementById('ch-yt');if(yt)yt.href=CH_YT;
   setupFuri('#ch-body');
+}
+let _caURL=null;
+async function renderExamAudio(title){
+  const box=document.getElementById('ch-audio');if(!box)return;
+  if(_caURL){try{URL.revokeObjectURL(_caURL)}catch(e){}_caURL=null;}
+  const key='exam:'+title;
+  const blob=await idbGetExam(key);
+  if(document.getElementById('ch-audio')!==box)return; // 切替済みなら中断
+  if(blob){
+    _caURL=URL.createObjectURL(blob);
+    box.innerHTML=`<div class="ch-audio-card"><div class="ca-row"><span class="ca-lb">🎧 自分の音声 ・ ${esc(title)}</span><button class="chip" id="ca-remove">✕ 外す</button></div><audio controls preload="metadata" src="${_caURL}"></audio><div class="ca-note">この端末にだけ保存（非公開）。下のスクリプトを見ながら「聞く→止める→真似する」。</div></div>`;
+    box.querySelector('#ca-remove').onclick=async()=>{await idbDelExam(key);renderExamAudio(title)};
+  }else{
+    box.innerHTML=`<div class="ch-audio-card"><div class="ca-row"><span class="ca-lb">🎧 ${esc(title)} の音声</span><label class="ca-pick">📂 ファイルを読み込む<input type="file" accept="audio/*" id="ca-file" style="display:none"></label></div><div class="ca-note">手持ちのMP3/AAC等をこの端末で再生します。<b>アップロードも公開もしません</b>（ブラウザ内=IndexedDBに保存）。一度読み込めば次回から自動で表示。</div></div>`;
+    box.querySelector('#ca-file').onchange=async(e)=>{const f=e.target.files[0];if(!f)return;if(f.size>150*1024*1024){toast('ファイルが大きすぎます（150MB以内）');return}toast('保存中…');try{await idbPutExam(key,f);toast('音声を保存しました（端末内）');renderExamAudio(title)}catch(err){toast('保存に失敗：'+((err&&err.message)||'').slice(0,40))}};
+  }
 }
 function wireChoukai(){
   document.getElementById('ch-body').onclick=e=>{const b=e.target.closest('.ch-say');if(!b)return;const r=CHOUKAI[CHIDX].sec[+b.dataset.si].r[+b.dataset.ri];if(r)speakInline(r[0],0.9)};
