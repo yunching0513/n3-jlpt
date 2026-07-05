@@ -409,10 +409,10 @@
 <div class="wrap">
   <header>
     <div class="kana-line">日本語能力試験</div>
-    <h1 class="title">N3<span class="x">突破</span></h1>
-    <div class="subtitle">聽 ・ 讀 ・ 跟讀</div>
+    <h1 class="title">N3<span class="x">→N2</span></h1>
+    <div class="subtitle">聽 ・ 讀 ・ 跟讀 ・ N2挑戦</div>
     <div class="count"><span class="big" id="cd">–</span><span class="unit" id="cdu">日</span></div>
-    <div class="count-sub" id="cdsub">試験日 2026/07/04 まで</div>
+    <div class="count-sub" id="cdsub">試験日 2026/12/06 まで</div>
   </header>
 
   <!-- HOME -->
@@ -569,7 +569,7 @@
       <div class="card pad">
         <div style="font-family:var(--serif); font-weight:700; font-size:15px; margin-bottom:6px">今日のおすすめ</div>
         <div id="today-task" class="tip" style="font-size:13.5px"></div>
-        <div style="margin-top:12px"><button class="btn ghost" onclick="go('plan')">12日プランへ →</button></div>
+        <div style="margin-top:12px"><button class="btn ghost" onclick="go('plan')">N2ロードマップへ →</button></div>
       </div>
     </div>
   </section>
@@ -641,10 +641,10 @@
 
   <!-- PLAN -->
   <section class="tab" id="t-plan">
-    <div class="sec-h"><span class="ji">計</span><h2>12日 学習プラン</h2><span class="meta" id="plan-meta"></span></div>
+    <div class="sec-h"><span class="ji">計</span><h2>N2挑戦ロードマップ</h2><span class="meta" id="plan-meta"></span></div>
+    <div class="tip" style="margin:0 4px 12px">🎯 <b>目標：2026/12/6 に N2 受験</b>（N2に受かればN3レベルも証明）。約5か月を6フェーズに分割。各フェーズを終えたらタップして✓。<b>跟讀（シャドーイング）</b>を毎日の軸に：聞く→止める→真似して言う。</div>
     <div class="card" id="plan-list" style="overflow:hidden"></div>
-    <div class="tip"><b>跟讀（シャドーイング）</b>を毎日の軸に。聞く→止める→真似して言う、を1日通して。前日は新しい事をせず軽く流して早寝。</div>
-    <div class="foot">2026.06.22 ・ <button class="reset" onclick="resetAll()">進捗をリセット</button></div>
+    <div class="foot"><button class="reset" onclick="resetAll()">進捗をリセット</button></div>
   </section>
 
   <section class="tab" id="t-cram">
@@ -1952,19 +1952,15 @@ const KAKO2023C=[
  [_P23dJ+"Q:学生のオウが10/23(土)に②でパーティー。気をつけることは？",["学生は申し込めない","料理は一人2500円以上注文しなければならない","予約できる最少人数は20人","パーティーは21時までに終える必要がある"],1,"②は学生申込可(✗1);②は40人から(✗3);①〜③は20時まで(✗4);土日祝は2500円以上→2。"],
 ];
 
+/* N2挑戦ロードマップ（2026/12/6 まで約5か月）。[期間, 見出し, 内容, 開始月, 開始日] 開始日で現在フェーズを判定 */
 const PLAN=[
- ["6/22","文字・語彙①","名詞系の単語を一気に。単語タブを全部めくる＋🔊で発音。"],
- ["6/23","文字・語彙②","漢字の読み練習。間違えた語だけ反復。"],
- ["6/24","文法 前半","聽讀・跟讀モードで前半25項目。例文を真似して音読。"],
- ["6/25","文法 後半","後半25項目。覚えた文法に✓。"],
- ["6/26","文法 復習","未習だけ跟讀モードで集中。口に出して定着。"],
- ["6/27","語彙＋動詞","単語の例文を跟讀。聞いて意味が浮かぶか確認。"],
- ["6/28","読解 練習","短文→中文。設問のキーワードに線を引く。"],
- ["6/29","聴解 強化","過去問の聴解を1回。聞き取れない所を音読で補強。"],
- ["6/30","弱点 補強","クイズで間違えた文法・語彙を跟讀で反復。"],
- ["7/1","模擬試験","本番と同じ時間配分で文法・読解を通しで。"],
- ["7/2","間違い直し","誤答を解説まで理解。漢字を最終確認。"],
- ["7/3","軽く総復習","新しい事はしない。跟讀モードで流して早寝。"],
+ ["① 7月","N3総点検 ＋ N2始動","まずN3を全ミックス＋過去問で総点検（合格ラインを安定させる）。同時にN2をスタート：N2単語を毎日50〜60語、N2文法を1日3〜5型。毎日「聞く→跟讀→間違い直し」を回す。",7,1],
+ ["② 8月","N2 文法・語彙 基礎固め","N2文法(約150〜200型)を一周。N2単語を継続(累計6000語を目標)。短めのN2読解に触れ始める。N3は全ミックスで維持。声に出して定着。",8,1],
+ ["③ 9月","N2 読解 強化","N2の長文・評論・情報検索に慣れる(抽象度が上がる)。語彙は間違いノートを回転。週1で通し演習。文と文の論理(でも/つまり/一方)を意識。",9,1],
+ ["④ 10月","N2 聴解 ＋ 総合","N2聴解を毎日(速い・長い・メモ力)。この app の跟讀＋シャドーイングで耳を作る。中旬に本番形式の模試を受け、手応えと弱点を可視化。",10,1],
+ ["⑤ 11月","過去問月間（本番形式）","N2を本番と同じ時間配分で通し(言語知識・読解105分＋聴解50分)。間違い直しで弱点をゼロへ。この時点でN3レベルは自動的にカバーされている。",11,1],
+ ["⑥ 12/1〜5","総仕上げ","新しいことはしない。要点まとめ・間違いノート・つながりマップを軽く回す。時間配分の最終確認。よく寝て体調管理。",12,1],
+ ["⑦ 12/6","試験当日（N2）","落ち着いて実力を出す。N2に受かれば、N3レベルの力も同時に証明される。持ち物・会場・開始時刻を前日に確認。",12,6],
 ];
 
 /* ===================== STATE ===================== */
@@ -2119,9 +2115,9 @@ async function speakInlineLines(lines,rate){
 
 /* ===================== COUNTDOWN ===================== */
 function countdown(){
-  const exam=new Date(2026,6,4,9,30,0),now=new Date(),d=Math.ceil((exam-now)/86400000);
+  const exam=new Date(2026,11,6,9,30,0),now=new Date(),d=Math.ceil((exam-now)/86400000);
   const el=document.getElementById('cd'),u=document.getElementById('cdu'),sub=document.getElementById('cdsub');
-  if(d>0){el.textContent=d;u.textContent='日';sub.textContent='試験日 2026/07/04 まで';}
+  if(d>0){el.textContent=d;u.textContent='日';sub.textContent='試験日 2026/12/06 まで';}
   else if(d===0){el.textContent='本日';u.textContent='';sub.textContent='いよいよ本番！';}
   else{el.textContent='完了';u.textContent='';sub.textContent='お疲れさまでした';}
 }
@@ -2161,7 +2157,7 @@ function setGramLevel(lv){gramLevel=lv;gramFilter='all';
   renderGram();}
 function startGramPlayer(){openPlayer(gramDeck(),null,gramFilter)}
 function flash(b){b.classList.add('play');setTimeout(()=>b.classList.remove('play'),700)}
-function updMeta(){document.getElementById('gram-meta').textContent=`${gramLearned().length}/${gramArr().length}`;document.getElementById('vocab-meta').textContent=`${S.v.length}/${VOCAB.length}`;document.getElementById('plan-meta').textContent=`${S.p.length}/12`}
+function updMeta(){document.getElementById('gram-meta').textContent=`${gramLearned().length}/${gramArr().length}`;document.getElementById('vocab-meta').textContent=`${S.v.length}/${VOCAB.length}`;document.getElementById('plan-meta').textContent=`${S.p.filter(i=>i<PLAN.length).length}/${PLAN.length}`}
 
 /* ===================== VOCAB ===================== */
 let vocabFilter='all',vocabShuf=false;
@@ -2288,13 +2284,14 @@ function answer(j){const q=quizArr()[qi],c=q[2];document.querySelectorAll('#opts
   const ex=document.getElementById('expl');ex.innerHTML=`<b>${j===c?'正解！':'解説'}</b>　${q[3]}`;ex.classList.add('show');document.getElementById('qnext').style.display='block'}
 
 /* ===================== PLAN ===================== */
+function planActive(){const now=(new Date().getMonth()+1)*100+new Date().getDate();let a=-1;PLAN.forEach((p,i)=>{if(p[3]*100+p[4]<=now)a=i});return a}
 function renderPlan(){
   const list=document.getElementById('plan-list');list.innerHTML='';
-  const t=(new Date().getMonth()+1)+'/'+new Date().getDate();
-  PLAN.forEach((p,i)=>{const done=S.p.includes(i),today=p[0]===t;const d=document.createElement('div');d.className='day'+(done?' done':'')+(today?' today':'');
-    d.innerHTML=`<div class="chk">✓</div><div class="d">${p[0]}</div><div class="body"><div class="h">${p[1]}${today?'<span class="now">今日</span>':''}</div><div class="s">${p[2]}</div></div>`;
+  const act=planActive();
+  PLAN.forEach((p,i)=>{const done=S.p.includes(i),cur=i===act;const d=document.createElement('div');d.className='day'+(done?' done':'')+(cur?' today':'');
+    d.innerHTML=`<div class="chk">✓</div><div class="d">${p[0]}</div><div class="body"><div class="h">${p[1]}${cur?'<span class="now">今</span>':''}</div><div class="s">${p[2]}</div></div>`;
     d.onclick=()=>{toggle(S.p,i);save();renderPlan();updHome();updMeta()};list.appendChild(d)});
-  const tt=document.getElementById('today-task');if(tt){const x=PLAN.find(p=>p[0]===t);tt.innerHTML=x?`<b style="color:var(--vermilion-deep)">${x[1]}</b>　${x[2]}`:'プランの日付は 6/22〜7/3。今日のぶんをチェックしよう。'}
+  const tt=document.getElementById('today-task');if(tt){const x=PLAN[act];tt.innerHTML=x?`<b style="color:var(--vermilion-deep)">${x[0]}：${x[1]}</b>　${x[2]}`:'今月のフェーズを確認して、毎日「聞く→跟讀→間違い直し」を回そう。'}
 }
 
 /* ===================== 要点まとめ（秘笈） ===================== */
@@ -2351,14 +2348,14 @@ function updHome(){
   set('p-g4',S.g4.length,N4GRAMMAR.length);const g4n=document.getElementById('p-g4-n');if(g4n)g4n.textContent=`${S.g4.length} / ${N4GRAMMAR.length}`;
   set('p-k',S.k.length,KAIWA.length);const kn=document.getElementById('p-k-n');if(kn)kn.textContent=`${S.k.length} / ${KAIWA.length}`;
   set('p-v',S.v.length,VOCAB.length);document.getElementById('p-v-n').textContent=`${S.v.length} / ${VOCAB.length}`;
-  set('p-p',S.p.length,12);document.getElementById('p-p-n').textContent=`${S.p.length} / 12`;
+  set('p-p',S.p.filter(i=>i<PLAN.length).length,PLAN.length);document.getElementById('p-p-n').textContent=`${S.p.filter(i=>i<PLAN.length).length} / ${PLAN.length}`;
   const qn=document.getElementById('p-q-n'),qb=document.getElementById('p-q');
   if(S.q==null){qn.textContent=`— / ${QUIZ.length}`;qb.style.width='0'}else{qn.textContent=`${S.q} / ${QUIZ.length}`;qb.style.width=(S.q/QUIZ.length*100)+'%'}
   const wc=wrongCount();
   const rn=document.getElementById('rv-wrong-n');if(rn)rn.textContent=wc;
   const wnb=document.getElementById('wrong-n');if(wnb)wnb.textContent=wc;
   const rb=document.getElementById('rv-wrong-btn');if(rb){rb.disabled=wc===0;rb.style.opacity=wc===0?.45:1}
-  const rd=document.getElementById('rv-days');if(rd){const dd=Math.max(0,Math.ceil((new Date(2026,6,4,9,30,0)-new Date())/86400000));rd.textContent='試験まで '+dd+'日'}
+  const rd=document.getElementById('rv-days');if(rd){const dd=Math.max(0,Math.ceil((new Date(2026,11,6,9,30,0)-new Date())/86400000));rd.textContent='試験まで '+dd+'日'}
 }
 
 /* ===================== PLAYER ===================== */
