@@ -461,6 +461,12 @@
           <span style="font-family:var(--serif);font-weight:700;font-size:14px">🔔 クイズ効果音</span>
           <button class="chip" id="sfx-toggle" style="margin-left:auto" onclick="toggleSfx()">ON</button>
         </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)">
+          <span style="font-family:var(--serif);font-weight:700;font-size:14px">🎵 生成した音声（端末に保存）</span>
+          <span class="pill" id="audio-count" style="margin-left:auto">—</span>
+          <button class="chip" id="audio-clear" onclick="clearAudioCache()">クリア</button>
+        </div>
+        <div class="tip" style="font-size:11px;margin-top:4px">一度生成した音声はこの端末（IndexedDB）に保存され、次回以降は<b>再生成しません＝API節約</b>。声や音声モデルを変えると別データとして貯まります。</div>
         <div class="tip" style="font-size:11px;margin-top:6px">🔒 キーはこの端末のブラウザ内（localStorage）にのみ保存され、HTMLファイルには書き込まれません。テストが「通信エラー」になる場合は file:// ではなく http://localhost で開いてください。</div>
       </div>
 
@@ -1999,9 +2005,25 @@ function stopAll(){speakGen++;if(curAudio){try{curAudio.pause()}catch(e){}curAud
 function stopSpeak(){stopAll()}
 function b64ToBytes(b){const bin=atob(b),n=bin.length,a=new Uint8Array(n);for(let i=0;i<n;i++)a[i]=bin.charCodeAt(i);return a}
 function pcmToWav(bytes,sr){const ch=1,bps=16,ba=ch*bps/8,br=sr*ba,dl=bytes.length,buf=new ArrayBuffer(44+dl),dv=new DataView(buf);let o=0;const ws=s=>{for(let i=0;i<s.length;i++)dv.setUint8(o++,s.charCodeAt(i))};ws('RIFF');dv.setUint32(o,36+dl,true);o+=4;ws('WAVE');ws('fmt ');dv.setUint32(o,16,true);o+=4;dv.setUint16(o,1,true);o+=2;dv.setUint16(o,ch,true);o+=2;dv.setUint32(o,sr,true);o+=4;dv.setUint32(o,br,true);o+=4;dv.setUint16(o,ba,true);o+=2;dv.setUint16(o,bps,true);o+=2;ws('data');dv.setUint32(o,dl,true);o+=4;new Uint8Array(buf,44).set(bytes);return buf}
+/* 生成した音声を IndexedDB に永続キャッシュ：再読み込みしても再生成しない＝API課金・トークン節約 */
+let _audioDB=null;
+function audioDB(){
+  if(!('indexedDB' in window))return Promise.reject('no-idb');
+  return _audioDB||(_audioDB=new Promise((res,rej)=>{
+    const r=indexedDB.open('n3_audio',1);
+    r.onupgradeneeded=e=>{const db=e.target.result;if(!db.objectStoreNames.contains('wav'))db.createObjectStore('wav')};
+    r.onsuccess=e=>res(e.target.result);r.onerror=()=>rej(r.error);
+  }));
+}
+async function idbGetWav(k){try{const db=await audioDB();return await new Promise(res=>{const q=db.transaction('wav','readonly').objectStore('wav').get(k);q.onsuccess=()=>res(q.result||null);q.onerror=()=>res(null)})}catch(e){return null}}
+async function idbPutWav(k,buf){try{const db=await audioDB();db.transaction('wav','readwrite').objectStore('wav').put(buf,k)}catch(e){}}
+async function idbAudioCount(){try{const db=await audioDB();return await new Promise(res=>{const q=db.transaction('wav','readonly').objectStore('wav').count();q.onsuccess=()=>res(q.result||0);q.onerror=()=>res(0)})}catch(e){return 0}}
+async function idbAudioClear(){try{const db=await audioDB();db.transaction('wav','readwrite').objectStore('wav').clear();audioCache.clear()}catch(e){}}
 async function geminiSynth(text){
   const ck=T.model+'|'+T.voice+'|'+text;
   if(audioCache.has(ck))return audioCache.get(ck);
+  const saved=await idbGetWav(ck);
+  if(saved){const url=URL.createObjectURL(new Blob([saved],{type:'audio/wav'}));audioCache.set(ck,url);return url;}
   const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(T.model)+':generateContent?key='+encodeURIComponent(T.key),{
     method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({contents:[{parts:[{text:text}]}],generationConfig:{responseModalities:['AUDIO'],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:T.voice}}}}})
@@ -2012,7 +2034,9 @@ async function geminiSynth(text){
   const inl=(parts.find(p=>p.inlineData)||{}).inlineData;
   if(!inl||!inl.data)throw new Error('音声データがありません');
   const mm=(inl.mimeType||'').match(/rate=(\d+)/),sr=mm?+mm[1]:24000;
-  const url=URL.createObjectURL(new Blob([pcmToWav(b64ToBytes(inl.data),sr)],{type:'audio/wav'}));
+  const wav=pcmToWav(b64ToBytes(inl.data),sr);
+  idbPutWav(ck,wav);
+  const url=URL.createObjectURL(new Blob([wav],{type:'audio/wav'}));
   audioCache.set(ck,url);return url;
 }
 /* ---- ローマ字・逐字中文（Geminiで解析、永続キャッシュ） ---- */
@@ -2924,8 +2948,10 @@ function reflectSettings(){
   const tm=document.getElementById('tts-tmodel');if(tm)tm.value=T.tmodel;
   const cr=document.getElementById('chip-rj');if(cr)cr.classList.toggle('on',!!T.rj);
   const cz=document.getElementById('chip-zh');if(cz)cz.classList.toggle('on',!!T.zh);
-  ttsBadge();loadVoices();reflectSfx();reflectFuri();
+  ttsBadge();loadVoices();reflectSfx();reflectFuri();refreshAudioCount();
 }
+async function refreshAudioCount(){const el=document.getElementById('audio-count');if(el)el.textContent=(await idbAudioCount())+'件'}
+function clearAudioCache(){if(!confirm('保存した音声をすべて削除しますか？（次回から再生成されます）'))return;idbAudioClear().then(()=>{toast('音声キャッシュを削除しました');refreshAudioCount()})}
 function setEngineUI(e){T.engine=e;saveT();reflectSettings()}
 function saveTTS(){
   const k=document.getElementById('tts-key'),v=document.getElementById('tts-voice'),m=document.getElementById('tts-model');
