@@ -297,8 +297,8 @@
   .netbadge{display:inline-block;font-family:var(--sans);font-size:10.5px;font-weight:700;color:#fff;border-radius:6px;padding:2px 7px;margin-right:8px;vertical-align:middle}
   #choukai{position:fixed;inset:0;z-index:57;background:var(--paper);display:none;flex-direction:column}
   #choukai.show{display:flex;animation:fade .3s both}
-  #n5course{position:fixed;inset:0;z-index:57;background:var(--paper);display:none;flex-direction:column}
-  #n5course.show{display:flex;animation:fade .3s both}
+  #n5course,#n4course{position:fixed;inset:0;z-index:57;background:var(--paper);display:none;flex-direction:column}
+  #n5course.show,#n4course.show{display:flex;animation:fade .3s both}
   .n5-head{background:linear-gradient(135deg,#eef3f8,#f7f2ea);border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin:8px 0 12px;font-size:12.5px;line-height:1.7}
   .n5-head b{color:var(--vermilion-deep)}
   .n5card{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:11px 13px;margin-bottom:9px;box-shadow:var(--shadow)}
@@ -542,6 +542,13 @@
         <div class="gobtn">▶ N5を基礎から</div>
       </div>
 
+      <div class="launch" style="margin-top:10px;background:linear-gradient(135deg,#23384a,#2f5a63)" onclick="openN4c()">
+        <div class="l1">FOUNDATION ・ N4 打底</div>
+        <div class="l2">N4 打底コース（みんなの日本語 26〜50）</div>
+        <div class="l3">N5の続き。受身・使役・敬語・条件…N4文型を2日で1課。動画＋オリジナル例文で跟讀・ふりがな・打字。</div>
+        <div class="gobtn">▶ N4へ進む</div>
+      </div>
+
       <div class="launch" style="margin-top:10px;background:linear-gradient(135deg,#33271c,#4a3826)" onclick="openReader(0)">
         <div class="l1">READING ・ 読解</div>
         <div class="l2">読解・物語（9話）</div>
@@ -761,6 +768,16 @@
     <a href="https://www.youtube.com/playlist?list=PL1l62G4pGqfQjcIS1VdspVuCm1Zi1wBPE" target="_blank" rel="noopener" class="chip" style="margin-left:auto;text-decoration:none">▶ 全リスト(YT)</a>
   </div>
   <div class="ch-body" id="n5-body"></div>
+</div>
+
+<!-- ===== N4 打底コース ===== -->
+<div id="n4course">
+  <div class="rtop">
+    <button class="px" onclick="closeN4c()">✕</button>
+    <span style="font-family:var(--serif);font-weight:700;font-size:14px">N4 打底コース ・ みんなの日本語 26〜50</span>
+    <a href="https://www.youtube.com/playlist?list=PL1l62G4pGqfTdS1pA0gB7rojdqAX0Rit8" target="_blank" rel="noopener" class="chip" style="margin-left:auto;text-decoration:none">▶ 全リスト(YT)</a>
+  </div>
+  <div class="ch-body" id="n4c-body"></div>
 </div>
 
 <button id="ai-fab" onclick="openAI()" aria-label="AIアシスタント">AI</button>
@@ -1146,6 +1163,34 @@ const N5=[
  {n:23,day:45,foc:"〜とき・〜と（条件）",p:"第23課 とき・と",m:"時の「とき」と自然な条件「と」",scene:"場面・条件",l:[[null,"日本へ 来たとき、この 服を 買いました。","來日本時買了這件衣服。"],[null,"春に なると、桜が 咲きます。","一到春天，櫻花就開。"],[null,"暇なとき、映画を 見ます。","有空時看電影。"]]},
  {n:24,day:47,foc:"授受②：〜てくれます／あげます／もらいます",p:"第24課 てあげる・てくれる・てもらう",m:"行為のやりとりと恩恵の方向",scene:"助け合い",l:[[null,"友達が 手伝って くれました。","朋友幫了我。"],[null,"母に セーターを 買って もらいました。","請媽媽幫我買了毛衣。"],[null,"弟に 日本語を 教えて あげました。","我教了弟弟日語。"]]},
  {n:25,day:49,foc:"〜たら（仮定）・〜ても（逆接）",p:"第25課 たら・ても",m:"条件の「たら」と逆接の「ても」",scene:"もしも",l:[[null,"雨が 降ったら、行きません。","如果下雨就不去。"],[null,"安かったら、買います。","便宜的話就買。"],[null,"雨が 降っても、行きます。","即使下雨也要去。"]]},
+];
+/* N4 打底コース：みんなの日本語 26〜50 の文型フォーカス。例文はすべてオリジナル。2日で1課ペース */
+const N4C=[
+ {n:26,day:1,foc:"〜んです（説明・理由をたずねる／述べる）",p:"第26課 〜んです",m:"事情の説明・理由をたずねる",scene:"事情を聞く",l:[[null,"どうして 遅れたんですか。","為什麼遲到了呢？"],[null,"頭が 痛いんです。","（因為）我頭痛。"],[null,"この 使い方を 教えて ほしいんですが。","想請你教我這個用法…"]]},
+ {n:27,day:3,foc:"可能動詞（〜が 話せます／見えます）",p:"第27課 可能形",m:"能力・可能を可能動詞で表す",scene:"できること",l:[[null,"わたしは 日本語が 話せます。","我會說日語。"],[null,"ここから 富士山が 見えます。","從這裡看得到富士山。"],[null,"100メートル 泳ぐことが できます。","我能游100公尺。"]]},
+ {n:28,day:5,foc:"〜ながら・〜ています（習慣）",p:"第28課 〜ながら",m:"同時動作と習慣",scene:"ながら行動",l:[[null,"音楽を 聞きながら 勉強します。","邊聽音樂邊念書。"],[null,"毎朝 コーヒーを 飲んでいます。","每天早上都喝咖啡。"],[null,"テレビを 見ながら ごはんを 食べます。","邊看電視邊吃飯。"]]},
+ {n:29,day:7,foc:"〜ています（結果の状態）・〜てしまいました",p:"第29課 状態・完了",m:"結果の状態と完了・後悔",scene:"部屋の様子",l:[[null,"窓が 開いています。","窗戶開著。"],[null,"電気が 消えています。","電燈是關著的。"],[null,"財布を 忘れて しまいました。","把錢包忘了（糟了）。"]]},
+ {n:30,day:9,foc:"〜てあります・〜ておきます（準備・状態）",p:"第30課 てある・ておく",m:"意図的な状態と事前の準備",scene:"準備する",l:[[null,"壁に 地図が はって あります。","牆上貼著地圖。"],[null,"旅行の 前に ホテルを 予約して おきます。","旅行前先訂好飯店。"],[null,"ビールを 冷やして あります。","啤酒已經冰好了。"]]},
+ {n:31,day:11,foc:"意向形〜（よ）う・〜つもり（意志）",p:"第31課 意向形",m:"意志・予定を述べる",scene:"予定",l:[[null,"週末は 家で 休もう。","週末在家休息吧。"],[null,"来年 日本へ 行くつもりです。","明年打算去日本。"],[null,"少し 休もうと 思います。","我想休息一下。"]]},
+ {n:32,day:13,foc:"〜ほうがいい・〜かもしれません（助言・推量）",p:"第32課 ほうがいい・かも",m:"助言と可能性",scene:"アドバイス",l:[[null,"早く 寝たほうが いいです。","早點睡比較好。"],[null,"あした 雨が 降るかも しれません。","明天可能會下雨。"],[null,"薬を 飲んだほうが いいでしょう。","吃個藥比較好吧。"]]},
+ {n:33,day:15,foc:"命令形・禁止形・〜と読みます",p:"第33課 命令・禁止",m:"強い指示・表示の読み方",scene:"標示・指示",l:[[null,"「早く しろ」と 書いて あります。","寫著「快點做」。"],[null,"ここで 泳ぐな。","不准在這裡游泳。"],[null,"この 漢字は「みち」と 読みます。","這個漢字讀作「みち」。"]]},
+ {n:34,day:17,foc:"〜とおりに・〜あとで・〜て/ないで（方法・順序）",p:"第34課 とおりに・あとで",m:"手本どおり・動作の順序",scene:"手順",l:[[null,"わたしが する とおりに して ください。","請照我做的樣子做。"],[null,"仕事の あとで 飲みに 行きます。","下班後去喝一杯。"],[null,"砂糖を 入れないで 飲みます。","不加糖喝。"]]},
+ {n:35,day:19,foc:"〜ば（条件形）・〜なら",p:"第35課 ば・なら",m:"仮定条件と話題提示の条件",scene:"条件",l:[[null,"春に なれば、暖かく なります。","一到春天就會變暖。"],[null,"安ければ、買います。","便宜的話就買。"],[null,"日本語を 習うなら、この 学校が いいです。","要學日語的話，這間學校不錯。"]]},
+ {n:36,day:21,foc:"〜ように・〜ようになります（目標・変化）",p:"第36課 ように",m:"目的・努力と能力の変化",scene:"目標",l:[[null,"忘れない ように メモします。","為了不忘記做筆記。"],[null,"日本語が 話せるように なりました。","變得會說日語了。"],[null,"病気が よく なるように 祈ります。","祈禱病快點好。"]]},
+ {n:37,day:23,foc:"受身（〜られる）",p:"第37課 受身",m:"受動態・迷惑の受身",scene:"受身の出来事",l:[[null,"わたしは 先生に ほめられました。","我被老師稱讚了。"],[null,"電車で 足を 踏まれました。","在電車上被踩到腳。"],[null,"この お寺は 400年前に 建てられました。","這座寺廟建於400年前。"]]},
+ {n:38,day:25,foc:"〜のは/のが/のを（名詞化）・〜のに（用途）",p:"第38課 名詞化",m:"動詞句を名詞にする",scene:"好み・用途",l:[[null,"絵を かくのが 好きです。","我喜歡畫畫。"],[null,"朝 早く 起きるのは たいへんです。","早起很辛苦。"],[null,"この はさみは 紙を 切るのに 使います。","這剪刀是用來剪紙的。"]]},
+ {n:39,day:27,foc:"〜て（原因）・〜ので（理由）",p:"第39課 て・ので",m:"感情の原因・丁寧な理由",scene:"理由を言う",l:[[null,"知らせを 聞いて、びっくりしました。","聽到消息嚇了一跳。"],[null,"時間が ないので、急ぎます。","因為沒時間所以要趕。"],[null,"道が こんでいて、遅れました。","因為塞車遲到了。"]]},
+ {n:40,day:29,foc:"〜かどうか・〜てみます（不確か・試み）",p:"第40課 かどうか・てみる",m:"確かでない事・ためしにする",scene:"確認・挑戦",l:[[null,"来られるか どうか 分かりません。","不知道能不能來。"],[null,"この 服を 着てみても いいですか。","可以試穿這件衣服嗎？"],[null,"正しいか どうか 確認します。","確認一下對不對。"]]},
+ {n:41,day:31,foc:"授受と敬語（くださる・いただく等）",p:"第41課 授受・敬語",m:"恩恵のやりとりを丁寧に",scene:"やりとり",l:[[null,"先生が 本を くださいました。","老師給了我書。"],[null,"友達に 手伝って もらいました。","請朋友幫了忙。"],[null,"部長に 資料を 見て いただきました。","請部長看了資料。"]]},
+ {n:42,day:33,foc:"〜ために・〜のに（目的・用途）",p:"第42課 ために",m:"目的と用途",scene:"目的",l:[[null,"家を 買うために お金を ためます。","為了買房子存錢。"],[null,"健康の ために 運動します。","為了健康運動。"],[null,"この 道具は 何に 使うんですか。","這工具是用來做什麼的？"]]},
+ {n:43,day:35,foc:"〜そうです（様態）・〜てくる/ていく",p:"第43課 様態そう・方向",m:"見た目の判断と変化の方向",scene:"様子・変化",l:[[null,"雨が 降りそうです。","看起來要下雨了。"],[null,"だんだん 暖かく なって きました。","漸漸變暖了。"],[null,"これから 人口が 減って いくでしょう。","今後人口大概會持續減少吧。"]]},
+ {n:44,day:37,foc:"〜すぎます・〜やすい/にくい",p:"第44課 すぎる・やすい",m:"程度が過ぎる・しやすさ",scene:"程度",l:[[null,"食べすぎて、お腹が 痛いです。","吃太多肚子痛。"],[null,"この ペンは 書きやすいです。","這支筆很好寫。"],[null,"この 肉は かたくて 食べにくいです。","這肉很硬不好吃（不好咬）。"]]},
+ {n:45,day:39,foc:"〜場合は・〜のに（逆接）",p:"第45課 場合は・のに",m:"場面の想定と逆接",scene:"もしもの時",l:[[null,"来られない 場合は、電話して ください。","不能來的話請打電話。"],[null,"約束したのに、来ませんでした。","明明約好了卻沒來。"],[null,"火事の 場合は、この ボタンを 押して ください。","火災時請按這個按鈕。"]]},
+ {n:46,day:41,foc:"〜ところ（今ちょうど…）・〜たばかり",p:"第46課 ところ・たばかり",m:"直前・進行中・直後の時点",scene:"タイミング",l:[[null,"今から 出かける ところです。","正要出門。"],[null,"今 昼ごはんを 食べている ところです。","現在正在吃午飯。"],[null,"さっき 駅に 着いた ばかりです。","剛剛才到車站。"]]},
+ {n:47,day:43,foc:"〜そうです（伝聞）・〜ようです（推量）",p:"第47課 伝聞そう・よう",m:"人から聞いた情報・様子からの推量",scene:"うわさ・推測",l:[[null,"天気予報に よると、あした 晴れる そうです。","據天氣預報說明天會放晴。"],[null,"だれも いないようです。","好像沒有人在。"],[null,"彼は 忙しいようです。","他好像很忙。"]]},
+ {n:48,day:45,foc:"使役（〜させる）",p:"第48課 使役",m:"人に何かをさせる・許可を求める",scene:"指示・許可",l:[[null,"部長は わたしに 資料を 作らせました。","部長叫我做資料。"],[null,"子どもに 野菜を 食べさせます。","讓孩子吃蔬菜。"],[null,"すみません、少し 休ませて ください。","不好意思，請讓我休息一下。"]]},
+ {n:49,day:47,foc:"敬語①（尊敬語・謙譲語）",p:"第49課 敬語",m:"相手を高める・自分を低める",scene:"ていねいな場面",l:[[null,"社長は もう 帰られました。","社長已經回去了。"],[null,"先生が そう おっしゃいました。","老師是那樣說的。"],[null,"わたしが ご案内 いたします。","由我來為您帶路。"]]},
+ {n:50,day:49,foc:"敬語②応用（〜ていただけませんか 等）",p:"第50課 敬語の応用",m:"依頼・案内をより丁寧に",scene:"ビジネス会話",l:[[null,"この 資料を 見て いただけませんか。","能否請您看一下這份資料？"],[null,"こちらで お待ち ください。","請在這邊稍候。"],[null,"明日 また まいります。","明天我會再來。"]]},
 ];
 const N4GRAMMAR=[
  {p:"（さ）せる（使役）",m:"讓／使（叫某人做）",scene:"聊家事分擔",l:[
@@ -2429,8 +2474,8 @@ function updHome(){
 
 /* ===================== PLAYER ===================== */
 const P={deck:'gram',list:[],pos:0,rate:0.9,rep:1,auto:true,tr:true,shadow:true,pause:1.3,playing:false,_t:null,_dur:1500};
-function deckArr(d){return d==='vocab'?VOCAB:d==='n4'?N4GRAMMAR:d==='n5'?N5:d==='kaiwa'?KAIWA:d==='my'?MYCARDS:d==='story'?STORY:GRAMMAR}
-function deckLearned(d){return d==='vocab'?S.v:d==='n4'?S.g4:d==='kaiwa'?S.k:(d==='my'||d==='story'||d==='n5')?[]:S.g}
+function deckArr(d){return d==='vocab'?VOCAB:d==='n4'?N4GRAMMAR:d==='n4c'?N4C:d==='n5'?N5:d==='kaiwa'?KAIWA:d==='my'?MYCARDS:d==='story'?STORY:GRAMMAR}
+function deckLearned(d){return d==='vocab'?S.v:d==='n4'?S.g4:d==='kaiwa'?S.k:(d==='my'||d==='story'||d==='n5'||d==='n4c')?[]:S.g}
 function curSegs(){if(P.deck==='vocab'){const v=VOCAB[P.list[P.pos]];return[{s:null,t:v.s,z:v.z}]}if(P.deck==='my'){const c=MYCARDS[P.list[P.pos]];return[{s:null,t:c.jp,z:c.zh}]}return deckArr(P.deck)[P.list[P.pos]].l.map(a=>({s:a[0],t:a[1],z:a[2]}))}
 function openPlayer(deck,startIdx,filter){
   P.deck=deck;const A=deckArr(deck),L=deckLearned(deck),all=A.map((_,i)=>i);
@@ -2446,7 +2491,7 @@ function renderItem(){
   const segs=curSegs();
   document.getElementById('p-cnt').textContent=`${P.pos+1} / ${P.list.length}`;
   document.getElementById('p-bar').style.width=((P.pos+1)/P.list.length*100)+'%';
-  const lc=document.getElementById('chip-learn');if(lc)lc.style.display=(P.deck==='my'||P.deck==='story'||P.deck==='n5')?'none':'';
+  const lc=document.getElementById('chip-learn');if(lc)lc.style.display=(P.deck==='my'||P.deck==='story'||P.deck==='n5'||P.deck==='n4c')?'none':'';
   if(P.deck==='my'){const c=MYCARDS[P.list[P.pos]];
     document.getElementById('p-cat').textContent='マイ単語カード';
     document.getElementById('p-pat').innerHTML=c.jp+(c.rj?'<span class="prd">'+c.rj+'</span>':'');
@@ -2456,9 +2501,9 @@ function renderItem(){
     document.getElementById('p-pat').innerHTML=v.w+'<span class="prd">'+v.r+'</span>';
     document.getElementById('p-zh').textContent=v.m;updLearnChip(S.v.includes(P.list[P.pos]));
   }else{const g=deckArr(P.deck)[P.list[P.pos]];
-    const cat=P.deck==='n4'?'文法 N4 ・ ':P.deck==='n5'?'N5 打底 ・ ':P.deck==='kaiwa'?'聴解・会話 ・ ':P.deck==='story'?'読解・物語 ・ ':'文法 ・ ';
+    const cat=P.deck==='n4'?'文法 N4 ・ ':P.deck==='n4c'?'N4 打底 ・ ':P.deck==='n5'?'N5 打底 ・ ':P.deck==='kaiwa'?'聴解・会話 ・ ':P.deck==='story'?'読解・物語 ・ ':'文法 ・ ';
     document.getElementById('p-cat').textContent=cat+g.scene;
-    document.getElementById('p-pat').innerHTML=((P.deck==='kaiwa'||P.deck==='story'||P.deck==='n5')?'':'〜')+'<span class="x">'+g.p+'</span>';
+    document.getElementById('p-pat').innerHTML=((P.deck==='kaiwa'||P.deck==='story'||P.deck==='n5'||P.deck==='n4c')?'':'〜')+'<span class="x">'+g.p+'</span>';
     document.getElementById('p-zh').textContent=g.m;updLearnChip(deckLearned(P.deck).includes(P.list[P.pos]));
   }
   const ex=document.getElementById('p-ex');
@@ -2607,7 +2652,7 @@ function ptyHi(){
     else{res.innerHTML='<span style="color:var(--green)">✓ クリア！⏭ で次の項目へ</span>'}
   }}else{P._tyDone=false;res.textContent=''}
 }
-function toggleLearn(){if(P.deck==='my'||P.deck==='story'||P.deck==='n5')return;const gi=P.list[P.pos],L=deckLearned(P.deck);toggle(L,gi);save();updHome();updMeta();renderGram();renderVocab();updLearnChip(L.includes(gi))}
+function toggleLearn(){if(P.deck==='my'||P.deck==='story'||P.deck==='n5'||P.deck==='n4c')return;const gi=P.list[P.pos],L=deckLearned(P.deck);toggle(L,gi);save();updHome();updMeta();renderGram();renderVocab();updLearnChip(L.includes(gi))}
 document.querySelectorAll('#seg-speed button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#seg-speed button').forEach(x=>x.classList.remove('on'));b.classList.add('on');P.rate=parseFloat(b.dataset.r);if(P.playing){stopSpeak();stopTimers();play()}});
 document.querySelectorAll('#seg-pause button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#seg-pause button').forEach(x=>x.classList.remove('on'));b.classList.add('on');P.pause=parseFloat(b.dataset.p)});
 document.addEventListener('keydown',e=>{if(!document.getElementById('player').classList.contains('show'))return;if(e.code==='Space'){e.preventDefault();togglePlay()}else if(e.code==='ArrowRight')nextItem();else if(e.code==='ArrowLeft')prevItem();else if(e.code==='Escape')closePlayer()});
@@ -2838,6 +2883,27 @@ function closeN5(){document.getElementById('n5course').classList.remove('show')}
 function n5TodayLesson(){if(!N5START)return 1;const s=new Date(N5START+'T00:00:00');const d=Math.floor((new Date()-s)/86400000);return Math.min(25,Math.max(1,Math.floor(d/2)+1))}
 function toggleN5(n){const i=N5DONE.indexOf(n);if(i<0)N5DONE.push(n);else N5DONE.splice(i,1);saveN5();renderN5()}
 function playN5(n){closeN5();openPlayer('n5',n-1,'all')}
+/* N4 打底コース（みんなの日本語 26〜50） */
+const N4C_PL='PL1l62G4pGqfTdS1pA0gB7rojdqAX0Rit8';
+let N4CDONE=JSON.parse(localStorage.getItem('n4c_done')||'[]');
+let N4CSTART=localStorage.getItem('n4c_start')||'';
+function saveN4c(){localStorage.setItem('n4c_done',JSON.stringify(N4CDONE))}
+function openN4c(){if(!N4CSTART){N4CSTART=new Date().toISOString().slice(0,10);localStorage.setItem('n4c_start',N4CSTART)}document.getElementById('n4course').classList.add('show');renderN4c();const b=document.getElementById('n4c-body');if(b)b.scrollTop=0}
+function closeN4c(){document.getElementById('n4course').classList.remove('show')}
+function n4cTodayLesson(){if(!N4CSTART)return 26;const s=new Date(N4CSTART+'T00:00:00');const d=Math.floor((new Date()-s)/86400000);return Math.min(50,Math.max(26,26+Math.floor(d/2)))}
+function toggleN4c(n){const i=N4CDONE.indexOf(n);if(i<0)N4CDONE.push(n);else N4CDONE.splice(i,1);saveN4c();renderN4c()}
+function playN4c(n){closeN4c();openPlayer('n4c',n-26,'all')}
+function renderN4c(){
+  const body=document.getElementById('n4c-body');if(!body)return;
+  const tl=n4cTodayLesson(),start=N4CSTART?N4CSTART.replace(/-/g,'/').slice(5):'—';
+  const embed=`<div class="ch-embed"><iframe src="https://www.youtube-nocookie.com/embed/videoseries?list=${N4C_PL}" title="みんなの日本語 N4 26〜50" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe><div class="ch-embed-tip">▶ 上のプレイヤーで第26〜50課を視聴（みんなの日本語）。理解したら各課の🎤で例文を跟讀。</div></div>`;
+  const head=`<div class="n5-head">🎯 <b>2日で1課</b>ペース（第26〜50課＝約50日）。開始 ${start} ・ <b>今日の目安：第${tl}課</b> ・ 完了 ${N4CDONE.length}/25。<br>N5の続き。<b>動画で理解 → 🎤で跟讀 → ⌨️で打って定着</b>。</div>`;
+  const cards=N4C.map(L=>{const dn=N4CDONE.includes(L.n),cur=L.n===tl;
+    return `<div class="n5card${dn?' done':''}${cur?' today':''}"><div class="n5top"><span class="n5no">第${L.n}課</span><span class="n5day">Day ${L.day}</span>${cur?'<span class="now">今日</span>':''}<button class="n5chk" data-n="${L.n}">${dn?'✓':''}</button></div><div class="n5foc">${esc(L.foc)}</div><div class="n5acts"><a class="chip" href="https://www.youtube.com/watch?list=${N4C_PL}&index=${L.n-25}" target="_blank" rel="noopener" style="text-decoration:none">▶ 第${L.n}課の動画</a><button class="chip" data-play="${L.n}">🎤 跟讀・打つ</button></div></div>`;}).join('');
+  body.innerHTML=embed+head+cards;
+  body.querySelectorAll('.n5chk').forEach(b=>b.onclick=()=>toggleN4c(+b.dataset.n));
+  body.querySelectorAll('[data-play]').forEach(b=>b.onclick=()=>playN4c(+b.dataset.play));
+}
 function renderN5(){
   const body=document.getElementById('n5-body');if(!body)return;
   const tl=n5TodayLesson(),start=N5START?N5START.replace(/-/g,'/').slice(5):'—';
