@@ -297,8 +297,8 @@
   .netbadge{display:inline-block;font-family:var(--sans);font-size:10.5px;font-weight:700;color:#fff;border-radius:6px;padding:2px 7px;margin-right:8px;vertical-align:middle}
   #choukai{position:fixed;inset:0;z-index:57;background:var(--paper);display:none;flex-direction:column}
   #choukai.show{display:flex;animation:fade .3s both}
-  #n5course,#n4course{position:fixed;inset:0;z-index:57;background:var(--paper);display:none;flex-direction:column}
-  #n5course.show,#n4course.show{display:flex;animation:fade .3s both}
+  #n5course,#n4course,#n5voc-page{position:fixed;inset:0;z-index:57;background:var(--paper);display:none;flex-direction:column}
+  #n5course.show,#n4course.show,#n5voc-page.show{display:flex;animation:fade .3s both}
   .n5-head{background:linear-gradient(135deg,#eef3f8,#f7f2ea);border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin:8px 0 12px;font-size:12.5px;line-height:1.7}
   .n5-head b{color:var(--vermilion-deep)}
   .n5card{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:11px 13px;margin-bottom:9px;box-shadow:var(--shadow)}
@@ -549,7 +549,7 @@
         <div class="gobtn">▶ N4へ進む</div>
       </div>
 
-      <div class="launch" style="margin-top:10px;background:linear-gradient(135deg,#2f2440,#4a3a5e)" onclick="openPlayer('n5voc',null,'all')">
+      <div class="launch" style="margin-top:10px;background:linear-gradient(135deg,#2f2440,#4a3a5e)" onclick="openN5Voc()">
         <div class="l1">VOCABULARY ・ N5 単語</div>
         <div class="l2">N5 語彙 聴読・跟讀（146語）</div>
         <div class="l3">職業・文房具・形容詞・動詞・家電…N5必須語を例文つきで聞いて真似る。ふりがな・逐字中文・打字対応。</div>
@@ -786,6 +786,16 @@
     <a href="https://www.youtube.com/playlist?list=PL1l62G4pGqfTdS1pA0gB7rojdqAX0Rit8" target="_blank" rel="noopener" class="chip" style="margin-left:auto;text-decoration:none">▶ 全リスト(YT)</a>
   </div>
   <div class="ch-body" id="n4c-body"></div>
+</div>
+
+<!-- ===== N5 単語 ===== -->
+<div id="n5voc-page">
+  <div class="rtop">
+    <button class="px" onclick="closeN5Voc()">✕</button>
+    <span style="font-family:var(--serif);font-weight:700;font-size:14px">N5 単語（146語・聴読・跟讀）</span>
+    <a href="https://www.youtube.com/watch?v=fUVVoUdRN9c&list=PLhN-jbLe4QCegv_7X12Iuufn3tTKEPPQn" target="_blank" rel="noopener" class="chip" style="margin-left:auto;text-decoration:none">▶ 元動画(YT)</a>
+  </div>
+  <div class="ch-body" id="n5voc-body"></div>
 </div>
 
 <button id="ai-fab" onclick="openAI()" aria-label="AIアシスタント">AI</button>
@@ -3059,6 +3069,35 @@ function renderN4c(){
   body.innerHTML=embed+head+cards;
   body.querySelectorAll('.n5chk').forEach(b=>b.onclick=()=>toggleN4c(+b.dataset.n));
   body.querySelectorAll('[data-play]').forEach(b=>b.onclick=()=>playN4c(+b.dataset.play));
+}
+/* ===================== N5 単語ページ（本機音源ローダー付き） ===================== */
+function openN5Voc(){document.getElementById('n5voc-page').classList.add('show');renderN5Voc();const b=document.getElementById('n5voc-body');if(b)b.scrollTop=0}
+function closeN5Voc(){document.getElementById('n5voc-page').classList.remove('show')}
+function renderN5Voc(){
+  const body=document.getElementById('n5voc-body');if(!body)return;
+  const cats={};N5VOCAB.forEach(v=>cats[v.scene]=(cats[v.scene]||0)+1);
+  const catline=Object.keys(cats).map(k=>k+'('+cats[k]+')').join(' ・ ');
+  body.innerHTML='<div id="n5voc-audio"></div>'
+   +'<div class="n5-head">🔤 <b>N5必須語 '+N5VOCAB.length+'語</b>（'+catline+'）。<br>手持ちの音源（50分N5語彙など）を上の📂で読み込めば、この端末で再生できます（アップロード・公開はしません）。<br>語→例文の順で「聞く→止める→真似する」。</div>'
+   +'<div style="text-align:center;margin-top:12px"><button class="btn" id="n5voc-go" style="padding:11px 20px">🎤 '+N5VOCAB.length+'語を聴読・跟讀</button></div>';
+  body.querySelector('#n5voc-go').onclick=function(){closeN5Voc();openPlayer('n5voc',null,'all')};
+  renderN5VocAudio();
+}
+let _n5aURL=null;
+async function renderN5VocAudio(){
+  const box=document.getElementById('n5voc-audio');if(!box)return;
+  if(_n5aURL){try{URL.revokeObjectURL(_n5aURL)}catch(e){}_n5aURL=null;}
+  const key='n5voc:audio';
+  const blob=await idbGetExam(key);
+  if(document.getElementById('n5voc-audio')!==box)return;
+  if(blob){
+    _n5aURL=URL.createObjectURL(blob);
+    box.innerHTML='<div class="ch-audio-card"><div class="ca-row"><span class="ca-lb">🎧 自分の音声 ・ N5 単語</span><button class="chip" id="n5a-remove">✕ 外す</button></div><audio controls preload="metadata" src="'+_n5aURL+'"></audio><div class="ca-note">この端末にだけ保存（非公開）。語→例文を聞きながら跟讀しよう。</div></div>';
+    box.querySelector('#n5a-remove').onclick=async function(){await idbDelExam(key);renderN5VocAudio()};
+  }else{
+    box.innerHTML='<div class="ch-audio-card"><div class="ca-row"><span class="ca-lb">🎧 N5語彙の音声</span><label class="ca-pick">📂 ファイルを読み込む<input type="file" accept="audio/*" id="n5a-file" style="display:none"></label></div><div class="ca-note">手持ちのMP3/M4A等をこの端末で再生します（<b>アップロード・公開しません</b>）。一度読み込めば次回から自動表示。</div></div>';
+    box.querySelector('#n5a-file').onchange=async function(e){const f=e.target.files[0];if(!f)return;if(f.size>150*1024*1024){toast('ファイルが大きすぎます（150MB以内）');return}toast('保存中…');try{await idbPutExam(key,f);toast('音声を保存しました（端末内）');renderN5VocAudio()}catch(err){toast('保存に失敗：'+((err&&err.message)||'').slice(0,40))}};
+  }
 }
 function renderN5(){
   const body=document.getElementById('n5-body');if(!body)return;
