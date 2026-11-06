@@ -17,7 +17,8 @@ self.addEventListener('fetch', e => {
     e.respondWith((async () => {
       const c = await caches.open(CACHE);
       try {
-        const res = await fetch(r);
+        // no-cache：ブラウザの HTTP キャッシュ（GitHub Pages は 10 分）を飛ばして毎回確認する
+        const res = await fetch(r.url, { cache: 'no-cache' });
         if (res.ok) c.put(r, res.clone());
         return res;
       } catch (err) {
