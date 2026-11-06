@@ -5319,6 +5319,8 @@ const G_BASE='https://generativelanguage.googleapis.com/v1beta/';
 const TEXT_CHAIN=['gemini-3.5-flash-lite','gemini-3.8-flash','gemini-2.5-flash-lite'];
 const TTS_CHAIN=['gemini-3.8-flash-tts','gemini-3.8-flash-lite-tts'];
 const LEGACY_TTS='gemini-2.5-flash-preview-tts';
+/* 無効なキーは 400 で返る。理由コードは本文の後ろにあるので、先に出る文言でも判定する */
+const BAD_KEY=/API_KEY_INVALID|API key not valid/;
 /* 有料枠の単価（USD / 100万トークン、2026/12/31 まで）。無料枠なら請求はゼロ */
 const PRICE={'gemini-3.8-flash':[.75,3.75],'gemini-3.5-flash-lite':[.30,2.50],'gemini-3.8-flash-tts':[.50,9],'gemini-3.8-flash-lite-tts':[.50,6]};
 const TASK_LABEL={tts:'音声',analyze:'ローマ字・逐字',furi:'ふりがな',ai:'AI助手',chat:'会話',judge:'小提醒の判定',lookup:'速查'};
@@ -5338,7 +5340,7 @@ function gErr(e){const m=((e&&e.message)||e||'')+'';
   if(m==='EMPTY')return 'AI の応答が空でした。もう一度お試しください';
   if(/Failed to fetch|NetworkError|Load failed/i.test(m))return '通信できませんでした（オフラインかも）';
   if(/HTTP 429/.test(m))return 'Gemini の利用制限に達しました。少し待ってからお試しください';
-  if(/API_KEY_INVALID|HTTP 40[13]/.test(m))return 'キーが無効か、権限がありません。⚙ 設定で確認してください';
+  if(BAD_KEY.test(m)||/HTTP 40[13]/.test(m))return 'キーが無効か、権限がありません。⚙ 設定で確認してください';
   return m.slice(0,140)}
 function gText(j){return ((((j.candidates||[])[0]||{}).content||{}).parts||[]).filter(p=>p.text&&!p.thought).map(p=>p.text).join('')}
 /* lv 2=思考レベル指定あり 1=なし 0=スキーマもなし。400 が返ったら段階的に外して再送する */
@@ -5375,7 +5377,7 @@ async function gGen(task,o){
         if(!r.text)throw new Error('EMPTY');
         gRoute=model;return r.text;
       }catch(e){last=e;const m=e.message||'';
-        if(/API_KEY_INVALID/.test(m))throw e;
+        if(BAD_KEY.test(m))throw e;
         if(/HTTP 400/.test(m))continue;
         if(/HTTP 404/.test(m))break;
         throw e}
@@ -5412,7 +5414,7 @@ let ttsRoute='',gRoute='';
 async function ttsFetch(text){
   let last=null;
   for(const m of [...new Set([T.model,...TTS_CHAIN])])for(const fn of [ttsInteractions,ttsGenerate]){
-    try{const w=await fn(m,text);ttsRoute=m+(fn===ttsInteractions?'':'（generateContent）');return w}catch(e){last=e;const s=e.message||'';if(/API_KEY_INVALID/.test(s)||!/HTTP (400|404|405|501)|音声データ/.test(s))throw e}
+    try{const w=await fn(m,text);ttsRoute=m+(fn===ttsInteractions?'':'（generateContent）');return w}catch(e){last=e;const s=e.message||'';if(BAD_KEY.test(s)||!/HTTP (400|404|405|501)|音声データ/.test(s))throw e}
   }
   throw last;
 }
